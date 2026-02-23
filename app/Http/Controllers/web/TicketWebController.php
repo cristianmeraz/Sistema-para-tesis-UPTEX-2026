@@ -121,25 +121,67 @@ class TicketWebController extends Controller
     }
 
     /** 5. USUARIO NORMAL Y TÉCNICO: Ver sus tickets */
-    public function misTickets() {
+    public function misTickets(Request $request) {
         try {
             $usuarioId = session('usuario_id');
             
             // Si es técnico, ve sus tickets asignados
             if (str_contains(session('usuario_rol'), 'Técnico')) {
-                $tickets = Ticket::with(['usuario', 'area', 'prioridad', 'estado', 'tecnicoAsignado'])
-                    ->where('tecnico_asignado_id', $usuarioId)
-                    ->orderBy('fecha_creacion', 'desc')
-                    ->get();
+                $query = Ticket::with(['usuario', 'area', 'prioridad', 'estado', 'tecnicoAsignado'])
+                    ->where('tecnico_asignado_id', $usuarioId);
+                
+                // Aplicar filtros de estado
+                if ($request->estado_id) {
+                    $query->where('estado_id', $request->estado_id);
+                }
+                
+                // Aplicar filtros de prioridad
+                if ($request->prioridad_id) {
+                    $query->where('prioridad_id', $request->prioridad_id);
+                }
+                
+                // Aplicar búsqueda por texto
+                if ($request->search) {
+                    $search = '%' . $request->search . '%';
+                    $query->where(function($q) use ($search) {
+                        $q->where('titulo', 'like', $search)
+                          ->orWhere('descripcion', 'like', $search);
+                    });
+                }
+                
+                $tickets = $query->orderBy('fecha_creacion', 'desc')->get();
             } else {
                 // Si es usuario normal, ve sus propios tickets creados
-                $tickets = Ticket::with(['estado', 'prioridad', 'area'])
-                    ->where('usuario_id', $usuarioId)
-                    ->orderBy('fecha_creacion', 'desc')
-                    ->get();
+                $query = Ticket::with(['estado', 'prioridad', 'area'])
+                    ->where('usuario_id', $usuarioId);
+                
+                // Aplicar filtros de estado
+                if ($request->estado_id) {
+                    $query->where('estado_id', $request->estado_id);
+                }
+                
+                // Aplicar filtros de prioridad
+                if ($request->prioridad_id) {
+                    $query->where('prioridad_id', $request->prioridad_id);
+                }
+                
+                // Aplicar búsqueda por texto
+                if ($request->search) {
+                    $search = '%' . $request->search . '%';
+                    $query->where(function($q) use ($search) {
+                        $q->where('titulo', 'like', $search)
+                          ->orWhere('descripcion', 'like', $search);
+                    });
+                }
+                
+                $tickets = $query->orderBy('fecha_creacion', 'desc')->get();
             }
             
-            return view('tickets.mis-tickets', compact('tickets'));
+            // Pasar los catálogos y filtros actuales a la vista
+            $estados = Estado::all();
+            $prioridades = Prioridad::all();
+            
+            return view('tickets.mis-tickets', compact('tickets', 'estados', 'prioridades'));
         } catch (\Exception $e) { return redirect()->route('dashboard'); }
     }
 

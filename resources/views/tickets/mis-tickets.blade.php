@@ -27,8 +27,8 @@
                         <select name="estado_id" class="form-select">
                             <option value="">Todos los estados</option>
                             @foreach($estados ?? [] as $estado)
-                            <option value="{{ $estado['id_estado'] }}" {{ request('estado_id') == $estado['id_estado'] ? 'selected' : '' }}>
-                                {{ $estado['nombre'] }}
+                            <option value="{{ $estado->id_estado }}" {{ request('estado_id') == $estado->id_estado ? 'selected' : '' }}>
+                                {{ $estado->nombre }}
                             </option>
                             @endforeach
                         </select>
@@ -38,8 +38,8 @@
                         <select name="prioridad_id" class="form-select">
                             <option value="">Todas las prioridades</option>
                             @foreach($prioridades ?? [] as $prioridad)
-                            <option value="{{ $prioridad['id_prioridad'] }}" {{ request('prioridad_id') == $prioridad['id_prioridad'] ? 'selected' : '' }}>
-                                {{ $prioridad['nombre'] }}
+                            <option value="{{ $prioridad->id_prioridad }}" {{ request('prioridad_id') == $prioridad->id_prioridad ? 'selected' : '' }}>
+                                {{ $prioridad->nombre }}
                             </option>
                             @endforeach
                         </select>
@@ -214,12 +214,20 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const refreshIntervalMs = 60000; // 60 segundos
+    // Solo para técnicos
+    @if(str_contains(session('usuario_rol'), 'Técnico'))
+    
     let currentFilters = {
         estado_id: new URLSearchParams(window.location.search).get('estado_id') || '',
         prioridad_id: new URLSearchParams(window.location.search).get('prioridad_id') || '',
         search: new URLSearchParams(window.location.search).get('search') || ''
     };
+    
+    const selectEstado = document.querySelector('select[name="estado_id"]');
+    const selectPrioridad = document.querySelector('select[name="prioridad_id"]');
+    const inputSearch = document.querySelector('input[name="search"]');
+    const buttonBuscar = document.querySelector('button[type="submit"]');
+    const formFiltros = document.querySelector('form[action="{{ route('tickets.mis-tickets') }}"]');
 
     function actualizarTickets() {
         const params = new URLSearchParams(currentFilters);
@@ -280,22 +288,51 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error al actualizar tickets:', error));
     }
 
-    // Auto-refresh cada 60 segundos
-    setInterval(actualizarTickets, refreshIntervalMs);
+    // Cambio automático en SELECT de ESTADO
+    if (selectEstado) {
+        selectEstado.addEventListener('change', function() {
+            currentFilters.estado_id = this.value;
+            actualizarTickets();
+        });
+    }
 
-    // Actualizar cuando cambian los filtros
-    const formFiltros = document.querySelector('form[action="{{ route('tickets.mis-tickets') }}"]');
+    // Cambio automático en SELECT de PRIORIDAD
+    if (selectPrioridad) {
+        selectPrioridad.addEventListener('change', function() {
+            currentFilters.prioridad_id = this.value;
+            actualizarTickets();
+        });
+    }
+
+    // Búsqueda al escribir (con debounce)
+    if (inputSearch) {
+        let searchTimeout;
+        inputSearch.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentFilters.search = this.value;
+                actualizarTickets();
+            }, 500);
+        });
+    }
+
+    // Mantener el formulario para compatibilidad
     if (formFiltros) {
         formFiltros.addEventListener('submit', function(e) {
             e.preventDefault();
             currentFilters = {
-                estado_id: document.querySelector('select[name="estado_id"]')?.value || '',
-                prioridad_id: document.querySelector('select[name="prioridad_id"]')?.value || '',
-                search: document.querySelector('input[name="search"]')?.value || ''
+                estado_id: selectEstado?.value || '',
+                prioridad_id: selectPrioridad?.value || '',
+                search: inputSearch?.value || ''
             };
             actualizarTickets();
         });
     }
+
+    // Auto-refresh cada 60 segundos
+    setInterval(actualizarTickets, 60000);
+    
+    @endif
 });
 </script>
 @endpush
