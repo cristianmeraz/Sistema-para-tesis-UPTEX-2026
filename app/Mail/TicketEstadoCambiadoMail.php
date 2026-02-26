@@ -3,21 +3,15 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Ticket;
 
-class TicketEstadoCambiadoMail extends Mailable implements ShouldQueue
+class TicketEstadoCambiadoMail extends Mailable
 {
     use Queueable, SerializesModels;
-
-    /** Reintentos si el SMTP falla */
-    public int $tries = 3;
-    /** Segundos entre reintentos */
-    public int $backoff = 30;
 
     /**
      * @param Ticket $ticket              Ticket con relaciones cargadas
