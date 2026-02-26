@@ -393,10 +393,10 @@
                 </div>
                 <p class="tc-desc">{{ Str::limit($ticket->descripcion, 120) }}</p>
                 <div class="d-flex gap-2 flex-wrap mb-2">
-                    <span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado->nombre }}</span>
-                    <span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad->nombre }}</span>
+                    <span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado?->nombre ?? 'N/A' }}</span>
+                    <span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad?->nombre ?? 'Sin prioridad' }}</span>
                     <span class="chip" style="background:#f1f5f9; color:#475569;">
-                        <i class="bi bi-building me-1"></i>{{ $ticket->area->nombre }}
+                        <i class="bi bi-building me-1"></i>{{ $ticket->area?->nombre ?? 'N/A' }}
                     </span>
                 </div>
                 {{-- MINI STEPPER --}}
