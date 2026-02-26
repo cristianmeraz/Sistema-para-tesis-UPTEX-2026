@@ -50,14 +50,18 @@ Route::middleware('web.auth')->group(function () {
         Route::post('/tickets', [TicketWebController::class, 'store'])->name('tickets.store');
     });
     Route::resource('tickets', TicketWebController::class)->except(['index', 'store']);
-    Route::post('/tickets/{id}/asignar-tecnico', [TicketWebController::class, 'asignarTecnico'])->name('tickets.asignar-tecnico');
+    // cambiar-estado: accesible por Admin Y Técnico (la autorización se valida dentro del método)
     Route::post('/tickets/{id}/cambiar-estado', [TicketWebController::class, 'cambiarEstado'])->name('tickets.cambiar-estado');
-    Route::post('/tickets/{id}/cambiar-prioridad', [TicketWebController::class, 'cambiarPrioridad'])->name('tickets.cambiar-prioridad');
     Route::get('/mis-tickets', [TicketWebController::class, 'misTickets'])->name('tickets.mis-tickets');
 
     // --- SOLO ADMINISTRADORES (UPTEX) ---
     Route::middleware('web.admin')->group(function () {
         Route::get('/admin/ver-tickets', [TicketWebController::class, 'index'])->name('tickets.index');
+
+        // Acciones exclusivas del administrador sobre tickets
+        Route::post('/tickets/{id}/asignar-tecnico', [TicketWebController::class, 'asignarTecnico'])->name('tickets.asignar-tecnico');
+        Route::post('/tickets/{id}/cambiar-prioridad', [TicketWebController::class, 'cambiarPrioridad'])->name('tickets.cambiar-prioridad');
+
         Route::resource('usuarios', UsuarioWebController::class);
         Route::post('/usuarios/{id}/toggle-activo', [UsuarioWebController::class, 'toggleActivo'])->name('usuarios.toggle-activo');
 

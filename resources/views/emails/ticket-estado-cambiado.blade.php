@@ -234,9 +234,15 @@
 
         {{-- CTA --}}
         <div class="cta-wrap">
-            <a href="{{ config('app.url') }}/tickets/{{ $ticket->id_ticket }}" class="cta-btn">
-                Ver Ticket #{{ $ticketId }} →
+            @if($tipoDestinatario === 'usuario')
+            <a href="{{ route('tickets.mis-tickets') }}" class="cta-btn">
+                &#128203; Ir a Mis Tickets
             </a>
+            @else
+            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="cta-btn">
+                Ver Ticket #{{ $ticketId }} &rarr;
+            </a>
+            @endif
         </div>
 
     </div>
