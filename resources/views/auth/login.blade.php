@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -31,7 +31,7 @@
         }
         
         .login-left {
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            background: linear-gradient(160deg, #1e3a5f 0%, #1d4ed8 100%);
             color: white;
             padding: 3rem;
             display: flex;
@@ -40,8 +40,17 @@
         }
         
         .login-logo {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.8rem;
+        }
+        
+        .login-logo-img {
+            width: 180px;
+            height: auto;
+            background: white;
+            border-radius: 14px;
+            padding: 10px 18px;
+            display: block;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
         
         .login-left h2 {
@@ -106,7 +115,7 @@
             border-radius: 10px;
             font-weight: 600;
             font-size: 1rem;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
             border: none;
             color: white;
             transition: all 0.3s;
@@ -114,7 +123,7 @@
         
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.4);
         }
         
         .divider {
@@ -179,8 +188,10 @@
                 padding: 2rem;
             }
             .login-logo {
-                font-size: 2.5rem;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.8rem;
+            }
+            .login-logo-img {
+                width: 150px;
             }
         }
 
@@ -199,7 +210,7 @@
         <div class="row g-0 login-card">
             <div class="col-lg-5 login-left">
                 <div class="login-logo">
-                    <i class="bi bi-ticket-perforated-fill"></i>
+                    <img src="{{ asset('images/logo-uptex.png') }}" alt="UPTEX" class="login-logo-img">
                 </div>
                 <h2>Sistema de Tickets</h2>
                 <p>Universidad Politécnica de Texcoco</p>
@@ -224,11 +235,20 @@
                 <p>Ingresa tus credenciales para continuar</p>
                 
                 @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    {{ $errors->first() }}
+                @php $errorMsg = $errors->first(); @endphp
+                @if(str_contains($errorMsg, 'bloqueada') || str_contains($errorMsg, 'Bloqueada'))
+                <div class="alert alert-warning alert-dismissible fade show">
+                    <i class="bi bi-lock-fill me-2"></i>
+                    <strong>Cuenta bloqueada.</strong> {{ $errorMsg }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                @else
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    {{ $errorMsg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
                 @endif
                 
                 @if(session('success'))
@@ -275,6 +295,12 @@
                         Iniciar Sesión
                     </button>
                 </form>
+
+                <div class="text-center mt-3">
+                    <a href="{{ route('password.request') }}" style="color:#4F46E5; font-size:0.9rem; text-decoration:none;">
+                        <i class="bi bi-key me-1"></i>¿Olvidaste tu contraseña?
+                    </a>
+                </div>
                 
                 <div class="divider">o</div>
                 

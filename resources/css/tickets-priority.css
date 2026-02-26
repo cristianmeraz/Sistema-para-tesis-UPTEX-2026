@@ -1,0 +1,178 @@
+/* ===== COLORES DINÁMICOS POR PRIORIDAD ===== */
+
+/* PRIORIDAD BAJA - Azul Cielo */
+.badge-prioridad-baja,
+.row-prioridad-baja {
+    background-color: #E3F2FD !important;
+    color: #1565C0 !important;
+    border-left: 4px solid #1565C0 !important;
+}
+
+.badge-prioridad-baja {
+    background-color: #E3F2FD !important;
+    color: #1565C0 !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.row-prioridad-baja td {
+    border-left: 4px solid #1565C0 !important;
+}
+
+/* PRIORIDAD MEDIA - Ámbar */
+.badge-prioridad-media,
+.row-prioridad-media {
+    background-color: #FFF3E0 !important;
+    color: #E65100 !important;
+    border-left: 4px solid #E65100 !important;
+}
+
+.badge-prioridad-media {
+    background-color: #FFF3E0 !important;
+    color: #E65100 !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.row-prioridad-media td {
+    border-left: 4px solid #E65100 !important;
+}
+
+/* PRIORIDAD ALTA - Rojo */
+.badge-prioridad-alta,
+.row-prioridad-alta {
+    background-color: #FFEBEE !important;
+    color: #C62828 !important;
+    border-left: 4px solid #C62828 !important;
+}
+
+.badge-prioridad-alta {
+    background-color: #FFEBEE !important;
+    color: #C62828 !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.row-prioridad-alta td {
+    border-left: 4px solid #C62828 !important;
+}
+
+/* PRIORIDAD CRÍTICA - Rojo Oscuro Intenso con Animación */
+.badge-prioridad-critica,
+.row-prioridad-critica {
+    background: linear-gradient(135deg, #B71C1C, #D32F2F) !important;
+    color: #FFF !important;
+    border-left: 4px solid #7F0000 !important;
+    animation: pulse-critical 2s infinite;
+}
+
+.badge-prioridad-critica {
+    background: linear-gradient(135deg, #B71C1C, #D32F2F) !important;
+    color: #FFF !important;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+    animation: pulse-critical 1.5s infinite;
+}
+
+.row-prioridad-critica td {
+    border-left: 4px solid #7F0000 !important;
+    background-color: rgba(215, 0, 0, 0.03) !important;
+}
+
+.row-prioridad-critica {
+    animation: pulse-critical 2s infinite;
+}
+
+/* ANIMACIÓN PARA CRÍTICA */
+@keyframes pulse-critical {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.01);
+    }
+}
+
+/* ===== HOVER EFFECTS ===== */
+.row-prioridad-baja:hover { background-color: #E3F2FD !important; }
+.row-prioridad-media:hover { background-color: #FFF3E0 !important; }
+.row-prioridad-alta:hover { background-color: #FFEBEE !important; }
+.row-prioridad-critica:hover { background-color: rgba(215, 0, 0, 0.08) !important; }
+
+/* ===== ESTADO BADGES ===== */
+.badge-estado-abierto {
+    background-color: #E8F5E9 !important;
+    color: #388E3C !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.badge-estado-en_proceso {
+    background-color: #E1F5FE !important;
+    color: #01579B !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.badge-estado-pendiente {
+    background-color: #FFF9C4 !important;
+    color: #F57F17 !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.badge-estado-resuelto {
+    background-color: #C8E6C9 !important;
+    color: #1B5E20 !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+.badge-estado-cerrado {
+    background-color: #F3E5F5 !important;
+    color: #6A1B9A !important;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+}
+
+/* ===== TABLE ROW HIGHLIGHTING ===== */
+table body tr.row-prioridad-critica {
+    box-shadow: 0 0 0 1px rgba(215, 0, 0, 0.3) inset;
+}
+
+/* ===== LOADING STATE ===== */
+.ticket-row-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.refresh-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: #FFF3CD;
+    color: #856404;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}

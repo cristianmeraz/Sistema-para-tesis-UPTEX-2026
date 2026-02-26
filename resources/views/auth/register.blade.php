@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -31,7 +31,7 @@
         }
         
         .register-left {
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            background: linear-gradient(160deg, #1e3a5f 0%, #1d4ed8 100%);
             color: white;
             padding: 3rem;
             display: flex;
@@ -40,8 +40,17 @@
         }
         
         .register-logo {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.8rem;
+        }
+        
+        .register-logo-img {
+            width: 180px;
+            height: auto;
+            background: white;
+            border-radius: 14px;
+            padding: 10px 18px;
+            display: block;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
         
         .register-left h2 {
@@ -65,7 +74,7 @@
         
         .benefit-item i {
             font-size: 1.5rem;
-            color: #A7F3D0;
+            color: #A5F3FC;
         }
         
         .register-right {
@@ -95,8 +104,8 @@
         }
         
         .form-control:focus {
-            border-color: #10B981;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            border-color: #1d4ed8;
+            box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.1);
         }
         
         .btn-register {
@@ -105,7 +114,7 @@
             border-radius: 10px;
             font-weight: 600;
             font-size: 1rem;
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
             border: none;
             color: white;
             transition: all 0.3s;
@@ -113,7 +122,7 @@
         
         .btn-register:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.4);
         }
         
         .login-link {
@@ -123,7 +132,7 @@
         }
         
         .login-link a {
-            color: #10B981;
+            color: #1d4ed8;
             text-decoration: none;
             font-weight: 600;
         }
@@ -153,8 +162,10 @@
                 padding: 2rem;
             }
             .register-logo {
-                font-size: 2.5rem;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.8rem;
+            }
+            .register-logo-img {
+                width: 150px;
             }
         }
 
@@ -177,7 +188,7 @@
         <div class="row g-0 register-card">
             <div class="col-lg-5 register-left">
                 <div class="register-logo">
-                    <i class="bi bi-person-plus-fill"></i>
+                    <img src="{{ asset('images/logo-uptex.png') }}" alt="UPTEX" class="register-logo-img">
                 </div>
                 <h2>Crea tu cuenta</h2>
                 <p>Únete al sistema de tickets UPTEX</p>
@@ -266,7 +277,7 @@
                                placeholder="Contraseña"
                                required>
                         <label for="password">Contraseña</label>
-                        <small class="text-muted">Mínimo 6 caracteres</small>
+                        <small class="text-muted">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: <code>Mi#2024</code>)</small>
                     </div>
                     
                     <div class="form-floating">

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 90" width="220" height="90">
+  <!-- Figura humana (busto estilizado) arriba a la derecha de "UP" -->
+  <g transform="translate(89, 2)">
+    <circle cx="11" cy="8" r="6.5" fill="#E87878"/>
+    <path d="M1,26 Q1,16 11,16 Q21,16 21,26 Z" fill="#E87878"/>
+  </g>
+
+  <!-- Logo principal: UP (rojo suave) + T (verde suave) + ex (rojo suave) -->
+  <text x="4" y="65" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="48" fill="#F07070" letter-spacing="-1">UP</text>
+  <text x="70" y="65" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="48" fill="#5DCF6A" letter-spacing="-1">T</text>
+  <text x="102" y="65" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="48" fill="#F07070" letter-spacing="-1">ex</text>
+
+  <!-- Texto inferior en blanco para fondo oscuro -->
+  <text x="4" y="77" font-family="Arial, sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.75)" letter-spacing="1.5">UNIVERSIDAD POLITÉCNICA</text>
+  <text x="4" y="88" font-family="Arial, sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.75)" letter-spacing="1.5">DE TEXCOCO</text>
+</svg>

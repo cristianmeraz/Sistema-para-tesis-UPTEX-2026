@@ -37,7 +37,10 @@
                                 <td>{{ $ticket->usuario->nombre_completo }}</td>
                                 <td>{{ $ticket->area->nombre }}</td>
                                 <td>
-                                    <span class="badge badge-prioridad-{{ $ticket->prioridad->nivel }}">
+                                    @php
+                                        $pn = strtolower(str_replace(['\u00e1','\u00e9','\u00ed','\u00f3','\u00fa','\u00fc','\u00f1'],['a','e','i','o','u','u','n'], $ticket->prioridad->nombre ?? 'media'));
+                                    @endphp
+                                    <span class="badge badge-prioridad-{{ $pn }}">
                                         {{ $ticket->prioridad->nombre }}
                                     </span>
                                 </td>

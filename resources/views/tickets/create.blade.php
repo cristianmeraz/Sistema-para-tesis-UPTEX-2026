@@ -1,24 +1,108 @@
 @extends('layouts.app')
 
 @section('title', 'Crear Ticket')
+@section('no_header_title', true)
 
 @section('content')
-<div class="row">
+<style>
+    :root { --tl1:#0f766e; --tl2:#0891b2; --tl-grad:linear-gradient(135deg,#0f766e 0%,#0891b2 100%); --tl-glow:rgba(8,145,178,.22); }
+
+    .create-banner {
+        background: var(--tl-grad);
+        border-radius: 20px; padding: 1.8rem 2.2rem; margin-bottom: 2rem;
+        position: relative; overflow: hidden;
+        box-shadow: 0 8px 32px var(--tl-glow);
+        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .create-banner::before { content:''; position:absolute; top:-50px; right:-50px; width:190px; height:190px; border-radius:50%; background:rgba(255,255,255,.06); }
+    .create-banner::after  { content:''; position:absolute; bottom:-55px; right:130px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.04); }
+    .create-banner-icon { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:1.45rem; color:#fff; flex-shrink:0; }
+    .create-banner-title { color:#fff; font-size:1.45rem; font-weight:700; margin:0; position:relative; z-index:1; }
+    .create-banner-sub   { color:rgba(255,255,255,.75); font-size:.88rem; margin:.1rem 0 0; position:relative; z-index:1; }
+    .create-banner-left  { display:flex; align-items:center; gap:1.1rem; position:relative; z-index:1; }
+    .btn-volver-create { background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.4); color:#fff; border-radius:10px; padding:.55rem 1.1rem; font-weight:600; font-size:.9rem; text-decoration:none; display:inline-flex; align-items:center; gap:.45rem; transition:background .18s; position:relative; z-index:1; white-space:nowrap; }
+    .btn-volver-create:hover { background:rgba(255,255,255,.28); color:#fff; }
+
+    .form-card { background:#fff; border-radius:18px; border:1px solid #e8edf5; box-shadow:0 4px 20px rgba(0,0,0,.06); overflow:hidden; }
+    .form-card-header { padding:1.1rem 1.7rem; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:.6rem; }
+    .form-card-header-icon { width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#ccfbf1,#e0f2fe); display:flex; align-items:center; justify-content:center; color:var(--tl1); font-size:1rem; }
+    .form-card-header-title { font-weight:700; color:#1e293b; font-size:.95rem; }
+    .form-card-body { padding:1.8rem; }
+
+    .form-label-tl { font-size:.85rem; font-weight:700; color:#374151; margin-bottom:.4rem; }
+    .form-control, .form-select {
+        border: 1.5px solid #e2e8f0; border-radius: 10px;
+        font-size: .9rem; padding: .7rem 1rem; color: #1e293b;
+        background: #f8fafc; transition: border-color .18s, box-shadow .18s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--tl2); box-shadow: 0 0 0 3px rgba(8,145,178,.12);
+        background: #fff; outline: none;
+    }
+    .form-control.is-invalid, .form-select.is-invalid { border-color:#f87171; }
+    textarea.form-control { resize: vertical; min-height: 140px; }
+
+    .hint-badge { display:inline-flex; align-items:center; gap:.35rem; background:#f0fdfa; border:1px solid #99f6e4; border-radius:8px; padding:.3rem .7rem; font-size:.76rem; color:var(--tl1); font-weight:600; margin-bottom: .6rem; }
+
+    .btn-submit-tl {
+        background: var(--tl-grad); color:#fff; border:none; border-radius:12px;
+        padding:.85rem 2rem; font-size:1rem; font-weight:700;
+        display:inline-flex; align-items:center; gap:.5rem;
+        box-shadow: 0 4px 15px var(--tl-glow); transition:filter .18s, transform .18s; width:100%;
+        justify-content: center;
+    }
+    .btn-submit-tl:hover { filter:brightness(1.08); transform:translateY(-2px); color:#fff; }
+    .btn-cancel-tl { border:1.5px solid #e2e8f0; background:#fff; color:#64748b; border-radius:12px; padding:.82rem 2rem; font-size:.95rem; font-weight:600; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:.5rem; text-decoration:none; transition:border-color .18s; }
+    .btn-cancel-tl:hover { border-color:var(--tl2); color:var(--tl1); }
+</style>
+
+{{-- BANNER --}}
+<div class="create-banner">
+    <div class="create-banner-left">
+        <div class="create-banner-icon"><i class="bi bi-plus-circle-fill"></i></div>
+        <div>
+            <h1 class="create-banner-title">Crear Nuevo Ticket</h1>
+            <p class="create-banner-sub">Describe tu problema y nuestro equipo te ayudará</p>
+        </div>
+    </div>
+    <a href="{{ route('dashboard') }}" class="btn-volver-create">
+        <i class="bi bi-arrow-left"></i> Volver al Dashboard
+    </a>
+</div>
+
+{{-- FORMULARIO --}}
+<div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Crear Nuevo Ticket</h5>
+
+        @if ($errors->any())
+        <div class="alert alert-danger border-0 rounded-3 mb-3" style="background:#fee2e2;">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                <strong>Revisa los siguientes errores:</strong>
             </div>
-            <div class="card-body">
+            <ul class="mb-0 ps-3 small">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-header-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
+                <span class="form-card-header-title">Detalle del Ticket</span>
+            </div>
+            <div class="form-card-body">
                 <form action="{{ route('tickets.store') }}" method="POST" id="ticketForm">
                     @csrf
-                    
+
+                    {{-- TÍTULO --}}
                     <div class="mb-4">
-                        <label for="titulo" class="form-label fw-semibold">Título del Problema *</label>
-                        <input type="text" 
-                               class="form-control form-control-lg @error('titulo') is-invalid @enderror" 
-                               id="titulo" 
-                               name="titulo" 
+                        <label for="titulo" class="form-label-tl">Título del Problema <span class="text-danger">*</span></label>
+                        <input type="text"
+                               class="form-control @error('titulo') is-invalid @enderror"
+                               id="titulo" name="titulo"
                                value="{{ old('titulo') }}"
                                placeholder="Ej: No puedo acceder a mi correo institucional"
                                required>
@@ -26,30 +110,31 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    
+
+                    {{-- DESCRIPCIÓN --}}
                     <div class="mb-4">
-                        <label for="descripcion" class="form-label fw-semibold">Descripción Detallada *</label>
-                        <textarea class="form-control @error('descripcion') is-invalid @enderror" 
-                                  id="descripcion" 
-                                  name="descripcion" 
-                                  rows="6"
-                                  placeholder="Describe el problema con el mayor detalle posible. Incluye:&#10;- ¿Qué estabas haciendo cuando ocurrió?&#10;- ¿Qué mensaje de error viste?&#10;- ¿Cuándo comenzó el problema?"
-                                  required>{{ old('descripcion') }}</textarea>
+                        <label for="descripcion" class="form-label-tl">Descripción Detallada <span class="text-danger">*</span></label>
+                        <div class="hint-badge mb-2">
+                            <i class="bi bi-lightbulb"></i>
+                            Incluye qué estabas haciendo, mensajes de error y cuándo ocurrió
+                        </div>
+                        <textarea class="form-control @error('descripcion') is-invalid @enderror"
+                                  id="descripcion" name="descripcion" rows="6"
+                                  placeholder="Describe el problema con el mayor detalle posible..." required>{{ old('descripcion') }}</textarea>
                         @error('descripcion')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <label for="area_id" class="form-label fw-semibold">Área Relacionada *</label>
-                            <select class="form-select @error('area_id') is-invalid @enderror" 
-                                    id="area_id" 
-                                    name="area_id" 
-                                    required>
-                                <option value="">Selecciona un área</option>
+
+                    {{-- ÁREA + PRIORIDAD --}}
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="area_id" class="form-label-tl">Área a la que perteneces <span class="text-danger">*</span></label>
+                            <select class="form-select @error('area_id') is-invalid @enderror"
+                                    id="area_id" name="area_id" required>
+                                <option value="">Selecciona tu área</option>
                                 @foreach($areas ?? [] as $area)
-                                <option value="{{ $area['id_area'] }}" {{ old('area_id') == $area['id_area'] ? 'selected' : '' }}>
+                                <option value="{{ $area['id_area'] }}" {{ old('area_id', $userAreaId ?? '') == $area['id_area'] ? 'selected' : '' }}>
                                     {{ $area['nombre'] }}
                                 </option>
                                 @endforeach
@@ -58,394 +143,58 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        
-                        <div class="col-md-6 mb-4">
-                            <label for="prioridad_id" class="form-label fw-semibold">Prioridad *</label>
-                            <select class="form-select @error('prioridad_id') is-invalid @enderror" 
-                                    id="prioridad_id" 
-                                    name="prioridad_id" 
-                                    required>
-                                <option value="">Selecciona prioridad</option>
-                                @foreach($prioridades ?? [] as $prioridad)
-                                <option value="{{ $prioridad['id_prioridad'] }}" {{ old('prioridad_id') == $prioridad['id_prioridad'] ? 'selected' : '' }}>
-                                    {{ $prioridad['nombre'] }}
-                                </option>
-                                @endforeach
-                            </select>
-                            @error('prioridad_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="col-md-6">
+                            @if($esAdmin ?? false)
+                                {{-- ADMIN: puede elegir prioridad al crear --}}
+                                <label for="prioridad_id" class="form-label-tl">Prioridad <span class="text-danger">*</span></label>
+                                <select class="form-select @error('prioridad_id') is-invalid @enderror"
+                                        id="prioridad_id" name="prioridad_id" required>
+                                    <option value="">Selecciona prioridad</option>
+                                    @foreach($prioridades ?? [] as $prioridad)
+                                    <option value="{{ $prioridad['id_prioridad'] ?? $prioridad->id_prioridad }}"
+                                        {{ old('prioridad_id') == ($prioridad['id_prioridad'] ?? $prioridad->id_prioridad) ? 'selected' : '' }}>
+                                        {{ $prioridad['nombre'] ?? $prioridad->nombre }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('prioridad_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            @else
+                                {{-- USUARIO NORMAL: no elige prioridad, el admin la asigna --}}
+                                <label class="form-label-tl">Prioridad</label>
+                                <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                                     style="background:#f0f9ff; border:2px dashed #93c5fd; min-height:42px;">
+                                    <i class="bi bi-clock-history" style="color:#3b82f6; font-size:1rem; flex-shrink:0;"></i>
+                                    <div>
+                                        <div style="font-size:.78rem; font-weight:700; color:#1d4ed8; line-height:1.2;">
+                                            Pendiente de asignación
+                                        </div>
+                                        <div style="font-size:.7rem; color:#6b7280; line-height:1.1;">
+                                            El administrador asignará la prioridad
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-send me-2"></i>Enviar Ticket
-                        </button>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">
-                            Cancelar
-                        </a>
+
+                    {{-- BOTONES --}}
+                    <div class="row g-2 pt-2">
+                        <div class="col-12 col-md-8">
+                            <button type="submit" class="btn-submit-tl">
+                                <i class="bi bi-send-fill"></i> Enviar Ticket
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <a href="{{ route('dashboard') }}" class="btn-cancel-tl">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    
-    <!-- CHATBOT IA -->
-    <div class="col-lg-4">
-        <div class="card sticky-top" style="top: 90px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
-                <h5 class="mb-0">
-                    <i class="bi bi-robot me-2"></i>
-                    Asistente IA
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="chatMessages" style="height: 400px; overflow-y: auto; margin-bottom: 1rem; padding: 1rem; background: #F8FAFC; border-radius: 8px;">
-                    <div class="chat-message bot-message">
-                        <div class="message-content">
-                            <strong>Asistente:</strong>
-                            <p class="mb-0">¡Hola! 👋 Soy tu asistente virtual. Puedo ayudarte a:</p>
-                            <ul class="mt-2 mb-0">
-                                <li>Clasificar tu problema</li>
-                                <li>Sugerir el área correcta</li>
-                                <li>Determinar la prioridad</li>
-                                <li>Redactar mejor tu ticket</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <input type="text" 
-                           id="chatInput" 
-                           class="form-control" 
-                           placeholder="Escribe tu pregunta...">
-                    <button class="btn btn-success" id="sendChat">
-                        <i class="bi bi-send"></i>
-                    </button>
-                </div>
-                
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Presiona Enter para enviar
-                    </small>
-                </div>
-                
-                <!-- SUGERENCIAS RÁPIDAS -->
-                <div class="mt-3">
-                    <p class="small fw-semibold mb-2">Sugerencias rápidas:</p>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-sm btn-outline-success suggestion-btn" data-suggestion="No puedo iniciar sesión en el sistema">
-                            🔐 Problemas de acceso
-                        </button>
-                        <button class="btn btn-sm btn-outline-success suggestion-btn" data-suggestion="Mi equipo no enciende">
-                            💻 Problemas de equipo
-                        </button>
-                        <button class="btn btn-sm btn-outline-success suggestion-btn" data-suggestion="No tengo conexión a internet">
-                            🌐 Problemas de red
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
-
-@push('styles')
-<style>
-    .chat-message {
-        margin-bottom: 1rem;
-        padding: 0.75rem;
-        border-radius: 8px;
-    }
-    
-    .bot-message {
-        background: white;
-        border-left: 4px solid #10B981;
-    }
-    
-    .user-message {
-        background: #EEF2FF;
-        border-left: 4px solid #4F46E5;
-    }
-    
-    .message-content {
-        font-size: 0.9rem;
-    }
-    
-    .suggestion-btn {
-        text-align: left;
-    }
-</style>
-@endpush
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const chatInput = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendChat');
-    const chatMessages = document.getElementById('chatMessages');
-    const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-    
-    // Configuración de áreas y prioridades (se llena con datos del servidor)
-    const areasMap = {
-        'sistemas': 1,
-        'sistema': 1,
-        'acceso': 1,
-        'login': 1,
-        'contraseña': 1,
-        'cuenta': 1,
-        'soporte': 2,
-        'técnico': 2,
-        'equipo': 2,
-        'computadora': 2,
-        'pc': 2,
-        'laptop': 2,
-        'impresora': 2,
-        'redes': 3,
-        'red': 3,
-        'internet': 3,
-        'wifi': 3,
-        'conexión': 3,
-        'conectividad': 3,
-        'infraestructura': 4,
-        'edificio': 4,
-        'instalaciones': 4
-    };
-    
-    const prioridadesMap = {
-        'urgente': 3,
-        'muy urgente': 4,
-        'critico': 4,
-        'crítico': 4,
-        'importante': 3,
-        'normal': 2,
-        'baja': 1,
-        'no es urgente': 1
-    };
-    
-    // Enviar mensaje
-    function sendMessage() {
-        const message = chatInput.value.trim();
-        if (!message) return;
-        
-        addMessage('user', message);
-        chatInput.value = '';
-        
-        // Mostrar indicador de escritura
-        showTypingIndicator();
-        
-        setTimeout(() => {
-            removeTypingIndicator();
-            const response = generateIntelligentResponse(message);
-            addMessage('bot', response.message);
-            
-            // Auto-llenar campos si se detectaron valores
-            if (response.area) {
-                document.getElementById('area_id').value = response.area;
-                highlightField('area_id');
-            }
-            if (response.prioridad) {
-                document.getElementById('prioridad_id').value = response.prioridad;
-                highlightField('prioridad_id');
-            }
-            if (response.titulo) {
-                document.getElementById('titulo').value = response.titulo;
-                highlightField('titulo');
-            }
-        }, 1500);
-    }
-    
-    // Agregar mensaje al chat
-    function addMessage(type, text) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${type}-message animate__animated animate__fadeIn`;
-        messageDiv.innerHTML = `
-            <div class="message-content">
-                <strong>${type === 'user' ? 'Tú' : 'Asistente IA'}:</strong>
-                <p class="mb-0">${text}</p>
-            </div>
-        `;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    // Indicador de escritura
-    function showTypingIndicator() {
-        const indicator = document.createElement('div');
-        indicator.id = 'typingIndicator';
-        indicator.className = 'chat-message bot-message';
-        indicator.innerHTML = `
-            <div class="message-content">
-                <strong>Asistente IA:</strong>
-                <p class="mb-0">
-                    <span class="typing-dots">
-                        <span>.</span><span>.</span><span>.</span>
-                    </span>
-                </p>
-            </div>
-        `;
-        chatMessages.appendChild(indicator);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    function removeTypingIndicator() {
-        const indicator = document.getElementById('typingIndicator');
-        if (indicator) indicator.remove();
-    }
-    
-    // Resaltar campo auto-llenado
-    function highlightField(fieldId) {
-        const field = document.getElementById(fieldId);
-        field.classList.add('field-highlight');
-        setTimeout(() => field.classList.remove('field-highlight'), 2000);
-    }
-    
-    // Generar respuesta inteligente
-    function generateIntelligentResponse(message) {
-        const lowMsg = message.toLowerCase();
-        let response = {
-            message: '',
-            area: null,
-            prioridad: null,
-            titulo: null
-        };
-        
-        // Detectar problema de acceso/login
-        if (lowMsg.includes('iniciar sesión') || lowMsg.includes('login') || lowMsg.includes('contraseña') || lowMsg.includes('acceso') || lowMsg.includes('cuenta')) {
-            response.area = 1; // Sistemas
-            response.prioridad = 2; // Media
-            response.titulo = 'Problema de acceso al sistema';
-            response.message = '🔐 Entiendo que tienes problemas para acceder al sistema. He configurado:<br><br>' +
-                              '✅ <strong>Área:</strong> Sistemas<br>' +
-                              '✅ <strong>Prioridad:</strong> Media<br>' +
-                              '✅ <strong>Título sugerido:</strong> Problema de acceso al sistema<br><br>' +
-                              '💡 <strong>Consejo:</strong> En la descripción, menciona:<br>' +
-                              '• ¿Recibes algún mensaje de error?<br>' +
-                              '• ¿Olvidaste tu contraseña o el sistema no la reconoce?<br>' +
-                              '• ¿Desde cuándo tienes este problema?';
-            return response;
-        }
-        
-        // Detectar problema de equipo
-        if (lowMsg.includes('equipo') || lowMsg.includes('computadora') || lowMsg.includes('pc') || lowMsg.includes('laptop') || lowMsg.includes('no enciende') || lowMsg.includes('impresora')) {
-            response.area = 2; // Soporte Técnico
-            response.prioridad = 3; // Alta
-            response.titulo = lowMsg.includes('impresora') ? 'Problema con impresora' : 'Problema con equipo de cómputo';
-            response.message = '💻 Detecté un problema de hardware. He configurado:<br><br>' +
-                              '✅ <strong>Área:</strong> Soporte Técnico<br>' +
-                              '✅ <strong>Prioridad:</strong> Alta<br>' +
-                              '✅ <strong>Título sugerido:</strong> ' + response.titulo + '<br><br>' +
-                              '💡 <strong>Consejo:</strong> Describe:<br>' +
-                              '• ¿Qué intentaste hacer cuando falló?<br>' +
-                              '• ¿Hay luces encendidas o sonidos?<br>' +
-                              '• ¿El problema es en laboratorio o área específica?';
-            return response;
-        }
-        
-        // Detectar problema de red/internet
-        if (lowMsg.includes('internet') || lowMsg.includes('red') || lowMsg.includes('wifi') || lowMsg.includes('conexión') || lowMsg.includes('conectar')) {
-            response.area = 3; // Redes
-            response.prioridad = 3; // Alta
-            response.titulo = 'Problema de conectividad de red';
-            response.message = '🌐 Problema de conectividad identificado. He configurado:<br><br>' +
-                              '✅ <strong>Área:</strong> Redes<br>' +
-                              '✅ <strong>Prioridad:</strong> Alta<br>' +
-                              '✅ <strong>Título sugerido:</strong> Problema de conectividad de red<br><br>' +
-                              '💡 <strong>Consejo:</strong> Indica:<br>' +
-                              '• ¿Es en todo el edificio o solo tu área?<br>' +
-                              '• ¿Otros dispositivos tienen el mismo problema?<br>' +
-                              '• ¿Desde cuándo no tienes conexión?';
-            return response;
-        }
-        
-        // Detectar urgencia en el mensaje
-        if (lowMsg.includes('urgente') || lowMsg.includes('rápido') || lowMsg.includes('inmediato') || lowMsg.includes('ahora')) {
-            response.prioridad = 4; // Crítica
-            response.message = '⚠️ Detecté que es <strong>URGENTE</strong>. He configurado la prioridad como <strong>CRÍTICA</strong>.<br><br>' +
-                              '📝 Por favor, describe el problema con el mayor detalle posible para que podamos atenderte rápidamente.';
-            return response;
-        }
-        
-        // Respuesta genérica
-        response.message = '👋 He registrado tu consulta. Para ayudarte mejor, necesito más información:<br><br>' +
-                          '🔹 <strong>¿Qué tipo de problema tienes?</strong><br>' +
-                          '• Problemas de acceso/login<br>' +
-                          '• Problemas con tu equipo<br>' +
-                          '• Problemas de internet/red<br><br>' +
-                          '🔹 <strong>¿Qué tan urgente es?</strong><br>' +
-                          '• Normal - puedo esperar<br>' +
-                          '• Urgente - necesito solución pronto<br>' +
-                          '• Crítico - bloquea mi trabajo completamente<br><br>' +
-                          '💬 Puedes usar las sugerencias rápidas de abajo o describirme tu problema.';
-        
-        return response;
-    }
-    
-    // Event listeners
-    sendBtn.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    
-    // Sugerencias rápidas
-    suggestionBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const suggestion = this.dataset.suggestion;
-            chatInput.value = suggestion;
-            sendMessage();
-        });
-    });
-});
-</script>
-
-<style>
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.animate__animated {
-    animation-duration: 0.3s;
-}
-
-.animate__fadeIn {
-    animation-name: fadeIn;
-}
-
-.typing-dots span {
-    animation: blink 1.4s infinite;
-    animation-fill-mode: both;
-}
-
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes blink {
-    0%, 80%, 100% { opacity: 0; }
-    40% { opacity: 1; }
-}
-
-.field-highlight {
-    animation: highlight 0.5s ease;
-    border-color: #10B981 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
-}
-
-@keyframes highlight {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-}
-</style>
-@endpush
 @endsection

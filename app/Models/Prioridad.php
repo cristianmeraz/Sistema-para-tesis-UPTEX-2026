@@ -33,16 +33,14 @@ class Prioridad extends Model
     const NIVEL_BAJA = 1;
     const NIVEL_MEDIA = 2;
     const NIVEL_ALTA = 3;
-    const NIVEL_CRITICA = 4;
 
     public function getColorAttribute()
     {
         return match($this->nivel) {
-            self::NIVEL_BAJA => '#10B981',
-            self::NIVEL_MEDIA => '#F59E0B',
-            self::NIVEL_ALTA => '#EF4444',
-            self::NIVEL_CRITICA => '#DC2626',
-            default => '#64748B',
+            self::NIVEL_BAJA  => '#0d9488',
+            self::NIVEL_MEDIA => '#d97706',
+            self::NIVEL_ALTA  => '#dc2626',
+            default           => '#6b7280',
         };
     }
 }

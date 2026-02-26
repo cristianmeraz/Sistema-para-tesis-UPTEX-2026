@@ -41,6 +41,16 @@
                                 <label class="form-label fw-bold small text-muted text-uppercase">Confirmar Contraseña:</label>
                                 <input type="password" name="password_confirmation" class="form-control bg-light border-0 py-2" required placeholder="Repite la contraseña">
                             </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Área a la que pertenece:</label>
+                                <select name="area_id" class="form-select bg-light border-0 py-2">
+                                    <option value="">Sin área asignada</option>
+                                    @foreach($areas ?? [] as $area)
+                                    <option value="{{ $area->id_area }}">{{ $area->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text text-muted">Departamento institucional al que pertenece el usuario.</div>
+                            </div>
                         </div>
                         <div class="mt-4 pt-3 border-top text-end">
                             <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">

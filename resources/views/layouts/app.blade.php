@@ -88,7 +88,7 @@
 
         .sidebar-header { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .sidebar-logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white; }
-        .sidebar-logo i { font-size: 1.75rem; color: var(--primary); }
+        .sidebar-logo-img { height: 38px; width: auto; background: white; border-radius: 7px; padding: 3px 7px; display: block; flex-shrink: 0; }
         .sidebar-logo-text h4 { font-size: 1.1rem; font-weight: 700; margin: 0; }
         .sidebar-logo-text p { font-size: 0.75rem; color: rgba(255,255,255,0.6); margin: 0; }
 
@@ -116,7 +116,7 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}" class="sidebar-logo">
-                <i class="bi bi-ticket-perforated-fill"></i>
+                <img src="{{ asset('images/logo-uptex.png') }}" alt="UPTEX" class="sidebar-logo-img">
                 <div class="sidebar-logo-text">
                     <h4>UPTEX Tickets</h4>
                     <p>Sistema de Soporte</p>
@@ -200,7 +200,9 @@
             <button class="btn btn-link d-lg-none text-dark p-0 me-3" id="btnToggleSidebar" type="button">
                 <i class="bi bi-list" style="font-size: 2rem;"></i>
             </button>
+            @unless(View::hasSection('no_header_title'))
             <h5 class="mb-0 d-none d-md-block">@yield('title')</h5>
+            @endunless
         </div>
         
         <div class="user-menu dropdown">

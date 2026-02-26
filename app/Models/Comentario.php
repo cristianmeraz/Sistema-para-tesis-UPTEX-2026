@@ -14,6 +14,11 @@ class Comentario extends Model
         'ticket_id',
         'usuario_id',
         'contenido',
+        'es_actualizacion',
+    ];
+
+    protected $casts = [
+        'es_actualizacion' => 'boolean',
     ];
     
     // Relaciones

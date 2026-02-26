@@ -22,3 +22,16 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Archivos de depuración y análisis (no subir a producción)
+check_db.php
+check_users.php
+debug_comentarios.php
+test_json.php
+fix_permissions.php
+ANALISIS_COMPLETO_V2.html
+ANALISIS_SISTEMA_UPTEX.html
+AUTO_REFRESH_INFO.md
+CORRECC IONES_COMENTARIOS.md
+IMPLEMENTACION_ADMIN.md
+VALIDACION_BD.md

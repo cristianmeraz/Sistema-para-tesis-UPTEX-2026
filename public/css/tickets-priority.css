@@ -1,0 +1,253 @@
+/* 🎨 COLOREO POR PRIORIDAD - TICKETS */
+
+/* Colores base por prioridad — Baja=teal, Media=amber, Alta=rojo */
+:root {
+    --priority-baja:  #0d9488;   /* teal-600  */
+    --priority-media: #d97706;   /* amber-600 */
+    --priority-alta:  #dc2626;   /* red-600   */
+
+    --bg-baja:  #f0fdfa;   /* teal-50  */
+    --bg-media: #fffbeb;   /* amber-50 */
+    --bg-alta:  #fee2e2;   /* red-50   */
+}
+
+/* FILAS DE TABLA POR PRIORIDAD */
+.row-prioridad-baja {
+    --bs-table-bg: rgba(13, 148, 136, 0.10);
+    border-left: 4px solid var(--priority-baja) !important;
+}
+
+.row-prioridad-media {
+    --bs-table-bg: rgba(217, 119, 6, 0.12);
+    border-left: 4px solid var(--priority-media) !important;
+}
+
+.row-prioridad-alta {
+    --bs-table-bg: rgba(220, 38, 38, 0.12);
+    border-left: 4px solid var(--priority-alta) !important;
+}
+
+/* Fallback directo sobre los td */
+.row-prioridad-baja > td {
+    background-color: rgba(13, 148, 136, 0.10) !important;
+}
+.row-prioridad-media > td {
+    background-color: rgba(217, 119, 6, 0.12) !important;
+}
+.row-prioridad-alta > td {
+    background-color: rgba(220, 38, 38, 0.12) !important;
+}
+
+/* Hover */
+.row-prioridad-baja:hover > td {
+    background-color: rgba(13, 148, 136, 0.20) !important;
+}
+.row-prioridad-media:hover > td {
+    background-color: rgba(217, 119, 6, 0.22) !important;
+}
+.row-prioridad-alta:hover > td {
+    background-color: rgba(220, 38, 38, 0.22) !important;
+}
+
+/* BADGES POR PRIORIDAD */
+.badge-prioridad-baja {
+    background-color: var(--bg-baja);
+    color: var(--priority-baja);
+    border: 1px solid var(--priority-baja);
+}
+
+.badge-prioridad-media {
+    background-color: var(--bg-media);
+    color: var(--priority-media);
+    border: 1px solid var(--priority-media);
+}
+
+.badge-prioridad-alta {
+    background-color: var(--bg-alta);
+    color: var(--priority-alta);
+    border: 1px solid var(--priority-alta);
+    font-weight: 700;
+}
+
+/* BADGES POR ESTADO */
+.badge-estado-abierto {
+    background-color: #C8E6C9;
+    color: #1B5E20;
+    border: 1px solid #1B5E20;
+}
+
+.badge-estado-en_proceso {
+    background-color: #FFF9C4;
+    color: #F57F17;
+    border: 1px solid #F57F17;
+}
+
+.badge-estado-pendiente {
+    background-color: #FFCCBC;
+    color: #BF360C;
+    border: 1px solid #BF360C;
+}
+
+.badge-estado-resuelto {
+    background-color: #C8E6C9;
+    color: #1B5E20;
+    border: 1px solid #1B5E20;
+}
+
+.badge-estado-cerrado {
+    background-color: #CCCCCC;
+    color: #424242;
+    border: 1px solid #424242;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .badge-prioridad-baja,
+    .badge-prioridad-media,
+    .badge-prioridad-alta {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+
+.row-prioridad-media {
+    --bs-table-bg: rgba(230, 81, 0, 0.13);
+    border-left: 4px solid var(--priority-media) !important;
+}
+
+.row-prioridad-alta {
+    --bs-table-bg: rgba(198, 40, 40, 0.14);
+    border-left: 4px solid var(--priority-alta) !important;
+}
+
+.row-prioridad-critica {
+    --bs-table-bg: rgba(127, 0, 0, 0.15);
+    border-left: 4px solid var(--priority-critica) !important;
+}
+
+/* Fallback directo sobre los td */
+.row-prioridad-baja > td {
+    background-color: rgba(21, 101, 192, 0.13) !important;
+}
+.row-prioridad-media > td {
+    background-color: rgba(230, 81, 0, 0.13) !important;
+}
+.row-prioridad-alta > td {
+    background-color: rgba(198, 40, 40, 0.14) !important;
+}
+.row-prioridad-critica > td {
+    background-color: rgba(127, 0, 0, 0.15) !important;
+}
+
+/* Hover */
+.row-prioridad-baja:hover > td {
+    background-color: rgba(21, 101, 192, 0.23) !important;
+}
+.row-prioridad-media:hover > td {
+    background-color: rgba(230, 81, 0, 0.22) !important;
+}
+.row-prioridad-alta:hover > td {
+    background-color: rgba(198, 40, 40, 0.23) !important;
+}
+.row-prioridad-critica:hover > td {
+    background-color: rgba(127, 0, 0, 0.26) !important;
+}
+
+/* BADGES POR PRIORIDAD */
+.badge-prioridad-baja {
+    background-color: var(--bg-baja);
+    color: var(--priority-baja);
+    border: 1px solid var(--priority-baja);
+}
+
+.badge-prioridad-media {
+    background-color: var(--bg-media);
+    color: var(--priority-media);
+    border: 1px solid var(--priority-media);
+}
+
+.badge-prioridad-alta {
+    background-color: var(--bg-alta);
+    color: var(--priority-alta);
+    border: 1px solid var(--priority-alta);
+}
+
+.badge-prioridad-critica {
+    background-color: #FFCDD2;
+    color: var(--priority-critica);
+    border: 1px solid var(--priority-critica);
+    font-weight: 700;
+    animation: pulse-priority 2s ease-in-out infinite;
+}
+
+/* BADGES POR ESTADO */
+.badge-estado-abierto {
+    background-color: #C8E6C9;
+    color: #1B5E20;
+    border: 1px solid #1B5E20;
+}
+
+.badge-estado-en_proceso {
+    background-color: #FFF9C4;
+    color: #F57F17;
+    border: 1px solid #F57F17;
+}
+
+.badge-estado-pendiente {
+    background-color: #FFCCBC;
+    color: #BF360C;
+    border: 1px solid #BF360C;
+}
+
+.badge-estado-resuelto {
+    background-color: #C8E6C9;
+    color: #1B5E20;
+    border: 1px solid #1B5E20;
+}
+
+.badge-estado-cerrado {
+    background-color: #CCCCCC;
+    color: #424242;
+    border: 1px solid #424242;
+}
+
+/* ANIMACIÓN PARA CRÍTICA */
+@keyframes pulse-priority {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.2);
+    }
+}
+
+/* INDICADOR VISUAL - LÍNEA IZQUIERDA EN TICKETS CRÍTICOS */
+.ticket-row-critica::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #7F0000 0%, #C62828 50%, #7F0000 100%);
+    animation: pulse-line 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-line {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .badge-prioridad-baja,
+    .badge-prioridad-media,
+    .badge-prioridad-alta,
+    .badge-prioridad-critica {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+}

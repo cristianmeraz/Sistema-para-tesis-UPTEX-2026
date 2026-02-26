@@ -1,112 +1,298 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Mis Tickets')
+@section('no_header_title', true)
 
 @section('content')
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+@php
+    $esTecnico = str_contains(session('usuario_rol'), 'Técnico');
+@endphp
+<style>
+    /* ══════ BANNER TÉCNICO ══════ */
+    .tec-banner {
+        background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+        border-radius: 18px;
+        padding: 1.8rem 2.2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(22,163,74,.28);
+    }
+    .tec-banner::before { content:''; position:absolute; top:-50px; right:-50px; width:190px; height:190px; border-radius:50%; background:rgba(255,255,255,.06); }
+    .tec-banner::after  { content:''; position:absolute; bottom:-55px; right:130px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,.04); }
+    .tec-banner-icon  { width:54px; height:54px; border-radius:14px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.5rem; color:#fff; position:relative; z-index:1; }
+    .tec-banner-title { color:#fff; font-size:1.5rem; font-weight:700; margin:0; position:relative; z-index:1; }
+    .tec-banner-sub   { color:rgba(255,255,255,.75); font-size:.88rem; margin:.1rem 0 0; position:relative; z-index:1; }
+
+    /* ══════ BANNER USUARIO ══════ */
+    .usr-banner {
+        background: linear-gradient(135deg, #0f766e 0%, #0891b2 100%);
+        border-radius: 18px;
+        padding: 1.8rem 2.2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(8,145,178,.25);
+        flex-wrap: wrap;
+    }
+    .usr-banner::before { content:''; position:absolute; top:-50px; right:-50px; width:190px; height:190px; border-radius:50%; background:rgba(255,255,255,.06); }
+    .usr-banner::after  { content:''; position:absolute; bottom:-55px; right:130px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.04); }
+    .usr-banner-left  { display:flex; align-items:center; gap:1.1rem; position:relative; z-index:1; }
+    .usr-banner-icon  { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:1.45rem; color:#fff; flex-shrink:0; }
+    .usr-banner-title { color:#fff; font-size:1.45rem; font-weight:700; margin:0; }
+    .usr-banner-sub   { color:rgba(255,255,255,.75); font-size:.88rem; margin:.1rem 0 0; }
+    .usr-banner-right { position:relative; z-index:1; }
+
+    .btn-nuevo {
+        background:rgba(255,255,255,.18);
+        border:1.5px solid rgba(255,255,255,.45);
+        color:#fff;
+        border-radius:10px;
+        padding:.55rem 1.1rem;
+        font-weight:600;
+        font-size:.9rem;
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        transition:background .18s;
+    }
+    .btn-nuevo:hover { background:rgba(255,255,255,.28); color:#fff; }
+
+    /* ══════ SECCIÓN TÍTULO (igual que asignados) ══════ */
+    .tec-section-title { font-size:.78rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.9rem; display:flex; align-items:center; gap:.5rem; }
+    .tec-section-title::after { content:''; flex:1; height:1px; background:#e2e8f0; }
+
+    /* ══════ FILTROS ══════ */
+    .filtros-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #e8edf5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+    .filtros-card .form-select,
+    .filtros-card .form-control {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        font-size: .88rem;
+        padding: .6rem .85rem;
+        color: #334155;
+        transition: border-color .18s, box-shadow .18s;
+        background-color: #f8fafc;
+    }
+    .filtros-tec .form-select:focus,
+    .filtros-tec .form-control:focus {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22,163,74,.12);
+        background-color: #fff;
+        outline: none;
+    }
+    .filtros-usr .form-select:focus,
+    .filtros-usr .form-control:focus {
+        border-color: #0891b2;
+        box-shadow: 0 0 0 3px rgba(8,145,178,.12);
+        background-color: #fff;
+        outline: none;
+    }
+    .btn-buscar-tec {
+        border: none; border-radius: 9px; padding: .62rem 1.2rem; font-weight: 700; font-size: .88rem; color: #fff;
+        display: inline-flex; align-items: center; gap: .4rem; width: 100%; justify-content: center;
+        background: linear-gradient(135deg,#15803d,#16a34a);
+        box-shadow: 0 3px 12px rgba(22,163,74,.28);
+        transition: filter .18s, transform .18s;
+    }
+    .btn-buscar-tec:hover { filter:brightness(1.07); transform:translateY(-1px); color:#fff; }
+    .btn-buscar-usr {
+        border: none; border-radius: 9px; padding: .62rem 1.2rem; font-weight: 700; font-size: .88rem; color: #fff;
+        display: inline-flex; align-items: center; gap: .4rem; width: 100%; justify-content: center;
+        background: linear-gradient(135deg,#0f766e,#0891b2);
+        box-shadow: 0 3px 12px rgba(8,145,178,.28);
+        transition: filter .18s, transform .18s;
+    }
+    .btn-buscar-usr:hover { filter:brightness(1.07); transform:translateY(-1px); color:#fff; }
+
+    /* ══════ TABLA TÉCNICO (igual que asignados) ══════ */
+    .tec-table-wrap { background:#fff; border-radius:16px; border:1px solid #e8edf5; box-shadow:0 4px 16px rgba(0,0,0,.05); overflow:hidden; }
+    .tec-table-header { padding:1rem 1.5rem; display:flex; align-items:center; gap:.6rem; border-bottom:1px solid #f1f5f9; }
+    .tec-table-header-title { font-weight:700; color:#1e293b; font-size:1rem; }
+    .tec-table-count { background:#f0fdf4; color:#16a34a; font-size:.75rem; font-weight:700; padding:.15rem .55rem; border-radius:20px; }
+    .tec-table table { margin:0; }
+    .tec-table thead th { background:#f8fafc; font-size:.78rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid #e2e8f0; padding:.75rem 1rem; }
+    .tec-table td { padding:.85rem 1rem; border-bottom:1px solid #f1f5f9; vertical-align:middle; font-size:.9rem; }
+    .tec-table tr:last-child td { border-bottom:none; }
+    .tec-table tr:hover td { background:#fafafa; }
+
+    /* ══════ CHIPS ══════ */
+    .chip { display:inline-block; padding:.22rem .65rem; border-radius:20px; font-size:.76rem; font-weight:700; }
+    .chip-abierto    { background:#dbeafe; color:#1d4ed8; }
+    .chip-pendiente  { background:#fef9c3; color:#854d0e; }
+    .chip-en_proceso { background:#e0f2fe; color:#0369a1; }
+    .chip-resuelto   { background:#dcfce7; color:#15803d; }
+    .chip-cerrado    { background:#f1f5f9; color:#475569; }
+    .chip-baja       { background:#dcfce7; color:#15803d; }
+    .chip-media      { background:#fef9c3; color:#854d0e; }
+    .chip-alta       { background:#ffedd5; color:#9a3412; }
+    .chip-alta    { background:#fee2e2; color:#dc2626; }
+
+    /* ══════ BOTONES ACCIÓN ══════ */
+    .btn-gestionar { background:linear-gradient(135deg,#15803d,#16a34a); color:#fff; border:none; border-radius:8px; padding:.38rem .85rem; font-size:.82rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:.35rem; transition:filter .18s, transform .18s; box-shadow:0 3px 10px rgba(22,163,74,.28); }
+    .btn-gestionar:hover { filter:brightness(1.08); transform:translateY(-1px); color:#fff; }
+
+    /* ══════ CARDS USUARIO ══════ */
+    .ticket-card-u { background:#fff; border-radius:14px; border:1px solid #e8edf5; box-shadow:0 2px 10px rgba(0,0,0,.05); padding:1.2rem 1.4rem; margin-bottom:1rem; transition:transform .2s, box-shadow .2s; }
+    .ticket-card-u:hover { transform:translateY(-3px); box-shadow:0 8px 22px rgba(0,0,0,.09); }
+    .tc-folio { background:#ccfbf1; color:#0f766e; font-size:.77rem; font-weight:700; padding:.2rem .6rem; border-radius:6px; }
+    .tc-title { font-weight:700; color:#1e293b; font-size:.97rem; text-decoration:none; }
+    .tc-title:hover { color:#0f766e; }
+    .tc-desc { font-size:.85rem; color:#64748b; line-height:1.5; margin:.35rem 0 .6rem; }
+    .btn-ver-u { background:linear-gradient(135deg,#0f766e,#0891b2); color:#fff; border:none; border-radius:8px; padding:.4rem .9rem; font-size:.82rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:.35rem; transition:filter .18s; box-shadow:0 2px 8px rgba(8,145,178,.25); white-space:nowrap; }
+    .btn-ver-u:hover { filter:brightness(1.08); color:#fff; }
+
+    /* ══════ EMPTY STATE ══════ */
+    .empty-state { text-align:center; padding:3.5rem 1rem; }
+    .empty-state-icon { width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:2rem; }
+
+    /* ══════ REFRESH WIDGET ══════ */
+    .refresh-badge { background:rgba(255,255,255,.12); font-size:.82rem; border-radius:20px; display:flex; align-items:center; gap:.5rem; padding:.4rem .85rem; color:#fff; white-space:nowrap; }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:#10B981; display:inline-block; animation:livePulse 2s ease-in-out infinite; }
+    .btn-refresh-tec { background:rgba(255,255,255,.92); border:none; border-radius:8px; padding:.42rem .9rem; font-size:.82rem; font-weight:700; color:#15803d; display:inline-flex; align-items:center; gap:.35rem; cursor:pointer; transition:background .18s; white-space:nowrap; }
+    .btn-refresh-tec:hover { background:#fff; }
+    /* ══════ MINI STEPPER USUARIO ══════ */
+    .mini-flow-u { display:flex; align-items:flex-start; gap:0; margin-top:.55rem; }
+    .mini-step-u { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; }
+    .mini-step-u:not(:last-child)::after { content:''; position:absolute; top:4px; left:55%; width:90%; height:2px; background:#dde1e7; z-index:0; }
+    .mini-step-u.ms-done:not(:last-child)::after { background:#0f766e; }
+    .mini-step-u.ms-active:not(:last-child)::after { background:linear-gradient(90deg,#0f766e,#dde1e7); }
+    .mini-dot-u { width:10px; height:10px; border-radius:50%; border:2px solid #dde1e7; background:#fff; margin:0 auto; position:relative; z-index:1; transition:all .2s; }
+    .mini-step-u.ms-done .mini-dot-u   { background:#0f766e; border-color:#0f766e; }
+    .mini-step-u.ms-active .mini-dot-u { background:#0f766e; border-color:#0f766e; box-shadow:0 0 0 3px rgba(15,118,110,.2); }
+    .mini-lbl-u { font-size:.52rem; font-weight:700; text-align:center; color:#94a3b8; margin-top:3px; text-transform:uppercase; letter-spacing:.02em; line-height:1.1; }
+    .mini-step-u.ms-done .mini-lbl-u, .mini-step-u.ms-active .mini-lbl-u { color:#0f766e; }
+
+    .btn-refresh-usr { background:rgba(255,255,255,.92); border:none; border-radius:8px; padding:.42rem .9rem; font-size:.82rem; font-weight:700; color:#0f766e; display:inline-flex; align-items:center; gap:.35rem; cursor:pointer; transition:background .18s; white-space:nowrap; }
+    .btn-refresh-usr:hover { background:#fff; }
+    @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.85)} }
+
+    @media(max-width:768px) {
+        .tec-banner, .usr-banner { padding:1.3rem 1.2rem; }
+        .tec-banner-title, .usr-banner-title { font-size:1.2rem; }
+    }
+</style>
+
+<div class="container-fluid">
+
+    @if($esTecnico)
+    {{-- ══════ BANNER TÉCNICO ══════ --}}
+    <div class="tec-banner" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:1.2rem;position:relative;z-index:1;">
+            <div class="tec-banner-icon"><i class="bi bi-journal-check"></i></div>
             <div>
-                <h2><i class="bi bi-ticket-perforated me-2"></i>Mis Tickets</h2>
-                <p class="text-muted mb-0">Todos tus tickets de soporte</p>
-            </div>
-            @if(!str_contains(session('usuario_rol'), 'Técnico'))
-            <a href="{{ route('tickets.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Nuevo Ticket
-            </a>
-            @endif
-        </div>
-    </div>
-    
-    <!-- FILTROS -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <form action="{{ route('tickets.mis-tickets') }}" method="GET" class="row g-3">
-                    <div class="col-md-3">
-                        <select name="estado_id" class="form-select">
-                            <option value="">Todos los estados</option>
-                            @foreach($estados ?? [] as $estado)
-                            <option value="{{ $estado->id_estado }}" {{ request('estado_id') == $estado->id_estado ? 'selected' : '' }}>
-                                {{ $estado->nombre }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <select name="prioridad_id" class="form-select">
-                            <option value="">Todas las prioridades</option>
-                            @foreach($prioridades ?? [] as $prioridad)
-                            <option value="{{ $prioridad->id_prioridad }}" {{ request('prioridad_id') == $prioridad->id_prioridad ? 'selected' : '' }}>
-                                {{ $prioridad->nombre }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control" placeholder="Buscar en mis tickets..." value="{{ request('search') }}">
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i> Buscar
-                        </button>
-                    </div>
-                </form>
+                <h1 class="tec-banner-title">Historial de Tickets</h1>
+                <p class="tec-banner-sub">Consulta todos los tickets que tienes o tuviste asignados</p>
             </div>
         </div>
+        <div style="display:flex;align-items:center;gap:.6rem;position:relative;z-index:1;flex-wrap:wrap;">
+            <div class="refresh-badge" id="badgeUpdate">
+                <span class="live-dot"></span>
+                Actualizado: <strong id="lastUpdate">Ahora</strong>
+            </div>
+            <button class="btn-refresh-tec" id="btnRefresh">
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+            </button>
+        </div>
     </div>
-    
-    <!-- LISTA DE TICKETS -->
-    <div class="col-12">
-        @if(str_contains(session('usuario_rol'), 'Técnico'))
-        <!-- VISTA DE TABLA PARA TÉCNICO -->
+
+    {{-- ══════ FILTROS TÉCNICO ══════ --}}
+    <div class="tec-section-title"><i class="bi bi-funnel"></i> Filtrar historial</div>
+    <div class="filtros-card filtros-tec">
+        <form action="{{ route('tickets.mis-tickets') }}" method="GET">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-3">
+                    <select name="estado_id" class="form-select">
+                        <option value="">Todos los estados</option>
+                        @foreach($estados ?? [] as $estado)
+                        <option value="{{ $estado->id_estado }}" {{ request('estado_id') == $estado->id_estado ? 'selected' : '' }}>
+                            {{ $estado->nombre }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select name="prioridad_id" class="form-select">
+                        <option value="">Todas las prioridades</option>
+                        @foreach($prioridades ?? [] as $prioridad)
+                        <option value="{{ $prioridad->id_prioridad }}" {{ request('prioridad_id') == $prioridad->id_prioridad ? 'selected' : '' }}>
+                            {{ $prioridad->nombre }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Buscar en el historial..." value="{{ request('search') }}">
+                </div>
+                <div class="col-12 col-md-2">
+                    <button type="submit" class="btn-buscar-tec">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- ══════ TABLA HISTORIAL TÉCNICO ══════ --}}
+    <div class="tec-section-title"><i class="bi bi-clock-history"></i> Tickets del historial</div>
+    <div class="tec-table-wrap tec-table">
+        <div class="tec-table-header">
+            <i class="bi bi-list-task" style="color:#16a34a; font-size:1.1rem;"></i>
+            <span class="tec-table-header-title">Todos los Tickets Asignados</span>
+            <span class="tec-table-count">{{ count($tickets) }}</span>
+        </div>
+
         @if(count($tickets) > 0)
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <th>Folio</th>
+                        <th style="width:75px;">Folio</th>
                         <th>Título del Ticket</th>
                         <th>Prioridad</th>
                         <th>Estado Actual</th>
                         <th>Fecha de Creación</th>
                         <th>Fecha de Cierre</th>
-                        <th>Acciones</th>
+                        <th class="text-center" style="width:120px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($tickets as $ticket)
+                    @php
+                        $prioNivel  = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
+                        $estadoTipo = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
+                    @endphp
                     <tr>
-                        <td><strong>#{{ $ticket->id_ticket }}</strong></td>
+                        <td><strong class="text-muted">#{{ $ticket->id_ticket }}</strong></td>
                         <td>
-                            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="text-decoration-none">
+                            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="text-decoration-none text-dark" style="font-weight:600;">
                                 {{ $ticket->titulo }}
                             </a>
                             <br>
                             <small class="text-muted">{{ $ticket->usuario->nombre ?? 'N/A' }} {{ $ticket->usuario->apellido ?? '' }}</small>
                         </td>
-                        <td>
-                            <span class="badge badge-prioridad-{{ $ticket->prioridad->nivel ?? 'media' }}">
-                                {{ $ticket->prioridad->nombre ?? 'N/A' }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge badge-estado-{{ $ticket->estado->tipo ?? 'abierto' }}">
-                                {{ $ticket->estado->nombre ?? 'N/A' }}
-                            </span>
-                        </td>
-                        <td>
-                            <small>{{ $ticket->fecha_creacion ? $ticket->fecha_creacion->format('d/m/Y H:i') : 'N/A' }}</small>
-                        </td>
-                        <td>
-                            <small>{{ $ticket->fecha_cierre ? $ticket->fecha_cierre->format('d/m/Y H:i') : '--' }}</small>
-                        </td>
-                        <td>
-                            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-eye"></i> Gestionar
+                        <td><span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad->nombre ?? 'N/A' }}</span></td>
+                        <td><span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado->nombre ?? 'N/A' }}</span></td>
+                        <td><small class="text-muted">{{ $ticket->fecha_creacion ? $ticket->fecha_creacion->format('d/m/Y H:i') : 'N/A' }}</small></td>
+                        <td><small class="text-muted">{{ $ticket->fecha_cierre ? $ticket->fecha_cierre->format('d/m/Y H:i') : '--' }}</small></td>
+                        <td class="text-center">
+                            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-gestionar">
+                                <i class="bi bi-eye"></i> Ver
                             </a>
                         </td>
                     </tr>
@@ -115,172 +301,191 @@
             </table>
         </div>
         @else
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-inbox" style="font-size: 4rem; color: #CBD5E1;"></i>
-                <h5 class="mt-3">No tienes tickets aún</h5>
-                <p class="text-muted">El administrador aun no te ha asignado tickets para resolver</p>
-            </div>
+        <div class="empty-state">
+            <div class="empty-state-icon" style="background:#f0fdf4;"><i class="bi bi-inbox" style="color:#16a34a;"></i></div>
+            <h6 style="color:#1e293b; font-weight:700;">Sin tickets en el historial</h6>
+            <p class="text-muted small mb-0">Aún no tienes tickets asignados registrados.</p>
         </div>
-        @endif
-
-        @else
-        <!-- VISTA DE TARJETAS PARA USUARIO NORMAL -->
-        @forelse($tickets as $ticket)
-        <div class="card mb-3 ticket-card">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="ticket-id">
-                                <span class="badge bg-secondary">#{{ $ticket->id_ticket }}</span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-2">
-                                    <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="text-decoration-none text-dark">
-                                        {{ $ticket->titulo }}
-                                    </a>
-                                </h5>
-                                <p class="text-muted mb-2">{{ Str::limit($ticket->descripcion, 120) }}</p>
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <span class="badge badge-estado-{{ $ticket->estado->tipo }}">
-                                        {{ $ticket->estado->nombre }}
-                                    </span>
-                                    <span class="badge badge-prioridad-{{ $ticket->prioridad->nivel }}">
-                                        {{ $ticket->prioridad->nombre }}
-                                    </span>
-                                    <span class="badge bg-light text-dark">
-                                        <i class="bi bi-building me-1"></i>{{ $ticket->area->nombre }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-clock me-1"></i>
-                            {{ $ticket->fecha_creacion->diffForHumans() }}
-                        </p>
-                        @if($ticket->tecnicoAsignado)
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-badge me-1"></i>
-                            {{ $ticket->tecnicoAsignado->nombre_completo }}
-                        </p>
-                        @endif
-                        <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye me-1"></i>Ver Detalles
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @empty
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-inbox" style="font-size: 4rem; color: #CBD5E1;"></i>
-                <h5 class="mt-3">No tienes tickets aún</h5>
-                <p class="text-muted">Crea tu primer ticket para recibir soporte</p>
-                @if(!str_contains(session('usuario_rol'), 'Técnico'))
-                <a href="{{ route('tickets.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Crear Ticket
-                </a>
-                @endif
-            </div>
-        </div>
-        @endforelse
         @endif
     </div>
-</div>
 
-@push('styles')
-<style>
-    .ticket-card {
-        transition: all 0.2s ease;
-    }
-    
-    .ticket-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-    
-    .ticket-id {
-        font-size: 1.25rem;
-        font-weight: 700;
-    }
-</style>
-@endpush
+    @else
+    {{-- ══════ BANNER USUARIO ══════ --}}
+    <div class="usr-banner">
+        <div class="usr-banner-left">
+            <div class="usr-banner-icon"><i class="bi bi-ticket-perforated"></i></div>
+            <div>
+                <h1 class="usr-banner-title">Mis Tickets</h1>
+                <p class="usr-banner-sub">Todos tus tickets de soporte</p>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.6rem;position:relative;z-index:1;flex-wrap:wrap;">
+            <div class="refresh-badge" id="badgeUpdate">
+                <span class="live-dot"></span>
+                Actualizado: <strong id="lastUpdate">Ahora</strong>
+            </div>
+            <button class="btn-refresh-usr" id="btnRefresh">
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+            </button>
+            <a href="{{ route('tickets.create') }}" class="btn-nuevo">
+                <i class="bi bi-plus-circle"></i> Nuevo Ticket
+            </a>
+        </div>
+    </div>
+
+    {{-- ══════ FILTROS USUARIO ══════ --}}
+    <div class="filtros-card filtros-usr">
+        <form action="{{ route('tickets.mis-tickets') }}" method="GET">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-3">
+                    <select name="estado_id" class="form-select">
+                        <option value="">Todos los estados</option>
+                        @foreach($estados ?? [] as $estado)
+                        <option value="{{ $estado->id_estado }}" {{ request('estado_id') == $estado->id_estado ? 'selected' : '' }}>
+                            {{ $estado->nombre }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select name="prioridad_id" class="form-select">
+                        <option value="">Todas las prioridades</option>
+                        @foreach($prioridades ?? [] as $prioridad)
+                        <option value="{{ $prioridad->id_prioridad }}" {{ request('prioridad_id') == $prioridad->id_prioridad ? 'selected' : '' }}>
+                            {{ $prioridad->nombre }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Buscar en mis tickets..." value="{{ request('search') }}">
+                </div>
+                <div class="col-12 col-md-2">
+                    <button type="submit" class="btn-buscar-usr">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- ══════ CARDS USUARIO ══════ --}}
+    @forelse($tickets as $ticket)
+    @php
+        $stepFlowU = [
+            ['tipo'=>'abierto',    'label'=>'Abierto'],
+            ['tipo'=>'en_proceso', 'label'=>'En Proceso'],
+            ['tipo'=>'pendiente',  'label'=>'Pendiente'],
+            ['tipo'=>'resuelto',   'label'=>'Resuelto'],
+            ['tipo'=>'cerrado',    'label'=>'Cerrado'],
+        ];
+        $prioNivel  = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
+        $estadoTipo = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
+        $idxActualU = collect($stepFlowU)->search(fn($s) => $s['tipo'] === $estadoTipo);
+        if ($idxActualU === false) $idxActualU = 0;
+    @endphp
+    <div class="ticket-card-u">
+        <div class="row align-items-center g-2">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="tc-folio">#{{ $ticket->id_ticket }}</span>
+                    <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="tc-title">{{ $ticket->titulo }}</a>
+                </div>
+                <p class="tc-desc">{{ Str::limit($ticket->descripcion, 120) }}</p>
+                <div class="d-flex gap-2 flex-wrap mb-2">
+                    <span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado->nombre }}</span>
+                    <span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad->nombre }}</span>
+                    <span class="chip" style="background:#f1f5f9; color:#475569;">
+                        <i class="bi bi-building me-1"></i>{{ $ticket->area->nombre }}
+                    </span>
+                </div>
+                {{-- MINI STEPPER --}}
+                <div class="mini-flow-u">
+                    @foreach($stepFlowU as $si => $step)
+                        @php $cls = $si < $idxActualU ? 'ms-done' : ($si === $idxActualU ? 'ms-active' : ''); @endphp
+                        <div class="mini-step-u {{ $cls }}">
+                            <div class="mini-dot-u"></div>
+                            <div class="mini-lbl-u">{{ $step['label'] }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p class="text-muted small mb-1">
+                    <i class="bi bi-clock me-1"></i>{{ $ticket->fecha_creacion->diffForHumans() }}
+                </p>
+                @if($ticket->tecnicoAsignado)
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-person-badge me-1"></i>{{ $ticket->tecnicoAsignado->nombre_completo }}
+                </p>
+                @endif
+                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-ver-u">
+                    <i class="bi bi-eye"></i> Ver Detalles
+                </a>
+            </div>
+        </div>
+    </div>
+    @empty
+    <div class="empty-state">
+        <div class="empty-state-icon" style="background:#ccfbf1;"><i class="bi bi-inbox" style="color:#0f766e;"></i></div>
+        <h6 style="color:#1e293b; font-weight:700;">No tienes tickets aún</h6>
+        <p class="text-muted small mb-3">Crea tu primer ticket para recibir soporte técnico.</p>
+        <a href="{{ route('tickets.create') }}" class="btn-ver-u">
+            <i class="bi bi-plus-circle"></i> Crear Ticket
+        </a>
+    </div>
+    @endforelse
+    @endif
+
+</div>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Solo para técnicos
     @if(str_contains(session('usuario_rol'), 'Técnico'))
-    
+
     let currentFilters = {
-        estado_id: new URLSearchParams(window.location.search).get('estado_id') || '',
+        estado_id:    new URLSearchParams(window.location.search).get('estado_id')    || '',
         prioridad_id: new URLSearchParams(window.location.search).get('prioridad_id') || '',
-        search: new URLSearchParams(window.location.search).get('search') || ''
+        search:       new URLSearchParams(window.location.search).get('search')       || ''
     };
-    
-    const selectEstado = document.querySelector('select[name="estado_id"]');
+
+    const selectEstado    = document.querySelector('select[name="estado_id"]');
     const selectPrioridad = document.querySelector('select[name="prioridad_id"]');
-    const inputSearch = document.querySelector('input[name="search"]');
-    const buttonBuscar = document.querySelector('button[type="submit"]');
-    const formFiltros = document.querySelector('form[action="{{ route('tickets.mis-tickets') }}"]');
+    const inputSearch     = document.querySelector('input[name="search"]');
+    const formFiltros     = document.querySelector('form');
 
     function actualizarTickets() {
         const params = new URLSearchParams(currentFilters);
-        
         fetch(`{{ route('api.mis-tickets') }}?${params}`)
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector('table tbody');
                 if (!tbody) return;
-
-                // Limpiar tabla actual
                 tbody.innerHTML = '';
-
-                // Agregar nuevas filas
                 data.forEach(ticket => {
                     const row = document.createElement('tr');
-                    
-                    const estadoBadgeClass = `badge-estado-${ticket.estado_tipo}`;
-                    const prioridadBadgeClass = `badge-prioridad-${ticket.prioridad_nivel}`;
+                    const estadoBadgeClass    = `chip chip-${ticket.estado_tipo}`;
+                    const prioridadBadgeClass = `chip chip-${ticket.prioridad_nivel}`;
                     const ticketUrl = `/tickets/${ticket.id_ticket}`;
-                    
                     row.innerHTML = `
-                        <td><strong>#${ticket.id_ticket}</strong></td>
+                        <td><strong class="text-muted">#${ticket.id_ticket}</strong></td>
                         <td>
-                            <a href="${ticketUrl}" class="text-decoration-none">
-                                ${ticket.titulo}
-                            </a>
-                            <br>
-                            <small class="text-muted">${ticket.usuario_nombre}</small>
+                            <a href="${ticketUrl}" class="text-decoration-none text-dark fw-bold">${ticket.titulo}</a>
+                            <br><small class="text-muted">${ticket.usuario_nombre}</small>
                         </td>
-                        <td>
-                            <span class="badge ${prioridadBadgeClass}">
-                                ${ticket.prioridad_nombre}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge ${estadoBadgeClass}">
-                                ${ticket.estado_nombre}
-                            </span>
-                        </td>
-                        <td>${ticket.fecha_creacion}</td>
-                        <td>${ticket.fecha_cierre}</td>
-                        <td>
-                            <a href="${ticketUrl}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-eye"></i> Gestionar
+                        <td><span class="${prioridadBadgeClass}">${ticket.prioridad_nombre}</span></td>
+                        <td><span class="${estadoBadgeClass}">${ticket.estado_nombre}</span></td>
+                        <td><small class="text-muted">${ticket.fecha_creacion}</small></td>
+                        <td><small class="text-muted">${ticket.fecha_cierre}</small></td>
+                        <td class="text-center">
+                            <a href="${ticketUrl}" class="btn-gestionar">
+                                <i class="bi bi-eye"></i> Ver
                             </a>
                         </td>
                     `;
-                    
                     tbody.appendChild(row);
                 });
-
-                // Si hay datos vacíos, mostrar mensaje
                 if (data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay tickets que coincidan con los filtros</td></tr>';
                 }
@@ -288,50 +493,71 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error al actualizar tickets:', error));
     }
 
-    // Cambio automático en SELECT de ESTADO
-    if (selectEstado) {
-        selectEstado.addEventListener('change', function() {
-            currentFilters.estado_id = this.value;
-            actualizarTickets();
-        });
-    }
-
-    // Cambio automático en SELECT de PRIORIDAD
-    if (selectPrioridad) {
-        selectPrioridad.addEventListener('change', function() {
-            currentFilters.prioridad_id = this.value;
-            actualizarTickets();
-        });
-    }
-
-    // Búsqueda al escribir (con debounce)
+    if (selectEstado)    { selectEstado.addEventListener('change',    function() { currentFilters.estado_id    = this.value; actualizarTickets(); }); }
+    if (selectPrioridad) { selectPrioridad.addEventListener('change', function() { currentFilters.prioridad_id = this.value; actualizarTickets(); }); }
     if (inputSearch) {
         let searchTimeout;
         inputSearch.addEventListener('input', function() {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentFilters.search = this.value;
-                actualizarTickets();
-            }, 500);
+            searchTimeout = setTimeout(() => { currentFilters.search = this.value; actualizarTickets(); }, 500);
         });
     }
-
-    // Mantener el formulario para compatibilidad
     if (formFiltros) {
         formFiltros.addEventListener('submit', function(e) {
             e.preventDefault();
             currentFilters = {
-                estado_id: selectEstado?.value || '',
+                estado_id:    selectEstado?.value    || '',
                 prioridad_id: selectPrioridad?.value || '',
-                search: inputSearch?.value || ''
+                search:       inputSearch?.value     || ''
             };
             actualizarTickets();
         });
     }
-
-    // Auto-refresh cada 60 segundos
     setInterval(actualizarTickets, 60000);
-    
+
+    // Refresh widget
+    function horaActual(){
+        const n=new Date();
+        return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+    }
+    const ts  = document.getElementById('lastUpdate');
+    const btn = document.getElementById('btnRefresh');
+    if(ts) ts.textContent = horaActual();
+    setInterval(()=>{ if(ts) ts.textContent = horaActual(); }, 60000);
+    if(btn){
+        btn.addEventListener('click', function(){
+            const orig = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i> Actualizando...';
+            @if(str_contains(session('usuario_rol'), 'Técnico'))
+            actualizarTickets();
+            setTimeout(()=>{ if(ts) ts.textContent = horaActual(); this.innerHTML = orig; this.disabled = false; }, 800);
+            @else
+            window.location.reload();
+            @endif
+        });
+    }
+    @endif
+
+    // Refresh widget usuario normal (fuera del bloque técnico)
+    @if(!str_contains(session('usuario_rol'), 'Técnico'))
+    (function(){
+        function horaActual(){
+            const n=new Date();
+            return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+        }
+        const ts  = document.getElementById('lastUpdate');
+        const btn = document.getElementById('btnRefresh');
+        if(ts) ts.textContent = horaActual();
+        setInterval(()=>{ if(ts) ts.textContent = horaActual(); }, 60000);
+        if(btn){
+            btn.addEventListener('click', function(){
+                this.disabled = true;
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Actualizando...';
+                window.location.reload();
+            });
+        }
+    })();
     @endif
 });
 </script>

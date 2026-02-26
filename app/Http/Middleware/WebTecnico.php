@@ -10,7 +10,10 @@ class WebTecnico
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (session('usuario_rol') !== 'Técnico') {
+        $rol = session('usuario_rol');
+        
+        // Administrador tiene acceso a todo, incluyendo rutas de técnico
+        if ($rol !== 'Técnico' && $rol !== 'Administrador') {
             return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder a este módulo');
         }
         

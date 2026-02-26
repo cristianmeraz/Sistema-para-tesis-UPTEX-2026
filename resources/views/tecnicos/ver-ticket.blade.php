@@ -60,7 +60,7 @@
             <div class="col-md-5 text-end">
                 <div class="mb-3">
                     <span class="label-text d-block">PRIORIDAD:</span>
-                    <div class="badge-large" style="background: {{ $ticket->prioridad->nivel >= 3 ? 'red' : 'blue' }}">{{ $ticket->prioridad->nombre }}</div>
+                    <div class="badge-large" style="background: {{ ($ticket->prioridad?->nivel ?? 0) >= 3 ? 'red' : 'blue' }}">{{ $ticket->prioridad?->nombre ?? 'N/A' }}</div>
                 </div>
                 <div>
                     <span class="label-text d-block">ESTADO:</span>

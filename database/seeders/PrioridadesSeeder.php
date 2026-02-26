@@ -29,12 +29,6 @@ class PrioridadesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            [
-                'nombre' => 'Crítica',
-                'nivel' => 4,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
         ];
 
         DB::table('prioridades')->insert($prioridades);

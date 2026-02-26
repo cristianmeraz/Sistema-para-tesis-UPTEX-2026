@@ -23,9 +23,12 @@ class Usuario extends Authenticatable
         'correo',
         'password',
         'id_rol',
+        'area_id',
         'activo',
         'email_verified_at',
         'last_login',
+        'login_attempts',
+        'locked_at',
     ];
 
     protected $hidden = [
@@ -35,17 +38,24 @@ class Usuario extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'activo' => 'boolean',
-        'password' => 'hashed',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-        'last_login' => 'datetime',
+        'activo'            => 'boolean',
+        'password'          => 'hashed',
+        'created_at'        => 'datetime',
+        'updated_at'        => 'datetime',
+        'deleted_at'        => 'datetime',
+        'last_login'        => 'datetime',
+        'locked_at'         => 'datetime',
+        'login_attempts'    => 'integer',
     ];
 
     public function rol()
     {
         return $this->belongsTo(Rol::class, 'id_rol', 'id_rol');
+    }
+
+    public function area()
+    {
+        return $this->belongsTo(\App\Models\Area::class, 'area_id', 'id_area');
     }
 
     public function tickets()
