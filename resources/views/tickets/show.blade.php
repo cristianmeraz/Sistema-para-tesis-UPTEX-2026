@@ -6,15 +6,15 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/comments-v2.css') }}">
 @php
-    $rolNombre = session('usuario_rol', '');
-    if ($rolNombre === 'Administrador') {
+    // Colores de panel según rol ($esAdmin/$esTecnico vienen del controlador)
+    if ($esAdmin) {
         $rolColor1 = '#1e3a5f';
         $rolColor2 = '#1d4ed8';
         $rolGlow   = 'rgba(29,78,216,.22)';
         $chipHover = '#93c5fd';
         $chipHoverShadow = 'rgba(29,78,216,0.07)';
         $chipHoverText   = '#1d4ed8';
-    } elseif (str_contains($rolNombre, 'Técnico') || str_contains($rolNombre, 'Tecnico')) {
+    } elseif ($esTecnico) {
         $rolColor1 = '#14532d';
         $rolColor2 = '#16a34a';
         $rolGlow   = 'rgba(22,163,74,.22)';
@@ -294,7 +294,7 @@
 </style>
 
 @php
-    $esTecnico = str_contains(session('usuario_rol'), 'Técnico');
+    // $esAdmin y $esTecnico son pasados explícitamente desde el controlador (NO desde session)
 
     // Colores de prioridad
     $prioNombre = $ticket['prioridad']['nombre'] ?? null;
@@ -349,12 +349,9 @@
         </div>
         <div class="show-banner-actions">
             @php
-                $rolActual = session('usuario_rol');
-                $volverRuta = match($rolActual) {
-                    'Administrador' => route('tickets.index'),
-                    'Técnico'       => route('tickets.asignados'),
-                    default         => route('tickets.mis-tickets'),
-                };
+                $volverRuta = $esAdmin
+                    ? route('tickets.index')
+                    : ($esTecnico ? route('tickets.asignados') : route('tickets.mis-tickets'));
             @endphp
             <a href="{{ $volverRuta }}" class="btn btn-banner-back">
                 <i class="bi bi-arrow-left-circle me-1"></i> Volver
@@ -408,7 +405,7 @@
                 </div>
 
                 {{-- Prioridad --}}
-                <div class="info-chip" @if(session('usuario_rol') === 'Administrador' && $sinPrioridad) style="border:1.5px dashed #93c5fd;" @endif>
+                <div class="info-chip" @if($esAdmin && $sinPrioridad) style="border:1.5px dashed #93c5fd;" @endif>
                     <div class="info-chip-icon" style="background: {{ $prioStyle['bg'] }};">
                         <i class="bi {{ $prioStyle['icon'] }}" style="color: {{ $prioStyle['color'] }};"></i>
                     </div>
@@ -421,7 +418,7 @@
                 </div>
 
                 {{-- Técnico asignado --}}
-                @if(session('usuario_rol') === 'Administrador')
+                @if($esAdmin)
                 {{-- Solo Admin puede abrir el modal de asignar --}}
                 <div class="info-chip" style="cursor:pointer;"
                      data-bs-toggle="modal" data-bs-target="#modalAsignarTecnico"
@@ -523,8 +520,8 @@
             $fechaCorta = \Carbon\Carbon::parse($ticket['fecha_creacion'])->format('d/m/Y');
 
             // Título del header según rol
-            $headerTitulo = $esTecnico ? 'Gestión Técnica' : (session('usuario_rol') === 'Administrador' ? 'Panel Admin' : 'Estado del Ticket');
-            $headerIcono  = $esTecnico ? 'bi-tools' : (session('usuario_rol') === 'Administrador' ? 'bi-shield-lock-fill' : 'bi-info-circle-fill');
+            $headerTitulo = $esTecnico ? 'Gestión Técnica' : ($esAdmin ? 'Panel Admin' : 'Estado del Ticket');
+            $headerIcono  = $esTecnico ? 'bi-tools' : ($esAdmin ? 'bi-shield-lock-fill' : 'bi-info-circle-fill');
         @endphp
 
         <div class="card border-0 shadow overflow-hidden">
@@ -612,7 +609,7 @@
                 </div>
 
                 {{-- BOTÓN PRINCIPAL --}}
-                @if($esTecnico || session('usuario_rol') === 'Administrador')
+                @if($esTecnico || $esAdmin)
                     <button type="button"
                             class="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center gap-2"
                             style="background: {{ $colorActual }}; color:white; border:none; border-radius:12px; font-size:1rem; box-shadow: 0 6px 18px color-mix(in srgb, {{ $colorActual }} 40%, transparent); transition: filter .2s, transform .15s;"
@@ -632,7 +629,7 @@
         </div>
 
         {{-- TARJETA ASIGNAR PRIORIDAD (Solo Admin) --}}
-        @if(session('usuario_rol') === 'Administrador')
+        @if($esAdmin)
         <div class="card border-0 shadow-sm overflow-hidden mt-3">
             <div class="card-header border-0 px-4 py-3 text-white"
                  style="background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);">
@@ -696,7 +693,7 @@
 </div>
 
 <div class="modal fade" id="modalGestionTicket" tabindex="-1" aria-hidden="true">
-    @if($esTecnico || session('usuario_rol') === 'Administrador')
+    @if($esTecnico || $esAdmin)
     @php
         $mColor1 = $esTecnico ? '#16a34a' : '#1e3a5f';
         $mColor2 = $esTecnico ? '#15803d' : '#1d4ed8';
@@ -852,7 +849,7 @@
 </div>
 
 {{-- MODAL: ASIGNAR TÉCNICO (Solo Administrador) --}}
-@if(!str_contains(session('usuario_rol'), 'Técnico'))
+@if(!$esTecnico)
 <div class="modal fade" id="modalAsignarTecnico" tabindex="-1" aria-labelledby="modalAsignarTecnicoLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 460px;">
         <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">

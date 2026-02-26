@@ -177,8 +177,12 @@ class TicketWebController extends Controller
             // Para administrador: obtener lista de técnicos disponibles
             $tecnicos    = Usuario::whereHas('rol', function($q) { $q->where('nombre', 'Técnico'); })->where('activo', true)->get();
             $prioridades = Cache::remember('prioridades_catalogo', 60, fn() => Prioridad::orderBy('nivel')->get());
-            
-            return view('tickets.show', compact('ticket', 'estados', 'comentarios', 'tecnicos', 'prioridades'));
+
+            // Variables de rol explícitas — el controlador determina el panel, NO session() en la vista
+            $esAdmin   = ($rol === 'Administrador');
+            $esTecnico = str_contains($rol, 'Técnico');
+
+            return view('tickets.show', compact('ticket', 'estados', 'comentarios', 'tecnicos', 'prioridades', 'esAdmin', 'esTecnico'));
         } catch (\Exception $e) { return redirect()->route('dashboard')->with('error', 'Error al abrir el ticket'); }
     }
 
