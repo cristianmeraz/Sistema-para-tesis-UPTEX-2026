@@ -43,9 +43,9 @@ class WebController extends Controller
             'password.required' => 'La contraseña es obligatoria.',
         ]);
 
-        // Rate limiting por IP+correo: 15 peticiones por minuto (capa de red)
+        // Rate limiting por IP+correo: 5 peticiones por minuto (capa de red)
         $throttleKey = 'login.' . $request->ip() . '|' . strtolower($request->correo);
-        if (RateLimiter::tooManyAttempts($throttleKey, 15)) {
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             return back()->withErrors([
                 'correo' => "Demasiados intentos. Intenta de nuevo en {$seconds} segundos.",
