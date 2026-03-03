@@ -152,7 +152,11 @@
         @else
             <p class="greeting">Hola <strong>{{ $usuarioNombre }}</strong>,</p>
             @if($esCierre)
-                <p class="subtitle">¡Tu ticket ha sido <strong>resuelto</strong>. El equipo técnico ha completado el trabajo.</p>
+                @if($estadoNuevoTipo === 'cerrado')
+                    <p class="subtitle">Tu ticket <strong>#{{ $ticketId }}</strong> ha sido <strong>cerrado</strong> y archivado en el sistema.</p>
+                @else
+                    <p class="subtitle">¡Tu ticket ha sido <strong>resuelto</strong>. El equipo técnico ha completado el trabajo.</p>
+                @endif
             @else
                 <p class="subtitle">Tu ticket de soporte <strong>#{{ $ticketId }}</strong> ha recibido una actualización.</p>
             @endif
@@ -189,7 +193,7 @@
             </div>
             <div class="info-row">
                 <div class="info-label">Prioridad</div>
-                <div class="info-value"><span class="chip {{ $prioChip }}">{{ $ticket->prioridad->nombre ?? 'N/A' }}</span></div>
+                <div class="info-value"><span style="color:#9ca3af; font-style:italic;">N/A</span></div>
             </div>
             <div class="info-row">
                 <div class="info-label">Estado actual</div>

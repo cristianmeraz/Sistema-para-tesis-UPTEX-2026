@@ -225,11 +225,19 @@
                             $ticket->prioridad->nombre ?? 'media'
                         ));
                         $estadoTipo = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
+                        $esCritico  = ($ticket->prioridad?->nombre === 'Alta')
+                                   && $ticket->fecha_creacion
+                                   && $ticket->fecha_creacion->lte(now()->subHour());
                     @endphp
                     <tr>
                         <td><strong class="text-muted">#{{ $ticket->id_ticket }}</strong></td>
                         <td>
-                            <div class="fw-600 text-dark" style="font-weight:600;">{{ $ticket->titulo }}</div>
+                            <div class="fw-600 text-dark" style="font-weight:600;">
+                                {{ $ticket->titulo }}
+                                @if($esCritico)
+                                <span style="display:inline-block; background:#dc2626; color:#fff; font-size:.65rem; font-weight:800; padding:.12rem .4rem; border-radius:4px; vertical-align:middle; text-transform:uppercase; letter-spacing:.04em; animation:livePulse 1.8s infinite;">CRÍTICO</span>
+                                @endif
+                            </div>
                             <small class="text-muted">{{ $ticket->usuario->nombre ?? 'N/A' }} {{ $ticket->usuario->apellido ?? '' }}</small>
                         </td>
                         <td><span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad->nombre ?? 'N/A' }}</span></td>
