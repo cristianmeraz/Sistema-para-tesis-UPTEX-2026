@@ -64,6 +64,14 @@ class TicketWebController extends Controller
                 if ($request->filled('sin_tecnico') && $request->sin_tecnico === '1') {
                     $query->whereNull('tecnico_asignado_id');
                 }
+                // Búsqueda de texto
+                if ($request->filled('search')) {
+                    $search = '%' . $request->search . '%';
+                    $query->where(function($q) use ($search) {
+                        $q->where('titulo', 'like', $search)
+                          ->orWhere('descripcion', 'like', $search);
+                    });
+                }
             }
             
             $tickets = $query->orderBy('fecha_creacion', 'desc')->paginate(50)->withQueryString();
@@ -97,7 +105,7 @@ class TicketWebController extends Controller
                 }
                 $abiertos   = (clone $base)->whereHas('estado', fn($q) => $q->where('tipo', 'abierto'))->count();
                 $en_proceso = (clone $base)->whereHas('estado', fn($q) => $q->where('tipo', 'en_proceso'))->count();
-                $criticos   = (clone $base)->whereHas('prioridad', fn($q) => $q->where('nombre', 'like', '%tica'))->count();
+                $criticos   = (clone $base)->whereHas('prioridad', fn($q) => $q->where('nombre', 'Alta'))->count();
                 $total      = (clone $base)->count();
                 return compact('abiertos', 'en_proceso', 'criticos', 'total');
             });
@@ -271,7 +279,7 @@ class TicketWebController extends Controller
             'baja'    => $allTickets->filter(fn($t) => $t->prioridad?->nombre === 'Baja')->count(),
             'media'   => $allTickets->filter(fn($t) => $t->prioridad?->nombre === 'Media')->count(),
             'alta'    => $allTickets->filter(fn($t) => $t->prioridad?->nombre === 'Alta')->count(),
-
+            'critico' => $allTickets->filter(fn($t) => $t->prioridad?->nombre === 'Alta' && in_array($t->estado?->tipo, ['abierto', 'en_proceso', 'pendiente']))->count(),
         ];
         
         // Filtrar solo los pendientes
@@ -568,6 +576,20 @@ class TicketWebController extends Controller
             $ticket = Ticket::findOrFail($id);
             $ticket->tecnico_asignado_id = $request->tecnico_id;
             $ticket->save();
+
+            // ✅ Notificar al técnico que se le asignó la tarea
+            if ($request->tecnico_id) {
+                try {
+                    $tecnico = Usuario::find($request->tecnico_id);
+                    if ($tecnico && !empty($tecnico->correo)) {
+                        $ticket->load(['usuario', 'area', 'prioridad', 'estado']);
+                        Mail::to($tecnico->correo)
+                            ->send(new TicketCreadoMail($ticket, 'tecnico'));
+                    }
+                } catch (\Exception $mailEx) {
+                    Log::error('Notificación asignación técnico error ticket#' . $id . ': ' . $mailEx->getMessage());
+                }
+            }
 
             return redirect()->route('tickets.show', $id)->with('success', 'Técnico asignado correctamente');
         } catch (\Exception $e) {

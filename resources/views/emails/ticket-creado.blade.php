@@ -52,7 +52,7 @@
 
         /* ── CTA ── */
         .cta-wrap { text-align: center; margin: 1.5rem 0 0.5rem; }
-        .cta-btn { display: inline-block; background: linear-gradient(135deg, #1e3a5f, #1d4ed8); color: #fff; text-decoration: none; padding: 0.8rem 2.2rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(29,78,216,0.30); }
+        .cta-btn { display: inline-block; background: linear-gradient(135deg, #1e3a5f, #1d4ed8); color: #fff; text-decoration: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; font-size: 1.05rem; box-shadow: 0 6px 22px rgba(29,78,216,0.40); letter-spacing:.02em; }
 
         /* ── FOOTER ── */
         .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 1.2rem 1.8rem; text-align: center; font-size: 0.78rem; color: #94a3b8; line-height: 1.6; }
@@ -82,13 +82,15 @@
     {{-- BADGE DE TICKET --}}
     @php
         $ticketId   = str_pad($ticket->id_ticket, 5, '0', STR_PAD_LEFT);
-        $prioNombre = strtolower($ticket->prioridad->nombre ?? 'media');
+        $tienePrioridad = !is_null($ticket->prioridad);
+        $prioNombre = strtolower($ticket->prioridad->nombre ?? '');
         $prioChip   = match(true) {
             str_contains($prioNombre, 'baja')  => 'chip-baja',
             str_contains($prioNombre, 'media') => 'chip-media',
             str_contains($prioNombre, 'alta')  => 'chip-alta',
-            default => 'chip-media',
+            default => '',
         };
+        $prioDisplay = $tienePrioridad ? $ticket->prioridad->nombre : 'Sin asignar';
         $estadoTipo = strtolower($ticket->estado->tipo ?? 'abierto');
         $estadoChip = match($estadoTipo) {
             'abierto'    => 'chip-abierto',
@@ -99,7 +101,8 @@
             default      => 'chip-abierto',
         };
         $usuarioNombre = trim(($ticket->usuario->nombre ?? '') . ' ' . ($ticket->usuario->apellido ?? ''));
-        $esAdmin = $tipoDestinatario === 'admin';
+        $esAdmin    = $tipoDestinatario === 'admin';
+        $esTecnico  = $tipoDestinatario === 'tecnico';
     @endphp
 
     <div class="ticket-badge" style="margin-top:1.5rem; margin-left:1.8rem; margin-right:1.8rem;">
@@ -108,7 +111,11 @@
             <p class="ticket-badge-title" style="margin-top:6px;">{{ $ticket->titulo }}</p>
             <p class="ticket-badge-label">
                 {{ $ticket->area->nombre ?? 'General' }} &nbsp;·&nbsp;
-                <span class="chip {{ $prioChip }}">{{ $ticket->prioridad->nombre ?? 'Media' }}</span>
+                @if($tienePrioridad)
+                    <span class="chip {{ $prioChip }}">{{ $prioDisplay }}</span>
+                @else
+                    <span style="background:#f1f5f9;color:#9ca3af;border:1px dashed #cbd5e1;font-style:italic;padding:.15rem .5rem;border-radius:12px;font-size:.76rem;font-weight:600;">Sin asignar</span>
+                @endif
                 &nbsp;
                 <span class="chip {{ $estadoChip }}">{{ $ticket->estado->nombre ?? 'Abierto' }}</span>
             </p>
@@ -120,6 +127,9 @@
         @if($esAdmin)
             <p class="greeting">Hola <strong>Equipo Administrador</strong>,</p>
             <p class="greeting" style="color:#475569; font-size:.9rem;">Se ha creado un nuevo ticket en el sistema que requiere su atención.</p>
+        @elseif($esTecnico)
+            <p class="greeting">Hola <strong>{{ $ticket->tecnicoAsignado?->nombre ?? 'Técnico' }}</strong>,</p>
+            <p class="greeting" style="color:#475569; font-size:.9rem;">Se te ha asignado el ticket <strong>#{{ $ticketId }}</strong>. Por favor revísalo a la brevedad.</p>
         @else
             <p class="greeting">Hola <strong>{{ $usuarioNombre }}</strong>,</p>
             <p class="greeting" style="color:#475569; font-size:.9rem;">Tu ticket de soporte ha sido registrado exitosamente. El equipo técnico lo revisará a la brevedad.</p>
@@ -141,7 +151,13 @@
             </div>
             <div class="info-row">
                 <div class="info-label">Prioridad</div>
-                <div class="info-value"><span class="chip {{ $prioChip }}">{{ $ticket->prioridad->nombre ?? 'N/A' }}</span></div>
+                <div class="info-value">
+                    @if($tienePrioridad)
+                        <span class="chip {{ $prioChip }}">{{ $prioDisplay }}</span>
+                    @else
+                        <span style="color:#9ca3af; font-style:italic;">Sin asignar</span>
+                    @endif
+                </div>
             </div>
             <div class="info-row">
                 <div class="info-label">Estado</div>
@@ -161,9 +177,15 @@
 
         {{-- CTA: lleva directo al ticket. El controlador protege el acceso por rol --}}
         <div class="cta-wrap">
-            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="cta-btn">
-                Ver Ticket #{{ $ticketId }} &rarr;
+            @if($esTecnico)
+            <a href="{{ route('tickets.asignados') }}" class="cta-btn">
+                📂 Ver mi Panel de Técnico &rarr;
             </a>
+            @else
+            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="cta-btn">
+                🎫 Ver Ticket #{{ $ticketId }} &rarr;
+            </a>
+            @endif
         </div>
     </div>
 

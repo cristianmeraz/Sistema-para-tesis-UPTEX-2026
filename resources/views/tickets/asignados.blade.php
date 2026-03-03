@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Panel de Trabajo')
+@section('title', 'Panel del Técnico')
 @section('no_header_title', true)
 
 @section('content')
@@ -100,7 +100,7 @@
         <div style="display:flex;align-items:center;gap:1.2rem;position:relative;z-index:1;">
             <div class="tec-banner-icon"><i class="bi bi-person-workspace"></i></div>
             <div>
-                <h1 class="tec-banner-title">Panel de Trabajo</h1>
+                <h1 class="tec-banner-title">Panel del Técnico</h1>
                 <p class="tec-banner-sub">Gestiona tus tickets asignados y monitorea tu desempeño</p>
             </div>
         </div>
@@ -158,6 +158,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ route('tickets.index', ['prioridad_nombre' => 'Alta']) }}" class="kpi-card" style="text-decoration:none; border:1px solid #fecaca; background:linear-gradient(135deg,#fff5f5,#fff0f0);">
+                <div class="kpi-icon" style="background:#fee2e2;"><i class="bi bi-exclamation-triangle-fill" style="color:#dc2626;"></i></div>
+                <div>
+                    <div class="kpi-label">Crítico</div>
+                    <div class="kpi-value" style="color:#dc2626;">{{ $stats['critico'] }}</div>
+                    <div class="kpi-sub">Alta prioridad</div>
+                </div>
+            </a>
+        </div>
     </div>
 
     {{-- ══════ CARGA POR PRIORIDAD ══════ --}}
@@ -177,6 +187,11 @@
             <div class="prio-chip-dot" style="background:#dc2626;"></div>
             <span class="prio-chip-label">Alta</span>
             <span class="prio-chip-num" style="color:#dc2626;">{{ $stats['alta'] }}</span>
+        </div>
+        <div class="prio-chip" style="border-color:#fee2e2; background:#fff5f5;">
+            <div class="prio-chip-dot" style="background:#991b1b; animation:livePulse 2s ease-in-out infinite;"></div>
+            <span class="prio-chip-label" style="color:#991b1b;">Crítico</span>
+            <span class="prio-chip-num" style="color:#991b1b;">{{ $stats['critico'] }}</span>
         </div>
     </div>
 

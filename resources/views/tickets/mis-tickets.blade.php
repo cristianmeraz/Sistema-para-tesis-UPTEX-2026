@@ -358,7 +358,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-4">
-                    <input type="text" name="search" class="form-control" placeholder="Buscar en mis tickets..." value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control" placeholder="Buscar por título o descripción del ticket..." value="{{ request('search') }}">
                 </div>
                 <div class="col-12 col-md-2">
                     <button type="submit" class="btn-buscar-usr">
@@ -373,15 +373,15 @@
     @forelse($tickets as $ticket)
     @php
         $stepFlowU = [
-            ['tipo'=>'abierto',    'label'=>'Abierto'],
-            ['tipo'=>'en_proceso', 'label'=>'En Proceso'],
-            ['tipo'=>'pendiente',  'label'=>'Pendiente'],
-            ['tipo'=>'resuelto',   'label'=>'Resuelto'],
-            ['tipo'=>'cerrado',    'label'=>'Cerrado'],
+            ['tipo'=>'abierto',     'label'=>'Abierto'],
+            ['tipo'=>'en_atencion', 'label'=>'En Atención'],
+            ['tipo'=>'resuelto',    'label'=>'Resuelto'],
+            ['tipo'=>'cerrado',     'label'=>'Cerrado'],
         ];
-        $prioNivel  = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
-        $estadoTipo = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
-        $idxActualU = collect($stepFlowU)->search(fn($s) => $s['tipo'] === $estadoTipo);
+        $prioNivel    = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
+        $estadoTipo   = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
+        $estadoMapped = match($estadoTipo) { 'en_proceso', 'pendiente' => 'en_atencion', default => $estadoTipo };
+        $idxActualU   = collect($stepFlowU)->search(fn($s) => $s['tipo'] === $estadoMapped);
         if ($idxActualU === false) $idxActualU = 0;
     @endphp
     <div class="ticket-card-u">

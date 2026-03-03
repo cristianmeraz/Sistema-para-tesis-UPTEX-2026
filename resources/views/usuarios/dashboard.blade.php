@@ -6,11 +6,10 @@
 @section('content')
 @php
     $stepFlow = [
-        ['tipo' => 'abierto',    'label' => 'Abierto'],
-        ['tipo' => 'en_proceso', 'label' => 'En Proceso'],
-        ['tipo' => 'pendiente',  'label' => 'Pendiente'],
-        ['tipo' => 'resuelto',   'label' => 'Resuelto'],
-        ['tipo' => 'cerrado',    'label' => 'Cerrado'],
+        ['tipo' => 'abierto',      'label' => 'Abierto'],
+        ['tipo' => 'en_atencion',  'label' => 'En Atención'],
+        ['tipo' => 'resuelto',     'label' => 'Resuelto'],
+        ['tipo' => 'cerrado',      'label' => 'Cerrado'],
     ];
 @endphp
 <style>
@@ -166,8 +165,9 @@
 @foreach($tickets as $ticket)
 @php
     $estadoTipo = $ticket->estado->tipo ?? 'abierto';
+    $estadoMapped = match($estadoTipo) { 'en_proceso', 'pendiente' => 'en_atencion', default => $estadoTipo };
     $prioKey    = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
-    $idxActual  = collect($stepFlow)->search(fn($s) => $s['tipo'] === $estadoTipo);
+    $idxActual  = collect($stepFlow)->search(fn($s) => $s['tipo'] === $estadoMapped);
     if ($idxActual === false) $idxActual = 0;
 @endphp
 <div class="tk-mini">

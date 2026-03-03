@@ -131,7 +131,10 @@
     }
     .table tbody tr { border-bottom: 1px solid #f3f4f6; transition: background .15s; }
     .table tbody tr:last-child { border-bottom: none; }
-    /* El hover por prioridad se gestiona en tickets-priority.css */
+    .chip-na      { background:#f1f5f9; color:#9ca3af; border:1px dashed #cbd5e1; font-style:italic; }
+    .badge-prioridad-n\/a, .badge-prioridad-na { background:#f1f5f9 !important; color:#9ca3af !important; border:1px dashed #cbd5e1 !important; font-style:italic; }
+
+
     .table tbody td { padding: .9rem 1.1rem; font-size: .9rem; color: #374151; }
 
     .ticket-id   { font-weight: 700; color: #1e3a5f; font-size: .9rem; }
@@ -204,7 +207,7 @@
                 <div class="kpi-label">En Proceso</div>
             </a>
 
-            <a href="{{ route('tickets.index') . '?prioridad_nombre=Cr' . rawurlencode("\xc3\xad") . 'tica' }}" class="kpi-card" style="--kpi-color:#dc2626;">
+            <a href="{{ route('tickets.index') }}?prioridad_nombre=Alta" class="kpi-card" style="--kpi-color:#dc2626;">
                 <div class="kpi-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
                 <div class="kpi-number">{{ $ts['criticos'] }}</div>
                 <div class="kpi-label">Criticos</div>
@@ -277,6 +280,10 @@
                 <input type="hidden" name="prioridad_nombre" value="{{ request('prioridad_nombre') }}">
                 @endif
                 <div class="filter-row">
+                    <div class="filter-group" style="flex: 1 1 200px;">
+                        <label class="filter-label">Buscar</label>
+                        <input type="text" name="search" class="form-select" placeholder="Título o descripción del ticket..." value="{{ request('search') }}">
+                    </div>
                     <div class="filter-group">
                         <label class="filter-label">Estado</label>
                         <select name="estado_id" class="form-select" onchange="this.form.querySelector('[name=tipo]') && (this.form.querySelector('[name=tipo]').remove())">
@@ -335,8 +342,8 @@
         </div>
 
         {{-- ── TABLA ───────────────────────────── --}}
-        <div class="table-wrapper">
-            <table class="table">
+        <div class="table-wrapper" style="overflow-x:auto;">
+            <table class="table" style="min-width:850px;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -353,11 +360,12 @@
                 <tbody>
                     @forelse($tickets as $ticket)
                     @php
-                        $pc = strtolower($ticket['prioridad']['nombre'] ?? 'media');
-                        $pc = str_replace(['á','é','í','ó','ú','ü','ñ'], ['a','e','i','o','u','u','n'], $pc);
-                        $pc = str_replace(' ', '_', $pc);
+                        $prioNombre = $ticket['prioridad']['nombre'] ?? 'N/A';
+                        $pc = strtolower($prioNombre);
+                        $pc = str_replace(['á','é','í','ó','ú','ü','ñ',' '], ['a','e','i','o','u','u','n','_'], $pc);
+                        $esPrioNA = ($prioNombre === 'N/A' || $prioNombre === '' || $ticket['prioridad']['nombre'] === null);
                     @endphp
-                    <tr class="row-prioridad-{{ $pc }}">
+                    <tr class="row-prioridad-{{ $esPrioNA ? 'media' : $pc }}">
                         <td><span class="ticket-id">#{{ $ticket['id_ticket'] }}</span></td>
                         <td>
                             <a href="{{ route('tickets.show', $ticket['id_ticket']) }}" class="ticket-title">
@@ -367,9 +375,11 @@
                         <td>{{ $ticket['usuario']['nombre_completo'] ?? 'N/A' }}</td>
                         <td>{{ $ticket['area']['nombre'] ?? 'N/A' }}</td>
                         <td>
-                            <span class="badge badge-prioridad-{{ $pc }}">
-                                {{ $ticket['prioridad']['nombre'] ?? 'N/A' }}
-                            </span>
+                            @if($esPrioNA)
+                                <span style="background:#f1f5f9;color:#9ca3af;border:1px dashed #cbd5e1;font-style:italic;padding:.2rem .6rem;border-radius:20px;font-size:.78rem;font-weight:600;">Sin asignar</span>
+                            @else
+                                <span class="badge badge-prioridad-{{ $pc }}">{{ $prioNombre }}</span>
+                            @endif
                         </td>
                         <td>
                             <span class="badge badge-estado-{{ $ticket['estado']['tipo'] ?? 'abierto' }}">

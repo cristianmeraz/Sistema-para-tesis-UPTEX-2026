@@ -76,7 +76,7 @@
 
         /* ── CTA ── */
         .cta-wrap { text-align: center; margin: 1.4rem 0 .5rem; }
-        .cta-btn { display: inline-block; background: linear-gradient(135deg, #1e3a5f, #1d4ed8); color: #fff; text-decoration: none; padding: .78rem 2rem; border-radius: 10px; font-weight: 700; font-size: .93rem; box-shadow: 0 4px 14px rgba(29,78,216,.28); }
+        .cta-btn { display: inline-block; background: linear-gradient(135deg, #1e3a5f, #1d4ed8); color: #fff; text-decoration: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; font-size: 1.05rem; box-shadow: 0 6px 22px rgba(29,78,216,.40); letter-spacing:.02em; }
 
         /* ── FOOTER ── */
         .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 1.2rem 1.8rem; text-align: center; font-size: .78rem; color: #94a3b8; line-height: 1.6; }
@@ -134,7 +134,7 @@
                 @if($esCierre) ✅ @else 🔄 @endif
             </div>
             <div>
-                <h1>@if($esCierre) Ticket Resuelto @else Actualización de Ticket @endif</h1>
+                <h1>@if($estadoNuevoTipo === 'cerrado') Ticket Cerrado @elseif($esCierre) Ticket Resuelto @else Actualización de Ticket @endif</h1>
                 <p>Universidad Politécnica de Texcoco · Sistema de Soporte</p>
             </div>
         </div>
@@ -227,16 +227,22 @@
         {{-- BANNER ESPECIAL SI ES CIERRE --}}
         @if($esCierre)
         <div class="cierre-banner">
-            <h3>✅ Ticket #{{ $ticketId }} Resuelto</h3>
-            <p>Si el problema persiste o tienes dudas, puedes abrir un nuevo ticket de soporte.</p>
+            <h3 style="text-align:center; margin-bottom:.4rem;">@if($estadoNuevoTipo === 'cerrado') 🔒 @else ✅ @endif Ticket #{{ $ticketId }} {{ $estadoNuevo }}</h3>
+            <p style="text-align:center;">Si el problema persiste o tienes dudas, puedes abrir un nuevo ticket de soporte.</p>
         </div>
         @endif
 
         {{-- CTA: lleva directo al ticket. El controlador protege el acceso por rol --}}
         <div class="cta-wrap">
-            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="cta-btn">
-                Ver Ticket #{{ $ticketId }} &rarr;
+            @if($esTecnico)
+            <a href="{{ route('tickets.asignados') }}" class="cta-btn">
+                📂 Ver mi Panel de Técnico &rarr;
             </a>
+            @else
+            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="cta-btn">
+                🎫 Ver Ticket #{{ $ticketId }} &rarr;
+            </a>
+            @endif
         </div>
 
     </div>
