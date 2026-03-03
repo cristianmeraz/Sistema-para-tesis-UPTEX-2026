@@ -37,6 +37,10 @@
                         collect(explode(' ', $nombreCompleto))->map(fn($w) => $w[0] ?? '')->join(''),
                         0, 2
                     ));
+                    $rolTech     = $comentario['usuario']['rol'] ?? 'Técnico';
+                    $isAdminTech = str_contains($rolTech, 'Administrador');
+                    $techBadgeIcon  = $isAdminTech ? 'bi-shield-lock' : 'bi-tools';
+                    $techBadgeLabel = $isAdminTech ? 'Administrador' : 'Técnico';
                 @endphp
                 <div class="comment-item tech-comment"
                      data-comment-id="{{ $comentario['id_comentario'] ?? $index }}">
@@ -46,7 +50,7 @@
                             <div>
                                 <div class="comment-username">{{ $nombreCompleto }}</div>
                                 <span class="comment-role-badge">
-                                    <i class="bi bi-tools me-1"></i>Técnico
+                                    <i class="bi {{ $techBadgeIcon }} me-1"></i>{{ $techBadgeLabel }}
                                 </span>
                             </div>
                         </div>

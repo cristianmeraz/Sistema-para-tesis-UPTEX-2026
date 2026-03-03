@@ -111,11 +111,7 @@
             <p class="ticket-badge-title" style="margin-top:6px;">{{ $ticket->titulo }}</p>
             <p class="ticket-badge-label">
                 {{ $ticket->area->nombre ?? 'General' }} &nbsp;·&nbsp;
-                @if($tienePrioridad)
-                    <span class="chip {{ $prioChip }}">{{ $prioDisplay }}</span>
-                @else
-                    <span style="background:#f1f5f9;color:#9ca3af;border:1px dashed #cbd5e1;font-style:italic;padding:.15rem .5rem;border-radius:12px;font-size:.76rem;font-weight:600;">Sin asignar</span>
-                @endif
+                <span style="background:#f1f5f9;color:#9ca3af;border:1px solid #e2e8f0;padding:.15rem .5rem;border-radius:12px;font-size:.76rem;font-weight:600;">N/A</span>
                 &nbsp;
                 <span class="chip {{ $estadoChip }}">{{ $ticket->estado->nombre ?? 'Abierto' }}</span>
             </p>
@@ -152,11 +148,7 @@
             <div class="info-row">
                 <div class="info-label">Prioridad</div>
                 <div class="info-value">
-                    @if($tienePrioridad)
-                        <span class="chip {{ $prioChip }}">{{ $prioDisplay }}</span>
-                    @else
-                        <span style="color:#9ca3af; font-style:italic;">Sin asignar</span>
-                    @endif
+                    <span style="color:#9ca3af; font-style:italic;">N/A</span>
                 </div>
             </div>
             <div class="info-row">

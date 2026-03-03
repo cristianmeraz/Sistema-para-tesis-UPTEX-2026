@@ -57,6 +57,13 @@ class ReporteWebController extends Controller
                     ->whereNull('tecnico_asignado_id')
                     ->whereHas('estado', function($q){ $q->whereIn('tipo', ['abierto', 'pendiente', 'en_proceso']); })
                     ->count(),
+                // Alta SIN técnico Y creado hace más de 1 hora
+                'criticos_en_1h' => (clone $ticketsQuery)
+                    ->whereHas('prioridad', function($q){ $q->where('nombre', 'Alta'); })
+                    ->whereNull('tecnico_asignado_id')
+                    ->whereHas('estado', function($q){ $q->whereIn('tipo', ['abierto', 'pendiente', 'en_proceso']); })
+                    ->where('fecha_creacion', '<=', now()->subHour())
+                    ->count(),
             ];
         });
 
@@ -78,6 +85,7 @@ class ReporteWebController extends Controller
                     'estado' => ['nombre' => $t->estado->nombre ?? 'N/A', 'tipo' => $t->estado->tipo ?? 'abierto'],
                     'tecnico_asignado' => $t->tecnicoAsignado ? ['nombre_completo' => ($t->tecnicoAsignado->nombre ?? 'N/A') . ' ' . ($t->tecnicoAsignado->apellido ?? '')] : null,
                     'fecha_creacion' => $t->fecha_creacion,
+                    'es_critico' => $t->fecha_creacion && $t->fecha_creacion->lte(now()->subHour()),
                 ];
             });
 
@@ -114,6 +122,12 @@ class ReporteWebController extends Controller
                 ->whereHas('prioridad', function($q){ $q->where('nombre', 'Alta'); })
                 ->whereNull('tecnico_asignado_id')
                 ->whereHas('estado', function($q){ $q->whereIn('tipo', ['abierto', 'pendiente', 'en_proceso']); })
+                ->count(),
+            'criticos_en_1h' => (clone $ticketsQuery)
+                ->whereHas('prioridad', function($q){ $q->where('nombre', 'Alta'); })
+                ->whereNull('tecnico_asignado_id')
+                ->whereHas('estado', function($q){ $q->whereIn('tipo', ['abierto', 'pendiente', 'en_proceso']); })
+                ->where('fecha_creacion', '<=', now()->subHour())
                 ->count(),
         ];
 

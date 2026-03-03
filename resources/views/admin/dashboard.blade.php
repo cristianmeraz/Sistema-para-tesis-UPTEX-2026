@@ -684,6 +684,14 @@
                         </div>
                         <div class="priority-number" data-stat="prioridad_alta" style="color:#dc2626;">{{ $stats['prioridad_alta'] ?? '0' }}</div>
                         <small class="text-danger">Atención urgente</small>
+                        @if(($stats['criticos_en_1h'] ?? 0) > 0)
+                        <div class="mt-2 d-flex align-items-center gap-1 px-2 py-1 rounded-2"
+                             style="background:#dc2626; display:inline-flex !important;">
+                            <span style="width:7px;height:7px;border-radius:50%;background:#fff;animation: livePulse 1.5s ease-in-out infinite;display:inline-block;"></span>
+                            <span style="color:#fff; font-size:.72rem; font-weight:800; text-transform:uppercase;">CRÍTICO</span>
+                            <span style="color:#fca5a5; font-size:.72rem; font-weight:700;">{{ $stats['criticos_en_1h'] }} &gt;1h sin técnico</span>
+                        </div>
+                        @endif
                     </div>
                     <div class="priority-icon"><i class="bi bi-arrow-up-circle-fill" style="font-size:2rem; color:#dc2626; opacity:.4;"></i></div>
                 </div>
@@ -706,14 +714,27 @@
                         <th>Usuario</th>
                         <th>Técnico Asignado</th>
                         <th>Estado</th>
+                        <th>Tiempo</th>
                         <th style="border-top-right-radius: 8px;">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($critical_tickets ?? [] as $ticket)
+                    @php
+                        $horasTranscurridas = $ticket['fecha_creacion'] ? \Carbon\Carbon::parse($ticket['fecha_creacion'])->diffInMinutes(now()) : 0;
+                        $esCritico = ($ticket['es_critico'] ?? false) || $horasTranscurridas >= 60;
+                        $tiempoLabel = $horasTranscurridas >= 60
+                            ? floor($horasTranscurridas / 60) . 'h ' . ($horasTranscurridas % 60) . 'm'
+                            : $horasTranscurridas . ' min';
+                    @endphp
                     <tr class="row-prioridad-alta">
                         <td><span class="ticket-id" style="color:#dc2626;">#{{ $ticket['id_ticket'] }}</span></td>
-                        <td><strong>{{ Str::limit($ticket['titulo'], 40) }}</strong></td>
+                        <td>
+                            <strong>{{ Str::limit($ticket['titulo'], 38) }}</strong>
+                            @if($esCritico)
+                            <span class="ms-1 badge" style="background:#dc2626; color:#fff; font-size:.68rem; padding:.18rem .45rem; border-radius:4px; vertical-align:middle; animation: livePulse 1.8s infinite;">CRÍTICO</span>
+                            @endif
+                        </td>
                         <td>{{ $ticket['usuario']['nombre_completo'] ?? 'N/A' }}</td>
                         <td>
                             @if(isset($ticket['tecnico_asignado']))
@@ -726,6 +747,9 @@
                             <span class="badge badge-estado-{{ $ticket['estado']['tipo'] ?? 'abierto' }}">
                                 {{ $ticket['estado']['nombre'] ?? 'N/A' }}
                             </span>
+                        </td>
+                        <td>
+                            <small class="{{ $esCritico ? 'text-danger fw-bold' : 'text-muted' }}">{{ $tiempoLabel }}</small>
                         </td>
                         <td>
                             <a href="{{ route('tickets.show', $ticket['id_ticket']) }}" class="btn-action" style="background:#dc2626;">
