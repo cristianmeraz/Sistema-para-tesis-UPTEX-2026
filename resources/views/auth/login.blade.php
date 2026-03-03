@@ -301,12 +301,6 @@
                         <i class="bi bi-key me-1"></i>¿Olvidaste tu contraseña?
                     </a>
                 </div>
-                
-                <div class="divider">o</div>
-                
-                <div class="register-link">
-                    ¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate aquí</a>
-                </div>
             </div>
         </div>
     </div>
