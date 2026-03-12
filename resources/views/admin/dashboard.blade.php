@@ -800,6 +800,197 @@
 
 </div>
 
+{{-- ════════════════════════════════════════════════════════════════ --}}
+{{-- SECCIÓN: ENCUESTA DE SATISFACCIÓN — 4 gráficas                --}}
+{{-- ════════════════════════════════════════════════════════════════ --}}
+@if(isset($satisfaccionStats))
+<div class="container-fluid px-4 pb-5" style="max-width:1400px; margin:0 auto;">
+
+    <div class="section-header mb-4" style="border-left:4px solid #16a34a; padding-left:.75rem;">
+        <i class="bi bi-emoji-smile-fill" style="color:#16a34a;"></i>
+        Encuestas de Satisfacción
+        <span class="badge bg-success ms-2" style="font-size:.73rem; font-weight:600;">
+            {{ $satisfaccionStats['respondidas'] }}/{{ $satisfaccionStats['total'] }} respondidas
+        </span>
+    </div>
+
+    <div class="row g-4">
+
+        {{-- Gráfica 1: Satisfacción global --}}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:12px;">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold text-muted small text-uppercase mb-3">
+                        <i class="bi bi-pie-chart-fill text-success me-1"></i>Satisfacción global
+                    </h6>
+                    <canvas id="chartSatisfaccionGlobal" height="220"></canvas>
+                    <div class="d-flex justify-content-center gap-3 mt-2 flex-wrap" style="font-size:.78rem;">
+                        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;margin-right:4px;"></span>Satisfechos ({{ $satisfaccionStats['satisfechos'] }})</span>
+                        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc2626;margin-right:4px;"></span>No satisfechos ({{ $satisfaccionStats['no_satisfechos'] }})</span>
+                        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:4px;"></span>Sin responder ({{ $satisfaccionStats['sin_responder'] }})</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Gráfica 2: Satisfacción por área --}}
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:12px;">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold text-muted small text-uppercase mb-3">
+                        <i class="bi bi-bar-chart-fill text-primary me-1"></i>Satisfacción por área
+                    </h6>
+                    <canvas id="chartSatisfaccionPorArea" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- Gráfica 3: Tasa de respuesta + Gráfica 4: Tickets resueltos --}}
+        <div class="col-md-3 d-flex flex-column gap-4">
+
+            {{-- Tasa de respuesta --}}
+            <div class="card border-0 shadow-sm" style="border-radius:12px; flex:1;">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold text-muted small text-uppercase mb-2">
+                        <i class="bi bi-reply-fill text-warning me-1"></i>Tasa de respuesta
+                    </h6>
+                    <canvas id="chartTasaRespuesta" height="160"></canvas>
+                    @php
+                        $tasaPct = $satisfaccionStats['total'] > 0
+                            ? round($satisfaccionStats['respondidas'] / $satisfaccionStats['total'] * 100, 1)
+                            : 0;
+                    @endphp
+                    <div class="text-center mt-1" style="font-size:1.4rem; font-weight:800; color:#1e3a5f;">{{ $tasaPct }}%</div>
+                    <div class="text-center text-muted" style="font-size:.75rem;">encuestas respondidas</div>
+                </div>
+            </div>
+
+            {{-- Tickets resueltos por día --}}
+            <div class="card border-0 shadow-sm" style="border-radius:12px; flex:1;">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold text-muted small text-uppercase mb-2">
+                        <i class="bi bi-graph-up text-info me-1"></i>Resueltos (14 días)
+                    </h6>
+                    <canvas id="chartResueltoPorDia" height="130"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    const stats = @json($satisfaccionStats);
+
+    // Cargar Chart.js si no está cargado
+    function initCharts() {
+        // Gráfica 1: Donut satisfacción global
+        const ctx1 = document.getElementById('chartSatisfaccionGlobal');
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Satisfechos', 'No satisfechos', 'Sin responder'],
+                    datasets: [{
+                        data: [stats.satisfechos, stats.no_satisfechos, stats.sin_responder],
+                        backgroundColor: ['#16a34a', '#dc2626', '#94a3b8'],
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Gráfica 2: Barras por área
+        const ctx2 = document.getElementById('chartSatisfaccionPorArea');
+        if (ctx2 && stats.por_area && stats.por_area.length > 0) {
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: stats.por_area.map(r => r.area),
+                    datasets: [
+                        { label: 'Satisfechos', data: stats.por_area.map(r => r.satisfechos), backgroundColor: '#16a34a', borderRadius: 4 },
+                        { label: 'No satisfechos', data: stats.por_area.map(r => r.no_satisfechos), backgroundColor: '#dc2626', borderRadius: 4 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        } else if (ctx2) {
+            ctx2.closest('.card-body').insertAdjacentHTML('beforeend', '<p class="text-center text-muted small mt-3">Sin datos por área aún</p>');
+        }
+
+        // Gráfica 3: Tasa de respuesta
+        const ctx3 = document.getElementById('chartTasaRespuesta');
+        if (ctx3) {
+            const pct = stats.total > 0 ? Math.round(stats.respondidas / stats.total * 100) : 0;
+            new Chart(ctx3, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [pct, 100 - pct],
+                        backgroundColor: ['#1d4ed8', '#e2e8f0'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '75%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+
+        // Gráfica 4: Línea tickets resueltos por día
+        const ctx4 = document.getElementById('chartResueltoPorDia');
+        if (ctx4) {
+            new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: stats.dias_labels,
+                    datasets: [{
+                        label: 'Resueltos',
+                        data: stats.dias_data,
+                        borderColor: '#0891b2',
+                        backgroundColor: 'rgba(8,145,178,0.12)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 3,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+    }
+
+    if (typeof Chart !== 'undefined') {
+        initCharts();
+    } else {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+        s.onload = initCharts;
+        document.head.appendChild(s);
+    }
+})();
+</script>
+@endif
+
 <!-- JAVASCRIPT PARA FUNCIONALIDADES AJAX -->
 <script data-refresh-url="{{ route('reportes.refresh-stats') }}">
 document.addEventListener('DOMContentLoaded', function() {

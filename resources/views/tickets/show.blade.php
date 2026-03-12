@@ -400,9 +400,22 @@
                     </div>
                     <div>
                         <div class="info-chip-label">Fecha de creación</div>
-                        <div class="info-chip-value">{{ \Carbon\Carbon::parse($ticket['fecha_creacion'])->format('d/m/Y H:i') }}</div>
+                        <div class="info-chip-value">{{ \Carbon\Carbon::parse($ticket['fecha_creacion'])->setTimezone('America/Mexico_City')->format('d/m/Y H:i') }}</div>
                     </div>
                 </div>
+
+                {{-- Fecha de cierre --}}
+                @if(!empty($ticket['fecha_cierre']))
+                <div class="info-chip">
+                    <div class="info-chip-icon" style="background:#f0fdf4;">
+                        <i class="bi bi-calendar2-check" style="color:#16a34a;"></i>
+                    </div>
+                    <div>
+                        <div class="info-chip-label">Fecha de cierre</div>
+                        <div class="info-chip-value" style="color:#15803d; font-weight:700;">{{ \Carbon\Carbon::parse($ticket['fecha_cierre'])->setTimezone('America/Mexico_City')->format('d/m/Y H:i') }}</div>
+                    </div>
+                </div>
+                @endif
 
                 {{-- Prioridad --}}
                 <div class="info-chip" @if($esAdmin && $sinPrioridad) style="border:1.5px dashed #93c5fd;" @endif>

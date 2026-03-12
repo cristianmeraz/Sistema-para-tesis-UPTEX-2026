@@ -9,6 +9,7 @@ use App\Models\Usuario;
 use App\Models\Area;
 use App\Models\Prioridad;
 use App\Models\Estado;
+use App\Models\EncuestaSatisfaccion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -89,7 +90,61 @@ class ReporteWebController extends Controller
                 ];
             });
 
-        return view('admin.dashboard', compact('stats', 'critical_tickets'));
+        // ── Datos de Satisfacción para gráficas ─────────────────────────
+        $satisfaccionStats = Cache::remember('satisfaccion_dashboard_stats', 5, function () {
+            $total        = EncuestaSatisfaccion::count();
+            $respondidas  = EncuestaSatisfaccion::whereNotNull('respondida_at')->count();
+            $satisfechos  = EncuestaSatisfaccion::where('satisfecho', true)->count();
+            $noSatisfechos= EncuestaSatisfaccion::where('satisfecho', false)->count();
+            $sinResponder = $total - $respondidas;
+
+            // Por área
+            $porArea = DB::table('encuestas_satisfaccion as e')
+                ->join('tickets as t', 't.id_ticket', '=', 'e.ticket_id')
+                ->join('areas as a', 'a.id_area', '=', 't.area_id')
+                ->whereNotNull('e.respondida_at')
+                ->select(
+                    'a.nombre as area',
+                    DB::raw('SUM(CASE WHEN e.satisfecho = 1 THEN 1 ELSE 0 END) as satisfechos'),
+                    DB::raw('SUM(CASE WHEN e.satisfecho = 0 THEN 1 ELSE 0 END) as no_satisfechos')
+                )
+                ->groupBy('a.nombre')
+                ->get();
+
+            // Tickets resueltos por día (últimos 14 días)
+            $resueltoPorDia = DB::table('tickets as t')
+                ->join('estados as e', 'e.id_estado', '=', 't.estado_id')
+                ->where('e.tipo', 'resuelto')
+                ->whereNotNull('t.fecha_cierre')
+                ->where('t.fecha_cierre', '>=', now()->subDays(14))
+                ->select(DB::raw('DATE(t.fecha_cierre) as dia'), DB::raw('COUNT(*) as total'))
+                ->groupBy('dia')
+                ->orderBy('dia')
+                ->get()
+                ->keyBy('dia');
+
+            // Llenar días faltantes con 0
+            $diasLabels = [];
+            $diasData   = [];
+            for ($i = 13; $i >= 0; $i--) {
+                $fecha = now()->subDays($i)->format('Y-m-d');
+                $diasLabels[] = now()->subDays($i)->format('d/m');
+                $diasData[]   = $resueltoPorDia->get($fecha)->total ?? 0;
+            }
+
+            return [
+                'total'           => $total,
+                'respondidas'     => $respondidas,
+                'satisfechos'     => $satisfechos,
+                'no_satisfechos'  => $noSatisfechos,
+                'sin_responder'   => $sinResponder,
+                'por_area'        => $porArea,
+                'dias_labels'     => $diasLabels,
+                'dias_data'       => $diasData,
+            ];
+        });
+
+        return view('admin.dashboard', compact('stats', 'critical_tickets', 'satisfaccionStats'));
     }
 
     /**

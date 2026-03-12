@@ -230,6 +230,9 @@
         <a href="{{ route('admin.tecnicos.create') }}" class="btn-hdr btn-hdr-white">
             <i class="bi bi-person-badge-fill"></i> Crear Técnico
         </a>
+        <a href="{{ route('usuarios.import.form') }}" class="btn-hdr btn-hdr-white">
+            <i class="bi bi-file-earmark-arrow-up"></i> Importar CSV
+        </a>
     </div>
 </div>
 

@@ -7,19 +7,20 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, Helvetica, sans-serif; background: #F1F5F9; color: #1e293b; }
-        .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+        .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
 
         /* ── HEADER ── */
-        .header { background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%); padding: 2rem 2.2rem; position: relative; overflow: hidden; }
-        .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.06); }
-        .header::after  { content: ''; position: absolute; bottom: -50px; right: 100px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.04); }
-        .header-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 1rem; }
-        .header-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
-        .header h1 { color: #fff; font-size: 1.25rem; font-weight: 700; }
-        .header p  { color: rgba(255,255,255,0.78); font-size: 0.85rem; margin-top: 2px; }
+        .header { background-color: #1e3a5f; padding: 2rem 2.2rem; position: relative; overflow: hidden; }
+        .header::before { display: none; }
+        .header::after  { display: none; }
+        .header-inner { position: relative; z-index: 1; display: table; width: 100%; }
+        .header-icon { display: table-cell; width: 58px; background: rgba(255,255,255,0.18); border-radius: 10px; text-align: center; vertical-align: middle; font-size: 1.4rem; padding: .5rem; }
+        .header-text { display: table-cell; padding-left: .75rem; vertical-align: middle; }
+        .header h1 { color: #fff; font-size: 1.2rem; font-weight: 700; margin: 0 0 2px 0; }
+        .header p  { color: rgba(255,255,255,0.80); font-size: 0.83rem; margin: 0; }
 
         /* ── BADGE TICKET ── */
-        .ticket-badge { background: linear-gradient(135deg, #1e3a5f, #1d4ed8); border-radius: 12px; padding: 1.2rem 1.5rem; margin: 1.5rem 1.8rem 0; display: flex; align-items: center; gap: 1rem; }
+        .ticket-badge { background-color: #1e3a5f; border-radius: 8px; padding: 1.2rem 1.5rem; margin: 1.5rem 1.8rem 0; display: table; width: calc(100% - 3.6rem); }
         .ticket-badge-num { background: rgba(255,255,255,0.18); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; white-space: nowrap; }
         .ticket-badge-title { color: #fff; font-weight: 700; font-size: 1rem; margin: 0; }
         .ticket-badge-label { color: rgba(255,255,255,0.72); font-size: 0.8rem; margin-top: 2px; }
@@ -52,7 +53,7 @@
 
         /* ── CTA ── */
         .cta-wrap { text-align: center; margin: 1.5rem 0 0.5rem; }
-        .cta-btn { display: inline-block; background: linear-gradient(135deg, #1e3a5f, #1d4ed8); color: #fff; text-decoration: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; font-size: 1.05rem; box-shadow: 0 6px 22px rgba(29,78,216,0.40); letter-spacing:.02em; }
+        .cta-btn { display: inline-block; background-color: #1d4ed8; color: #ffffff; text-decoration: none; padding: 1rem 2.5rem; border-radius: 8px; font-weight: 800; font-size: 1rem; letter-spacing:.02em; }
 
         /* ── FOOTER ── */
         .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 1.2rem 1.8rem; text-align: center; font-size: 0.78rem; color: #94a3b8; line-height: 1.6; }

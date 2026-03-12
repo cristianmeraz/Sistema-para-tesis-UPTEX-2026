@@ -56,7 +56,7 @@
                         </div>
                         <div class="comment-meta">
                             <span class="comment-date">
-                                {{ \Carbon\Carbon::parse($comentario['created_at'] ?? now())->format('d/m/Y H:i') }}
+                                {{ \Carbon\Carbon::parse($comentario['created_at'] ?? now())->setTimezone('America/Mexico_City')->format('d/m/Y H:i') }}
                             </span>
                         </div>
                     </div>
@@ -84,9 +84,12 @@
             @foreach($otrosComentarios as $index => $comentario)
                 @php
                     $rol = $comentario['usuario']['rol'] ?? '';
-                    $cssClass = str_contains($rol, 'Administrador') ? 'admin-comment' : 'user-comment';
-                    $rolLabel = str_contains($rol, 'Administrador') ? 'Administrador' : 'Usuario';
-                    $rolIcon  = str_contains($rol, 'Administrador') ? 'bi-shield-lock' : 'bi-person-fill';
+                    // ✅ FIX: respetar rol real (Admin, Técnico, o Usuario Normal)
+                    $esAdminComent  = str_contains($rol, 'Administrador');
+                    $esTecnicoComent = str_contains($rol, 'cnico'); // Técnico
+                    $cssClass = $esAdminComent ? 'admin-comment' : ($esTecnicoComent ? 'tech-comment' : 'user-comment');
+                    $rolLabel = $esAdminComent ? 'Administrador' : ($esTecnicoComent ? 'Técnico' : 'Usuario');
+                    $rolIcon  = $esAdminComent ? 'bi-shield-lock' : ($esTecnicoComent ? 'bi-tools' : 'bi-person-fill');
                     $nombreCompleto = trim(($comentario['usuario']['nombre'] ?? 'Anónimo') . ' ' . ($comentario['usuario']['apellido'] ?? ''));
                     $initials = strtoupper(substr(
                         collect(explode(' ', $nombreCompleto))->map(fn($w) => $w[0] ?? '')->join(''),
@@ -107,7 +110,7 @@
                         </div>
                         <div class="comment-meta">
                             <span class="comment-date">
-                                {{ \Carbon\Carbon::parse($comentario['created_at'] ?? now())->format('d/m/Y H:i') }}
+                                {{ \Carbon\Carbon::parse($comentario['created_at'] ?? now())->setTimezone('America/Mexico_City')->format('d/m/Y H:i') }}
                             </span>
                         </div>
                     </div>

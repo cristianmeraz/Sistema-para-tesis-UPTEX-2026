@@ -74,7 +74,11 @@ class TicketWebController extends Controller
                 }
             }
             
-            $tickets = $query->orderBy('fecha_creacion', 'desc')->paginate(50)->withQueryString();
+            // ✅ FIX: Ordenar por prioridad (Alta→Media→Baja) y luego por fecha
+            $tickets = $query
+                ->orderByRaw('COALESCE((SELECT nivel FROM prioridades WHERE id_prioridad = tickets.prioridad_id), 0) DESC')
+                ->orderBy('fecha_creacion', 'desc')
+                ->paginate(50)->withQueryString();
             
             // Transformar tickets a formato array
             $tickets->getCollection()->transform(function($t) {
@@ -473,6 +477,17 @@ class TicketWebController extends Controller
                 }
             }
 
+            // ── BLOQUEAR CIERRE SI LA ENCUESTA NO FUE RESPONDIDA ─────────
+            $estadoNuevoSolicitado = Estado::find($request->estado_id);
+            if ($estadoNuevoSolicitado && strtolower($estadoNuevoSolicitado->tipo) === 'cerrado') {
+                $encuestaPendiente = \App\Models\EncuestaSatisfaccion::where('ticket_id', $id)->first();
+                if ($encuestaPendiente && !$encuestaPendiente->estaRespondida()) {
+                    return redirect()->route('tickets.show', $id)
+                        ->with('error', 'No puedes cerrar el ticket hasta que el usuario responda la encuesta de satisfacción.');
+                }
+            }
+            // ─────────────────────────────────────────────────────────────
+
             // Capturar estado anterior ANTES de actualizarlo
             $estadoAnteriorNombre = $ticket->estado->nombre ?? 'N/A';
             $estadoAnteriorTipo   = $ticket->estado->tipo   ?? 'abierto';
@@ -546,6 +561,28 @@ class TicketWebController extends Controller
             } catch (\Exception $mailEx) {
                 // El fallo de correo NO impide guardar el cambio
                 Log::error('TicketEstadoCambiadoMail error ticket#' . $id . ': ' . $mailEx->getMessage());
+            }
+            // ─────────────────────────────────────────────────────────────
+
+            // ── ENCUESTA DE SATISFACCIÓN (si nuevo estado = resuelto) ────
+            if (strtolower($estadoNuevoTipo) === 'resuelto') {
+                try {
+                    $yaExiste = \App\Models\EncuestaSatisfaccion::where('ticket_id', $id)->exists();
+                    if (!$yaExiste) {
+                        $encuesta = \App\Models\EncuestaSatisfaccion::create([
+                            'ticket_id'  => $id,
+                            'usuario_id' => $ticket->usuario_id,
+                            'token'      => bin2hex(random_bytes(32)),
+                        ]);
+                        $encuesta->load(['ticket', 'usuario']);
+                        if (!empty($ticket->usuario->correo)) {
+                            Mail::to($ticket->usuario->correo)
+                                ->send(new \App\Mail\EncuestaSatisfaccionMail($encuesta));
+                        }
+                    }
+                } catch (\Exception $encEx) {
+                    Log::error('EncuestaSatisfaccionMail error ticket#' . $id . ': ' . $encEx->getMessage());
+                }
             }
             // ─────────────────────────────────────────────────────────────
 

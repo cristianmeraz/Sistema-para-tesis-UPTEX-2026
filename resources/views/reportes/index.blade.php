@@ -155,10 +155,10 @@
     </div>
 
     {{-- ══════ CARDS ══════ --}}
-    <div class="row g-4">
+    <div class="row g-4 justify-content-center">
 
         {{-- Tickets por Fecha --}}
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-5">
             <div class="rep-card">
                 <div class="rep-card-icon-wrap rep-icon-blue">
                     <i class="bi bi-calendar-range"></i>
@@ -169,13 +169,13 @@
                     Genera un reporte detallado de tickets creados dentro de un rango de fechas personalizado.
                 </div>
                 <a href="{{ route('reportes.por-fecha') }}" class="rep-btn rep-btn-blue">
-                    <i class="bi bi-download"></i> Generar Reporte
+                    <i class="bi bi-bar-chart-line"></i> Ver Reporte
                 </a>
             </div>
         </div>
 
         {{-- Rendimiento de Técnicos --}}
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-5">
             <div class="rep-card">
                 <div class="rep-card-icon-wrap rep-icon-amber">
                     <i class="bi bi-people-fill"></i>
@@ -187,23 +187,6 @@
                 </div>
                 <a href="{{ route('reportes.rendimiento') }}" class="rep-btn rep-btn-amber">
                     <i class="bi bi-eye-fill"></i> Ver Reporte
-                </a>
-            </div>
-        </div>
-
-        {{-- Exportar CSV --}}
-        <div class="col-12 col-md-4">
-            <div class="rep-card">
-                <div class="rep-card-icon-wrap rep-icon-green">
-                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-                </div>
-                <span class="rep-card-badge rep-badge-green">Exportación</span>
-                <div class="rep-card-title">Exportar Todo a CSV</div>
-                <div class="rep-card-desc">
-                    Descarga el historial completo de tickets del sistema en formato CSV para análisis externo.
-                </div>
-                <a href="{{ route('reportes.exportar') }}" class="rep-btn rep-btn-green">
-                    <i class="bi bi-file-earmark-arrow-down"></i> Exportar CSV
                 </a>
             </div>
         </div>

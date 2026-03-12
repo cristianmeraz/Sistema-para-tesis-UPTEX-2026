@@ -76,6 +76,22 @@
         margin-bottom: 1.5rem;
         box-shadow: 0 1px 4px rgba(30,58,95,.05);
     }
+    /* ── Flechas visibles en selects ── */
+    .filter-box .form-select {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e3a5f' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 12px 12px !important;
+        padding-right: 2.2rem !important;
+        cursor: pointer;
+    }
+    .filter-box .form-select:focus {
+        border-color: #1e3a5f;
+        box-shadow: 0 0 0 3px rgba(30,58,95,.12);
+    }
+
     .filter-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -118,16 +134,17 @@
         box-shadow: 0 2px 8px rgba(30,58,95,.07);
     }
     .table { width: 100%; margin: 0; }
-    .table thead { background: #1e3a5f; }
+    .table thead { background: #1e3a5f !important; }
     .table thead th {
-        padding: 1rem 1.1rem;
-        font-weight: 700;
-        font-size: .82rem;
-        border: none;
-        text-align: left;
-        color: #fff;
-        text-transform: none;
-        letter-spacing: .02em;
+        padding: 1rem 1.1rem !important;
+        font-weight: 700 !important;
+        font-size: .82rem !important;
+        border: none !important;
+        text-align: left !important;
+        color: #ffffff !important;
+        text-transform: none !important;
+        letter-spacing: .02em !important;
+        white-space: nowrap;
     }
     .table tbody tr { border-bottom: 1px solid #f3f4f6; transition: background .15s; }
     .table tbody tr:last-child { border-bottom: none; }
@@ -394,7 +411,7 @@
                             @endif
                         </td>
                         <td style="font-size:.87rem; color:#9ca3af;">
-                            {{ \Carbon\Carbon::parse($ticket['fecha_creacion'])->format('d/m/Y') }}
+                            {{ \Carbon\Carbon::parse($ticket['fecha_creacion'])->setTimezone('America/Mexico_City')->format('d/m/Y') }}
                         </td>
                         <td>
                             <a href="{{ route('tickets.show', $ticket['id_ticket']) }}" class="btn-action">

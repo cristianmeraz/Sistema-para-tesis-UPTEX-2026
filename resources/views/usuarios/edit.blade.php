@@ -5,8 +5,8 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-pencil-square"></i> Editar Usuario</h2>
-    <a href="{{ route('usuarios.show', $usuario['id_usuario']) }}" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Volver
+    <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a Usuarios
     </a>
 </div>
 
@@ -74,6 +74,16 @@
                             @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password_confirmation" 
+                                   name="password_confirmation"
+                                   placeholder="Repite la nueva contraseña">
+                            <small class="text-muted">Necesario solo si cambias la contraseña</small>
                         </div>
                         
                         <div class="col-md-6 mb-3">

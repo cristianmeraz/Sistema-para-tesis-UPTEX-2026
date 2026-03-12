@@ -7,14 +7,15 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, Helvetica, sans-serif; background: #F1F5F9; color: #1e293b; }
-        .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+        .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
 
         /* ── HEADER ── */
         .header { padding: 2rem 2.2rem; position: relative; overflow: hidden; }
-        .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.06); }
-        .header::after  { content: ''; position: absolute; bottom: -50px; right: 100px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.04); }
-        .header-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 1rem; }
-        .header-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .header::before { display: none; }
+        .header::after  { display: none; }
+        .header-inner { position: relative; z-index: 1; display: table; width: 100%; }
+        .header-icon  { display: table-cell; width: 50px; background: rgba(255,255,255,0.15); border-radius: 10px; text-align: center; vertical-align: middle; font-size: 1.4rem; padding: .4rem; }
+        .header-text  { display: table-cell; padding-left: .75rem; vertical-align: middle; }
         .header h1 { color: #fff; font-size: 1.25rem; font-weight: 700; }
         .header p  { color: rgba(255,255,255,0.78); font-size: 0.85rem; margin-top: 2px; }
 
@@ -70,13 +71,13 @@
         .operador-role { font-size: .78rem; color: #64748b; }
 
         /* ── CTA CIERRE (cuando es resuelto/cerrado) ── */
-        .cierre-banner { background: linear-gradient(135deg, #15803d, #16a34a); border-radius: 12px; padding: 1.2rem; margin: 1.2rem 0; text-align: center; color: #fff; }
+        .cierre-banner { background-color: #15803d; border-radius: 8px; padding: 1.2rem; margin: 1.2rem 0; text-align: center; color: #fff; }
         .cierre-banner h3 { font-size: 1.05rem; margin-bottom: .3rem; }
         .cierre-banner p { font-size: .85rem; opacity: .88; }
 
         /* ── CTA ── */
         .cta-wrap { text-align: center; margin: 1.4rem 0 .5rem; }
-        .cta-btn { display: inline-block; background: linear-gradient(135deg, #1e3a5f, #1d4ed8); color: #fff; text-decoration: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; font-size: 1.05rem; box-shadow: 0 6px 22px rgba(29,78,216,.40); letter-spacing:.02em; }
+        .cta-btn { display: inline-block; background-color: #1d4ed8; color: #fff; text-decoration: none; padding: 1rem 2.5rem; border-radius: 8px; font-weight: 800; font-size: 1.05rem; letter-spacing:.02em; }
 
         /* ── FOOTER ── */
         .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 1.2rem 1.8rem; text-align: center; font-size: .78rem; color: #94a3b8; line-height: 1.6; }
@@ -116,7 +117,7 @@
     $esAdmin      = $tipoDestinatario === 'admin';
     $esTecnico    = $tipoDestinatario === 'tecnico';
 
-    $headerColor  = $esTecnico ? 'linear-gradient(135deg,#15803d,#16a34a)' : 'linear-gradient(135deg,#1e3a5f,#1d4ed8)';
+    $headerColor  = $esTecnico ? '#15803d' : '#1e3a5f';
     $avatarClass  = $esTecnico ? '' : 'admin';
     $nombreClass  = $esTecnico ? '' : 'admin';
 
@@ -128,12 +129,12 @@
 @endphp
 
     {{-- HEADER dinámico según quien opera --}}
-    <div class="header" style="background: {{ $headerColor }};">
+    <div class="header" style="background-color: {{ $headerColor }};">
         <div class="header-inner">
             <div class="header-icon">
                 @if($esCierre) ✅ @else 🔄 @endif
             </div>
-            <div>
+            <div class="header-text">
                 <h1>@if($estadoNuevoTipo === 'cerrado') Ticket Cerrado @elseif($esCierre) Ticket Resuelto @else Actualización de Ticket @endif</h1>
                 <p>Universidad Politécnica de Texcoco · Sistema de Soporte</p>
             </div>

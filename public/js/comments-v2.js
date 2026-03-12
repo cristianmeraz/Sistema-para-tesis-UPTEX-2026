@@ -301,8 +301,14 @@ const CommentSystem = (() => {
         let cssClass, rolLabel, rolIcon;
         if (forceClass === 'tech' || comment.es_actualizacion === true) {
             cssClass = 'tech-comment';
-            rolLabel = 'Técnico';
-            rolIcon  = '<i class="bi bi-tools me-1"></i>';
+            // ✅ FIX: respetar el rol real del usuario (Admin puede también hacer actualizaciones técnicas)
+            if (rol.includes('Admin')) {
+                rolLabel = 'Administrador';
+                rolIcon  = '<i class="bi bi-shield-lock me-1"></i>';
+            } else {
+                rolLabel = 'Técnico';
+                rolIcon  = '<i class="bi bi-tools me-1"></i>';
+            }
         } else if (rol.includes('Admin')) {
             cssClass = 'admin-comment';
             rolLabel = 'Administrador';

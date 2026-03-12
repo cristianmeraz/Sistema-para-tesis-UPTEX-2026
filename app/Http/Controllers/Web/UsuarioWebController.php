@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
 use App\Models\Rol;
+use App\Models\Area;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rules\Password;
@@ -292,5 +293,92 @@ class UsuarioWebController extends Controller
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Técnico creado correctamente.');
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // IMPORTADOR CSV DE USUARIOS
+    // Columnas esperadas: nombre,apellido,correo,password,area_id
+    // ════════════════════════════════════════════════════════════════════
+
+    public function importForm()
+    {
+        $areas = Area::orderBy('nombre')->get(['id_area', 'nombre']);
+        return view('usuarios.import', compact('areas'));
+    }
+
+    public function importStore(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048',
+        ], [
+            'csv_file.required' => 'Debes seleccionar un archivo CSV.',
+            'csv_file.mimes'    => 'El archivo debe ser CSV (.csv o .txt).',
+            'csv_file.max'      => 'El archivo no puede superar 2 MB.',
+        ]);
+
+        $rolNormal = Rol::where('nombre', 'like', 'Usuario%')->value('id_rol') ?? 3;
+        $areaIds   = Area::pluck('id_area')->toArray();
+
+        $handle   = fopen($request->file('csv_file')->getRealPath(), 'r');
+        $fila     = 0;
+        $creados  = 0;
+        $errores  = [];
+
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            $fila++;
+
+            // Saltar cabecera
+            if ($fila === 1 && !is_numeric($row[0] ?? '')) {
+                continue;
+            }
+
+            // Verificar columnas mínimas
+            if (count($row) < 5) {
+                $errores[] = "Fila {$fila}: faltan columnas (se necesitan nombre, apellido, correo, password, area_id).";
+                continue;
+            }
+
+            [$nombre, $apellido, $correo, $password, $areaId] = array_map('trim', $row);
+
+            // Validaciones básicas por fila
+            if (empty($nombre) || empty($apellido) || empty($correo) || empty($password)) {
+                $errores[] = "Fila {$fila}: campos vacíos (nombre, apellido, correo o password).";
+                continue;
+            }
+            if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+                $errores[] = "Fila {$fila}: correo inválido «{$correo}».";
+                continue;
+            }
+            if (Usuario::where('correo', strtolower($correo))->exists()) {
+                $errores[] = "Fila {$fila}: correo «{$correo}» ya está registrado (omitido).";
+                continue;
+            }
+            $areaIdInt = (int) $areaId;
+            if (!in_array($areaIdInt, $areaIds)) {
+                $errores[] = "Fila {$fila}: area_id {$areaId} no existe (omitido).";
+                continue;
+            }
+
+            Usuario::create([
+                'nombre'   => $nombre,
+                'apellido' => $apellido,
+                'correo'   => strtolower($correo),
+                'password' => Hash::make($password),
+                'id_rol'   => $rolNormal,
+                'area_id'  => $areaIdInt,
+                'activo'   => true,
+            ]);
+            $creados++;
+        }
+
+        fclose($handle);
+
+        $msg = "Importación completada: {$creados} usuario(s) creado(s).";
+        if (count($errores)) {
+            $msg .= ' Filas con errores: ' . implode(' | ', array_slice($errores, 0, 10));
+        }
+
+        return redirect()->route('usuarios.index')
+            ->with('success', $msg);
     }
 }

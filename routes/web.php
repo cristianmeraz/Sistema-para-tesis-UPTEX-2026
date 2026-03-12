@@ -5,9 +5,15 @@ use App\Http\Controllers\Web\WebController;
 use App\Http\Controllers\Web\TicketWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
 use App\Http\Controllers\Web\ReporteWebController;
+use App\Http\Controllers\Web\EncuestaWebController;
 
 // --- INICIO ---
 Route::get('/', function () { return redirect()->route('login'); });
+
+// --- ENCUESTA DE SATISFACCIÓN (pública, sin autenticación) ---
+Route::get('/encuesta/gracias', [EncuestaWebController::class, 'gracias'])->name('encuesta.gracias');
+Route::get('/encuesta/{token}', [EncuestaWebController::class, 'show'])->name('encuesta.show');
+Route::post('/encuesta/{token}', [EncuestaWebController::class, 'responder'])->name('encuesta.responder');
 
 // --- AUTENTICACIÓN PÚBLICA ---
 Route::get('/login', [WebController::class, 'showLogin'])->name('login');
@@ -64,6 +70,8 @@ Route::middleware('web.auth')->group(function () {
 
         Route::resource('usuarios', UsuarioWebController::class);
         Route::post('/usuarios/{id}/toggle-activo', [UsuarioWebController::class, 'toggleActivo'])->name('usuarios.toggle-activo');
+        Route::get('/usuarios-importar', [UsuarioWebController::class, 'importForm'])->name('usuarios.import.form');
+        Route::post('/usuarios-importar', [UsuarioWebController::class, 'importStore'])->name('usuarios.import.store');
 
         Route::get('/reportes', [ReporteWebController::class, 'index'])->name('reportes.index');
         Route::get('/reportes/refresh-stats', [ReporteWebController::class, 'refreshStats'])->name('reportes.refresh-stats');

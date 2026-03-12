@@ -6,15 +6,15 @@
     <title>Cuenta Bloqueada - UPTEX Tickets</title>
     <style>
         body { margin: 0; padding: 0; font-family: 'Inter', Arial, sans-serif; background: #F8FAFC; }
-        .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-        .header { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); padding: 2rem; text-align: center; }
+        .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .header { background-color: #4F46E5; padding: 2rem; text-align: center; }
         .header h1 { color: white; font-size: 1.5rem; margin: 0; }
         .header p { color: rgba(255,255,255,0.85); margin: 0.5rem 0 0; font-size: 0.95rem; }
         .body { padding: 2rem 2.5rem; }
         .alert-icon { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
         h2 { color: #1E293B; font-size: 1.3rem; margin-bottom: 0.75rem; }
         p { color: #475569; line-height: 1.6; margin: 0 0 1rem; }
-        .btn { display: block; width: fit-content; margin: 1.5rem auto; padding: 0.85rem 2.5rem; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; text-align: center; }
+        .btn { display: block; width: fit-content; margin: 1.5rem auto; padding: 0.85rem 2.5rem; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; text-align: center; }
         .note { background: #F1F5F9; border-left: 4px solid #4F46E5; padding: 1rem; border-radius: 0 8px 8px 0; font-size: 0.875rem; color: #64748B; margin-top: 1.5rem; }
         .url-text { word-break: break-all; color: #4F46E5; font-size: 0.8rem; }
         .footer { background: #F8FAFC; padding: 1.5rem; text-align: center; border-top: 1px solid #E2E8F0; font-size: 0.8rem; color: #94A3B8; }
