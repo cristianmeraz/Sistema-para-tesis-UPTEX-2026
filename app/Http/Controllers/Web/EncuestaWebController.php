@@ -9,8 +9,7 @@ use App\Models\EncuestaSatisfaccion;
 class EncuestaWebController extends Controller
 {
     /**
-     * Muestra la encuesta pública (sin autenticación).
-     * También soporta respuesta rápida vía GET ?r=si|no (desde el email).
+     * Muestra la encuesta pública con las 5 preguntas (sin autenticación).
      */
     public function show(Request $request, string $token)
     {
@@ -18,23 +17,12 @@ class EncuestaWebController extends Controller
             ->where('token', $token)
             ->firstOrFail();
 
-        // Respuesta rápida desde el email (link directo)
-        $r = $request->query('r');
-        if ($r && !$encuesta->estaRespondida()) {
-            $satisfecho = ($r === 'si');
-            $encuesta->update([
-                'satisfecho'    => $satisfecho,
-                'respondida_at' => now(),
-            ]);
-            return redirect()->route('encuesta.gracias')
-                ->with('satisfecho', $satisfecho);
-        }
-
         return view('encuesta.show', compact('encuesta'));
     }
 
     /**
-     * Procesa el formulario POST de la encuesta.
+     * Procesa el formulario POST de la encuesta con las 5 preguntas.
+     * Deriva el campo 'satisfecho' (boolean) del promedio de las respuestas.
      */
     public function responder(Request $request, string $token)
     {
@@ -48,13 +36,37 @@ class EncuestaWebController extends Controller
         }
 
         $request->validate([
-            'satisfecho' => 'required|in:0,1',
+            'pregunta_1' => 'required|integer|between:1,4',
+            'pregunta_2' => 'required|integer|between:1,4',
+            'pregunta_3' => 'required|integer|between:1,4',
+            'pregunta_4' => 'required|integer|between:1,4',
+            'pregunta_5' => 'required|integer|between:1,4',
             'comentario' => 'nullable|string|max:500',
+        ], [
+            'pregunta_1.required' => 'La pregunta 1 es obligatoria.',
+            'pregunta_2.required' => 'La pregunta 2 es obligatoria.',
+            'pregunta_3.required' => 'La pregunta 3 es obligatoria.',
+            'pregunta_4.required' => 'La pregunta 4 es obligatoria.',
+            'pregunta_5.required' => 'La pregunta 5 es obligatoria.',
         ]);
 
-        $satisfecho = (bool) $request->satisfecho;
+        // Derivar satisfecho: promedio >= 2.5 (Satisfecho o Muy Satisfecho) = true
+        $promedio = (
+            (int)$request->pregunta_1 +
+            (int)$request->pregunta_2 +
+            (int)$request->pregunta_3 +
+            (int)$request->pregunta_4 +
+            (int)$request->pregunta_5
+        ) / 5;
+
+        $satisfecho = $promedio >= 2.5;
 
         $encuesta->update([
+            'pregunta_1'    => (int)$request->pregunta_1,
+            'pregunta_2'    => (int)$request->pregunta_2,
+            'pregunta_3'    => (int)$request->pregunta_3,
+            'pregunta_4'    => (int)$request->pregunta_4,
+            'pregunta_5'    => (int)$request->pregunta_5,
             'satisfecho'    => $satisfecho,
             'comentario'    => $request->comentario,
             'respondida_at' => now(),
