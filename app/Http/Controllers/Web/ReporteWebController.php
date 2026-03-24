@@ -323,7 +323,7 @@ class ReporteWebController extends Controller
 
     public function porFecha(Request $request)
     {
-        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->format('Y-m-d'));
+        $fechaInicio = $request->input('fecha_inicio', now()->subDays(6)->format('Y-m-d'));
         $fechaFin    = $request->input('fecha_fin',    now()->format('Y-m-d'));
 
         $query = Ticket::with(['usuario', 'area', 'prioridad', 'estado', 'tecnicoAsignado'])
