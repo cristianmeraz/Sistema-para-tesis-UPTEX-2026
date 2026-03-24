@@ -26,14 +26,15 @@
         .subtitle { font-size: .9rem; color: #475569; line-height: 1.55; margin-bottom: 1.2rem; }
 
         /* ── TICKET BADGE ── */
-        .ticket-ref { display: flex; align-items: center; gap: .7rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: .8rem 1rem; margin-bottom: 1.4rem; }
-        .ticket-ref-num { font-weight: 800; color: #1e3a5f; font-size: .95rem; }
-        .ticket-ref-title { font-size: .88rem; color: #475569; }
+        .ticket-ref { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: .8rem 1rem; margin-bottom: 1.4rem; }
+        .ticket-ref-num { font-weight: 800; color: #1e3a5f; font-size: .95rem; display: block; }
+        .ticket-ref-title { font-size: .88rem; color: #475569; display: block; margin-top: 3px; }
 
         /* ── TRANSICIÓN DE ESTADO ── */
-        .estado-cambio { display: flex; align-items: center; justify-content: center; gap: .7rem; margin: 1.2rem 0; flex-wrap: wrap; }
+        .estado-cambio { text-align: center; margin: 1.2rem 0; }
+        .estado-cambio-inner { display: inline-block; }
         .estado-box { display: inline-block; padding: .35rem .9rem; border-radius: 20px; font-size: .82rem; font-weight: 700; }
-        .arrow { color: #94a3b8; font-size: 1.1rem; font-weight: 700; }
+        .arrow { display: inline-block; color: #94a3b8; font-size: 1.1rem; font-weight: 700; margin: 0 .5rem; vertical-align: middle; }
 
         /* ── INFO GRID ── */
         .info-grid { display: table; width: 100%; border-collapse: collapse; margin: 1.2rem 0; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
@@ -57,18 +58,21 @@
 
         /* ── SECCIÓN COMENTARIO / AVANCE ── */
         .comentario-section { margin: 1.4rem 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-        .comentario-header { background: #1e3a5f; color: #fff; padding: .65rem 1rem; font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; display: flex; align-items: center; gap: .5rem; }
-        .comentario-header span { opacity: .8; }
+        .comentario-header { background: #1e3a5f; color: #fff; padding: .65rem 1rem; font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+        .comentario-header span { opacity: .8; margin-left: .4rem; }
         .comentario-body { background: #f8fafc; padding: 1rem 1.1rem; font-size: .9rem; color: #334155; line-height: 1.65; white-space: pre-line; }
-        .comentario-footer-note { background: #fff; border-top: 1px solid #e2e8f0; padding: .55rem 1rem; font-size: .78rem; color: #64748b; display: flex; align-items: center; gap: .4rem; }
+        .comentario-footer-note { background: #fff; border-top: 1px solid #e2e8f0; padding: .55rem 1rem; font-size: .78rem; color: #64748b; }
 
         /* ── OPERADOR ── */
-        .operador-wrap { display: flex; align-items: center; gap: .8rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: .8rem 1rem; margin: 1.2rem 0; }
-        .operador-avatar { width: 38px; height: 38px; border-radius: 9px; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .9rem; flex-shrink: 0; }
+        .operador-wrap { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: .8rem 1rem; margin: 1.2rem 0; }
+        .operador-table { display: table; width: 100%; }
+        .operador-avatar-cell { display: table-cell; width: 46px; vertical-align: middle; }
+        .operador-info-cell { display: table-cell; vertical-align: middle; padding-left: .8rem; }
+        .operador-avatar { width: 38px; height: 38px; border-radius: 9px; background: #16a34a; color: #fff; text-align: center; line-height: 38px; font-weight: 800; font-size: .9rem; display: inline-block; }
         .operador-avatar.admin { background: #1d4ed8; }
-        .operador-name { font-weight: 700; color: #15803d; font-size: .9rem; }
+        .operador-name { font-weight: 700; color: #15803d; font-size: .9rem; display: block; }
         .operador-name.admin { color: #1d4ed8; }
-        .operador-role { font-size: .78rem; color: #64748b; }
+        .operador-role { font-size: .78rem; color: #64748b; display: block; }
 
         /* ── CTA CIERRE (cuando es resuelto/cerrado) ── */
         .cierre-banner { background-color: #15803d; border-radius: 8px; padding: 1.2rem; margin: 1.2rem 0; text-align: center; color: #fff; }
@@ -208,12 +212,16 @@
 
         {{-- QUIÉN REALIZÓ EL CAMBIO --}}
         <div class="operador-wrap">
-            <div class="operador-avatar {{ $avatarClass }}">{{ $iniciales }}</div>
-            <div>
-                <div class="operador-name {{ $nombreClass }}">{{ $operadorNombre }}</div>
-                <div class="operador-role">
-                    @if($esTecnico) Técnico de Soporte @else Administrador del Sistema @endif
-                    &nbsp;·&nbsp; Actualizó el estado
+            <div class="operador-table">
+                <div class="operador-avatar-cell">
+                    <div class="operador-avatar {{ $avatarClass }}">{{ $iniciales }}</div>
+                </div>
+                <div class="operador-info-cell">
+                    <span class="operador-name {{ $nombreClass }}">{{ $operadorNombre }}</span>
+                    <span class="operador-role">
+                        @if($esTecnico) Técnico de Soporte @else Administrador del Sistema @endif
+                        &nbsp;&middot;&nbsp; Actualizó el estado
+                    </span>
                 </div>
             </div>
         </div>
@@ -221,11 +229,11 @@
         {{-- COMENTARIO / AVANCE --}}
         <div class="comentario-section">
             <div class="comentario-header" style="background: {{ $esTecnico ? '#15803d' : '#1e3a5f' }};">
-                ✏️ <span>Comentario / Avance registrado</span>
+                &#9998; <span>Comentario / Avance registrado</span>
             </div>
             <div class="comentario-body">{{ $comentario }}</div>
             <div class="comentario-footer-note">
-                📋 <span>Este comentario quedará registrado en el historial del ticket</span>
+                &#128203; Este comentario quedará registrado en el historial del ticket
             </div>
         </div>
 
