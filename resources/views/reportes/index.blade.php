@@ -361,6 +361,14 @@
         .pbi-panel { flex-direction: column; align-items: flex-start; }
         .pbi-select { min-width: 100%; }
     }
+    @media print {
+        .pbi-panel, nav, .navbar, aside, header, .btn-outline-secondary { display: none !important; }
+        .rep-banner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .dkpi-card, .dyn-chart-card, .enc-hero, .enc-kpi, .enc-chart-card,
+        .enc-table-wrap, .q-avg-card, .rep-hcard { break-inside: avoid; page-break-inside: avoid; }
+        body { font-size: 12px; }
+        .enc-hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
 </style>
 
 <div class="container-fluid">
@@ -373,6 +381,12 @@
         <div>
             <h1 class="rep-banner-title">Estadísticas</h1>
             <p class="rep-banner-sub">Genera, analiza y exporta datos del sistema de soporte — UPTEX</p>
+        </div>
+        <div class="ms-auto" style="position:relative;z-index:1;">
+            <button onclick="window.print()" class="btn btn-sm"
+                style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;font-size:.8rem;padding:.45rem .9rem;">
+                <i class="bi bi-printer-fill me-1"></i>Imprimir / PDF
+            </button>
         </div>
     </div>
 
@@ -555,7 +569,7 @@
         <span class="enc-section-bar"></span>
         <i class="bi bi-emoji-smile-fill text-success" style="font-size:1.1rem;"></i>
         <span class="enc-section-title">Encuestas de Satisfacción</span>
-        <span class="badge bg-success" style="font-size:.7rem; font-weight:600;">
+        <span class="badge bg-success" id="encHeaderBadge" style="font-size:.7rem; font-weight:600;">
             {{ $respondidas }}/{{ $total }} respondidas
         </span>
         <span class="text-muted d-none d-md-inline" style="font-size:.75rem;">
@@ -572,14 +586,14 @@
 
         {{-- HERO: % de satisfacción --}}
         <div class="col-12 col-md-4">
-            <div class="enc-hero {{ $heroClass }} h-100">
-                <div class="enc-hero-icon">
-                    <i class="bi {{ $heroIcon }}"></i>
+            <div class="enc-hero {{ $heroClass }} h-100" id="encHeroCard">
+                <div class="enc-hero-icon" id="encHeroIconWrap">
+                    <i class="bi {{ $heroIcon }}" id="encHeroIconI"></i>
                 </div>
                 <div>
-                    <div class="enc-hero-pct">{{ $pctSatisfaccion }}%</div>
+                    <div class="enc-hero-pct" id="encHeroPct">{{ $pctSatisfaccion }}%</div>
                     <div class="enc-hero-label">de satisfacción global</div>
-                    <div class="enc-hero-sub">{{ $heroMsg }}</div>
+                    <div class="enc-hero-sub" id="encHeroSub">{{ $heroMsg }}</div>
                 </div>
             </div>
         </div>
@@ -593,7 +607,7 @@
                             <i class="bi bi-clipboard-data-fill"></i>
                         </div>
                         <div>
-                            <div class="enc-kpi-val">{{ $total }}</div>
+                            <div class="enc-kpi-val" id="encKpiTotal">{{ $total }}</div>
                             <div class="enc-kpi-lbl">Total Enviadas</div>
                         </div>
                     </div>
@@ -604,7 +618,7 @@
                             <i class="bi bi-check-circle-fill"></i>
                         </div>
                         <div>
-                            <div class="enc-kpi-val">{{ $respondidas }}</div>
+                            <div class="enc-kpi-val" id="encKpiRespondidas">{{ $respondidas }}</div>
                             <div class="enc-kpi-lbl">Respondidas</div>
                         </div>
                     </div>
@@ -615,7 +629,7 @@
                             <i class="bi bi-emoji-smile-fill"></i>
                         </div>
                         <div>
-                            <div class="enc-kpi-val" style="color:#16a34a;">{{ $satisfechos }}</div>
+                            <div class="enc-kpi-val" id="encKpiSatisfechos" style="color:#16a34a;">{{ $satisfechos }}</div>
                             <div class="enc-kpi-lbl">Satisfechos</div>
                         </div>
                     </div>
@@ -626,7 +640,7 @@
                             <i class="bi bi-emoji-frown-fill"></i>
                         </div>
                         <div>
-                            <div class="enc-kpi-val" style="color:#dc2626;">{{ $noSatisfechos }}</div>
+                            <div class="enc-kpi-val" id="encKpiNoSatisfechos" style="color:#dc2626;">{{ $noSatisfechos }}</div>
                             <div class="enc-kpi-lbl">No Satisfechos</div>
                         </div>
                     </div>
@@ -634,6 +648,39 @@
             </div>
         </div>
 
+    </div>
+
+    {{-- ── Promedios por Pregunta (mini barras) ── --}}
+    @php
+        $qLabels = [
+            1 => 'Calidad del servicio',
+            2 => 'Atención de solicitudes',
+            3 => 'Tiempo de resolución',
+            4 => 'Conocimientos técnicos',
+            5 => 'Satisfacción general',
+        ];
+    @endphp
+    <div class="row g-3 mb-3">
+        @foreach(range(1,5) as $qi)
+        @php
+            $qv     = $preguntaPromedios[$qi] ?? 0;
+            $qPct   = $qv > 0 ? round($qv / 4 * 100) : 0;
+            $qColor = $qv >= 3 ? '#16a34a' : ($qv >= 2.5 ? '#f59e0b' : '#dc2626');
+            $qBg    = $qv >= 3 ? '#dcfce7' : ($qv >= 2.5 ? '#fef3c7' : '#fee2e2');
+        @endphp
+        <div class="col-6 col-md-4 col-xl">
+            <div class="q-avg-card">
+                <span style="display:inline-block;padding:.22rem .6rem;border-radius:8px;font-size:.7rem;font-weight:800;background:{{ $qBg }};color:{{ $qColor }};margin-bottom:.45rem;">P{{ $qi }}</span>
+                <div style="font-size:.72rem;color:#64748b;line-height:1.3;margin-bottom:.45rem;">{{ $qLabels[$qi] }}</div>
+                <div class="q-avg-bar">
+                    <div class="q-avg-bar-fill" style="width:{{ $qPct }}%;background:{{ $qColor }};"></div>
+                </div>
+                <div style="font-size:1.1rem;font-weight:800;color:{{ $qColor }};margin-top:.3rem;">
+                    {{ $qv > 0 ? number_format($qv, 1) : '—' }}<span style="font-size:.7rem;color:#94a3b8;font-weight:400;"> /4.0</span>
+                </div>
+            </div>
+        </div>
+        @endforeach
     </div>
 
     {{-- Fila 2: Tabla de indicadores + Gráfica de barras --}}
@@ -657,7 +704,7 @@
                                 <th>% Satisf.</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="encTableBody">
                             @forelse($satisfaccionStats['por_area'] as $fila)
                             @php
                                 $tot = ($fila->satisfechos + $fila->no_satisfechos);
@@ -740,7 +787,7 @@
                 <div style="height:160px; position:relative; display:flex; align-items:center; justify-content:center;">
                     <canvas id="encChartTasa"></canvas>
                     <div style="position:absolute; text-align:center; pointer-events:none;">
-                        <div class="fw-bold" style="font-size:1.9rem; color:#1e3a5f; line-height:1;">{{ $tasaPct }}%</div>
+                        <div class="fw-bold" id="encTasaText" style="font-size:1.9rem; color:#1e3a5f; line-height:1;">{{ $tasaPct }}%</div>
                         <div style="font-size:.7rem; color:#64748b;">respondidas</div>
                     </div>
                 </div>
@@ -750,14 +797,15 @@
             </div>
         </div>
 
-        {{-- Resueltos 14 días --}}
+        {{-- Promedios por Pregunta (gráfica horizontal) --}}
         <div class="col-12 col-sm-4">
             <div class="enc-chart-card h-100">
                 <div class="enc-chart-title">
-                    <i class="bi bi-graph-up text-info"></i> Tickets Resueltos (14 días)
+                    <i class="bi bi-bar-chart-steps text-success"></i> Promedio por Pregunta
+                    <span style="margin-left:auto;font-size:.68rem;color:#94a3b8;font-weight:400;">escala 1–4</span>
                 </div>
                 <div style="height:190px; position:relative;">
-                    <canvas id="encChartResueltos"></canvas>
+                    <canvas id="encChartQAvg"></canvas>
                 </div>
             </div>
         </div>
@@ -768,20 +816,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var stats        = @json($satisfaccionStats);
-        var porAreaInit  = @json($porAreaChart);
+        var stats             = @json($satisfaccionStats);
+        var porAreaInit       = @json($porAreaChart);
+        var preguntaPromedios = @json($preguntaPromedios);
         var porPrioInit  = @json($porPrioridadChart);
         var diasInit     = { labels: @json($satisfaccionStats['dias_labels']), data: @json($satisfaccionStats['dias_data']) };
         var filterUrl    = '{{ route("reportes.filter-data") }}';
 
         // ─────────────────────────────────────────────────────────────────
-        // GRÁFICAS DE ENCUESTA (sección inferior — satisfacción)
+        // GRÁFICAS DE ENCUESTA — instancias guardadas para actualizaciones
         // ─────────────────────────────────────────────────────────────────
+        var instEncGlobal = null, instEncPorArea = null, instEncTasa = null, instEncQAvg = null;
 
         // Donut global distribución satisfacción
         var c1 = document.getElementById('encChartGlobal');
         if (c1) {
-            new Chart(c1, {
+            instEncGlobal = new Chart(c1, {
                 type: 'doughnut',
                 data: {
                     labels: ['Satisfechos','No satisfechos','Sin responder'],
@@ -794,30 +844,26 @@
             });
         }
 
-        // Barras satisfechos vs no-satisfechos por área (con ejes etiquetados)
+        // Barras satisfechos vs no-satisfechos por área
         var c2 = document.getElementById('encChartPorArea');
-        if (c2 && stats.por_area && stats.por_area.length > 0) {
-            new Chart(c2, {
+        if (c2) {
+            instEncPorArea = new Chart(c2, {
                 type: 'bar',
                 data: {
-                    labels: stats.por_area.map(function(r){ return r.area; }),
+                    labels: stats.por_area && stats.por_area.length ? stats.por_area.map(function(r){ return r.area; }) : [],
                     datasets: [
-                        { label: 'Satisfechos',    data: stats.por_area.map(function(r){ return r.satisfechos; }),    backgroundColor: '#16a34a', borderRadius: 5 },
-                        { label: 'No satisfechos', data: stats.por_area.map(function(r){ return r.no_satisfechos; }), backgroundColor: '#dc2626', borderRadius: 5 }
+                        { label: 'Satisfechos',    data: stats.por_area && stats.por_area.length ? stats.por_area.map(function(r){ return r.satisfechos; }) : [],    backgroundColor: '#16a34a', borderRadius: 5 },
+                        { label: 'No satisfechos', data: stats.por_area && stats.por_area.length ? stats.por_area.map(function(r){ return r.no_satisfechos; }) : [], backgroundColor: '#dc2626', borderRadius: 5 }
                     ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 12 } } },
                     scales: {
-                        y: {
-                            title: { display: true, text: 'Nº de Respuestas', font: { size: 11, weight: 'bold' }, color: '#64748b' },
-                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Área', font: { size: 11, weight: 'bold' }, color: '#64748b' },
-                            ticks: { font: { size: 10 }, maxRotation: 40 }, grid: { display: false }
-                        }
+                        y: { title: { display: true, text: 'Nº de Respuestas', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+                        x: { title: { display: true, text: 'Área', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            ticks: { font: { size: 10 }, maxRotation: 40 }, grid: { display: false } }
                     }
                 }
             });
@@ -826,40 +872,37 @@
         // Donut tasa de respuesta
         var c3 = document.getElementById('encChartTasa');
         if (c3) {
-            var pct = stats.total > 0 ? Math.round(stats.respondidas / stats.total * 100) : 0;
-            new Chart(c3, {
+            var encTasaInit = stats.total > 0 ? Math.round(stats.respondidas / stats.total * 100) : 0;
+            instEncTasa = new Chart(c3, {
                 type: 'doughnut',
-                data: { datasets: [{ data: [pct, 100 - pct], backgroundColor: ['#1d4ed8','#e2e8f0'], borderWidth: 0 }] },
+                data: { datasets: [{ data: [encTasaInit, 100 - encTasaInit], backgroundColor: ['#1d4ed8','#e2e8f0'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%',
                     plugins: { legend: { display: false }, tooltip: { enabled: false } } }
             });
         }
 
-        // Línea resueltos por día (con ejes etiquetados)
-        var c4 = document.getElementById('encChartResueltos');
-        if (c4) {
-            new Chart(c4, {
-                type: 'line',
+        // Gráfica horizontal — Promedios por Pregunta (P1-P5)
+        var ctxQAvg = document.getElementById('encChartQAvg');
+        if (ctxQAvg) {
+            var qVals   = Object.values(preguntaPromedios);
+            var qColors = qVals.map(function(v){ return v >= 3 ? 'rgba(22,163,74,.85)' : (v >= 2.5 ? 'rgba(245,158,11,.85)' : 'rgba(220,38,38,.85)'); });
+            instEncQAvg = new Chart(ctxQAvg, {
+                type: 'bar',
                 data: {
-                    labels: stats.dias_labels,
-                    datasets: [{ label: 'Resueltos', data: stats.dias_data,
-                        borderColor: '#0891b2', backgroundColor: 'rgba(8,145,178,0.08)',
-                        borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3,
-                        pointBackgroundColor: '#0891b2' }]
+                    labels: ['P1','P2','P3','P4','P5'],
+                    datasets: [{ label: 'Promedio', data: qVals, backgroundColor: qColors, borderRadius: 5, borderWidth: 0 }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false },
-                        tooltip: { callbacks: { title: function(c){ return 'Fecha: ' + c[0].label; } } } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(c){ return ' ' + (c.raw || 0).toFixed(1) + ' / 4.0'; } } }
+                    },
                     scales: {
-                        y: {
-                            title: { display: true, text: 'Tickets Resueltos', font: { size: 11, weight: 'bold' }, color: '#64748b' },
-                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Fecha (día/mes)', font: { size: 11, weight: 'bold' }, color: '#64748b' },
-                            ticks: { font: { size: 10 } }, grid: { display: false }
-                        }
+                        x: { title: { display: true, text: 'Promedio (escala 1–4)', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            min: 0, max: 4, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+                        y: { ticks: { font: { size: 11, weight: '600' }, color: '#334155' }, grid: { display: false } }
                     }
                 }
             });
@@ -966,6 +1009,84 @@
         var badge   = document.getElementById('pbiBadge');
         var filterTimeout = null;
 
+        // Actualiza la sección de encuestas a partir de la respuesta AJAX
+        function updateEncSection(d) {
+            var encSat   = d.enc_satisfechos   || 0;
+            var encNoSat = d.enc_no_satisfechos || 0;
+            var encSin   = d.enc_sin_responder  || 0;
+            var encTotal = encSat + encNoSat + encSin;
+            var encResp  = encSat + encNoSat;
+            var pctEnc   = d.enc_satisfaccion_pct || 0;
+            var tasaPct  = encTotal > 0 ? Math.round(encResp / encTotal * 100) : 0;
+
+            // Hero semáforo — clase + porcentaje + icono + submensaje
+            var heroEl = document.getElementById('encHeroCard');
+            if (heroEl) heroEl.className = 'enc-hero h-100' + (pctEnc >= 80 ? '' : (pctEnc >= 50 ? ' amarillo' : ' rojo'));
+            var pctEl = document.getElementById('encHeroPct');
+            if (pctEl) pctEl.textContent = pctEnc + '%';
+            var subEl = document.getElementById('encHeroSub');
+            if (subEl) subEl.textContent = pctEnc >= 80 ? 'Nivel óptimo ≥ 80%' : (pctEnc >= 50 ? 'Por debajo del objetivo (80%)' : 'Nivel crítico — requiere atención');
+            var iconEl = document.getElementById('encHeroIconI');
+            if (iconEl) iconEl.className = 'bi ' + (pctEnc >= 80 ? 'bi-emoji-laughing-fill' : (pctEnc >= 50 ? 'bi-emoji-neutral-fill' : 'bi-emoji-frown-fill'));
+
+            // KPI cards
+            var e1 = document.getElementById('encKpiTotal');       if (e1) e1.textContent = encTotal;
+            var e2 = document.getElementById('encKpiRespondidas'); if (e2) e2.textContent = encResp;
+            var e3 = document.getElementById('encKpiSatisfechos'); if (e3) e3.textContent = encSat;
+            var e4 = document.getElementById('encKpiNoSatisfechos'); if (e4) e4.textContent = encNoSat;
+
+            // Badge del encabezado de sección
+            var hBadge = document.getElementById('encHeaderBadge');
+            if (hBadge) hBadge.textContent = encResp + '/' + encTotal + ' respondidas';
+
+            // Donut global
+            if (instEncGlobal) {
+                instEncGlobal.data.datasets[0].data = [encSat, encNoSat, encSin];
+                instEncGlobal.update();
+            }
+
+            // Barras por área
+            if (instEncPorArea && d.enc_por_area) {
+                instEncPorArea.data.labels = d.enc_por_area.map(function(r){ return r.area; });
+                instEncPorArea.data.datasets[0].data = d.enc_por_area.map(function(r){ return r.satisfechos; });
+                instEncPorArea.data.datasets[1].data = d.enc_por_area.map(function(r){ return r.no_satisfechos; });
+                instEncPorArea.update();
+            }
+
+            // Donut tasa respuesta + texto central
+            if (instEncTasa) {
+                instEncTasa.data.datasets[0].data = [tasaPct, 100 - tasaPct];
+                instEncTasa.update();
+            }
+            var tasaTxtEl = document.getElementById('encTasaText');
+            if (tasaTxtEl) tasaTxtEl.textContent = tasaPct + '%';
+
+            // Tabla por área — reconstruir filas dinamicamente
+            var tbody = document.getElementById('encTableBody');
+            if (tbody) {
+                if (!d.enc_por_area || d.enc_por_area.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4" style="font-size:.85rem;"><i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem;"></i>Sin encuestas respondidas aún</td></tr>';
+                } else {
+                    tbody.innerHTML = d.enc_por_area.map(function(fila) {
+                        var tot = (fila.satisfechos || 0) + (fila.no_satisfechos || 0);
+                        var p   = tot > 0 ? Math.round(fila.satisfechos / tot * 100) : 0;
+                        var bc  = p >= 80 ? '#16a34a' : (p >= 50 ? '#f59e0b' : '#dc2626');
+                        var bg  = p >= 80 ? '#dcfce7' : (p >= 50 ? '#fef3c7' : '#fee2e2');
+                        var tc  = p >= 80 ? '#15803d' : (p >= 50 ? '#b45309' : '#b91c1c');
+                        return '<tr>' +
+                            '<td style="max-width:140px;white-space:normal;font-size:.8rem;">' + fila.area + '</td>' +
+                            '<td class="text-center fw-semibold" style="color:#16a34a;">' + fila.satisfechos + '</td>' +
+                            '<td class="text-center fw-semibold" style="color:#dc2626;">' + fila.no_satisfechos + '</td>' +
+                            '<td class="text-center fw-semibold">' + tot + '</td>' +
+                            '<td style="min-width:90px;"><div class="d-flex align-items-center gap-2">' +
+                            '<div class="enc-pct-bar flex-grow-1"><div style="height:100%;border-radius:4px;width:' + p + '%;background:' + bc + ';"></div></div>' +
+                            '<span class="enc-pct-chip" style="background:' + bg + ';color:' + tc + ';">' + p + '%</span>' +
+                            '</div></td></tr>';
+                    }).join('');
+                }
+            }
+        }
+
         function updateCharts() {
             var areaId    = document.getElementById('filtroArea').value;
             var tecnicoId = document.getElementById('filtroTecnico').value;
@@ -1013,6 +1134,9 @@
                         instLinea.data.datasets[0].data = d.dias_data;
                         instLinea.update();
                     }
+
+                    // Actualizar sección de encuestas con filtro de área
+                    updateEncSection(d);
 
                     // Mostrar badge de filtro activo si hay filtro
                     if (badge && (areaId || tecnicoId)) {
