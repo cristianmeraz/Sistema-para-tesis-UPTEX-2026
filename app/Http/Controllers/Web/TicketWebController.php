@@ -10,6 +10,7 @@ use App\Models\Prioridad;
 use App\Models\Area;
 use App\Models\Usuario;
 use App\Models\Comentario;
+use App\Models\EncuestaSatisfaccion;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -365,6 +366,18 @@ class TicketWebController extends Controller
         if (str_contains(session('usuario_rol'), 'Técnico')) {
             return redirect()->route('tickets.index')->with('error', 'Los técnicos no pueden crear tickets.');
         }
+
+        // BLOQUEO PARA USUARIO NORMAL: encuesta pendiente sin responder
+        if (session('usuario_rol') === 'Usuario Normal') {
+            $encuestaPendiente = EncuestaSatisfaccion::where('usuario_id', session('usuario_id'))
+                ->whereNull('respondida_at')
+                ->first();
+            if ($encuestaPendiente) {
+                return redirect()->route('encuesta.show', $encuestaPendiente->token)
+                    ->with('error', 'Debes completar la encuesta de satisfacción del ticket anterior antes de crear uno nuevo.');
+            }
+        }
+
         $areas = Cache::remember('areas_catalogo', 60, function() { return Area::all(); });
 
         // Solo el Admin elige prioridad al crear; el Usuario Normal no la selecciona
@@ -383,6 +396,17 @@ class TicketWebController extends Controller
         // BLOQUEO PARA EL ROL TÉCNICO
         if (str_contains(session('usuario_rol'), 'Técnico')) {
             return redirect()->route('tickets.index')->with('error', 'Operación no permitida.');
+        }
+
+        // BLOQUEO PARA USUARIO NORMAL: encuesta pendiente sin responder
+        if (session('usuario_rol') === 'Usuario Normal') {
+            $encuestaPendiente = EncuestaSatisfaccion::where('usuario_id', session('usuario_id'))
+                ->whereNull('respondida_at')
+                ->first();
+            if ($encuestaPendiente) {
+                return redirect()->route('encuesta.show', $encuestaPendiente->token)
+                    ->with('error', 'Debes completar la encuesta de satisfacción antes de crear un nuevo ticket.');
+            }
         }
 
         $esAdmin = session('usuario_rol') === 'Administrador';
