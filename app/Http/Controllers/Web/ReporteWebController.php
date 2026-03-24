@@ -242,6 +242,76 @@ class ReporteWebController extends Controller
     }
 
     public function exportar() { return response()->json(['ok']); }
-    public function rendimiento() { return view('reportes.rendimiento'); }
-    public function porFecha() { return view('reportes.por-fecha'); }
+
+    public function rendimiento()
+    {
+        $tecnicos = Usuario::with(['rol'])
+            ->whereHas('rol', function ($q) { $q->where('nombre', 'Técnico'); })
+            ->where('activo', true)
+            ->get()
+            ->map(function ($u) {
+                $base = Ticket::where('tecnico_asignado_id', $u->id_usuario);
+
+                $cerrados   = (clone $base)->whereHas('estado', fn($q) => $q->whereIn('tipo', ['resuelto', 'cerrado']))->count();
+                $en_proceso = (clone $base)->whereHas('estado', fn($q) => $q->where('tipo', 'en_proceso'))->count();
+                $abiertos   = (clone $base)->whereHas('estado', fn($q) => $q->whereIn('tipo', ['abierto', 'pendiente']))->count();
+                $total      = (clone $base)->count();
+                $efectividad = $total > 0 ? round($cerrados / $total * 100) : 0;
+
+                // Tiempo promedio de cierre (en horas)
+                $tiempoPromedio = (clone $base)
+                    ->whereNotNull('fecha_cierre')
+                    ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, fecha_creacion, fecha_cierre)) as promedio')
+                    ->value('promedio');
+
+                return [
+                    'tecnico'         => $u->nombre . ' ' . $u->apellido,
+                    'correo'          => $u->correo,
+                    'total_asignados' => $total,
+                    'cerrados'        => $cerrados,
+                    'en_proceso'      => $en_proceso,
+                    'abiertos'        => $abiertos,
+                    'efectividad'     => $efectividad,
+                    'tiempo_promedio' => $tiempoPromedio ? round($tiempoPromedio, 1) : null,
+                ];
+            })->sortByDesc('total_asignados')->values()->toArray();
+
+        return view('reportes.rendimiento', compact('tecnicos'));
+    }
+
+    public function porFecha(Request $request)
+    {
+        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->format('Y-m-d'));
+        $fechaFin    = $request->input('fecha_fin',    now()->format('Y-m-d'));
+
+        $query = Ticket::with(['usuario', 'area', 'prioridad', 'estado', 'tecnicoAsignado'])
+            ->whereBetween('fecha_creacion', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
+            ->orderBy('fecha_creacion', 'desc');
+
+        $ticketsRaw = $query->get();
+
+        $tickets = $ticketsRaw->map(function ($t) {
+            return [
+                'id_ticket'        => $t->id_ticket,
+                'titulo'           => $t->titulo,
+                'descripcion'      => $t->descripcion,
+                'usuario'          => ['nombre_completo' => ($t->usuario->nombre ?? 'N/A') . ' ' . ($t->usuario->apellido ?? '')],
+                'area'             => ['nombre' => $t->area->nombre ?? 'N/A'],
+                'prioridad'        => ['nombre' => $t->prioridad->nombre ?? 'N/A', 'nivel' => $t->prioridad->id_prioridad ?? 1],
+                'estado'           => ['nombre' => $t->estado->nombre ?? 'N/A', 'tipo' => $t->estado->tipo ?? 'abierto'],
+                'tecnico_asignado' => $t->tecnicoAsignado ? ($t->tecnicoAsignado->nombre . ' ' . $t->tecnicoAsignado->apellido) : 'Sin asignar',
+                'fecha_creacion'   => $t->fecha_creacion,
+                'fecha_cierre'     => $t->fecha_cierre,
+            ];
+        })->toArray();
+
+        $resumen = [
+            'total'      => count($tickets),
+            'abiertos'   => collect($tickets)->filter(fn($t) => in_array($t['estado']['tipo'], ['abierto', 'pendiente']))->count(),
+            'en_proceso' => collect($tickets)->filter(fn($t) => $t['estado']['tipo'] === 'en_proceso')->count(),
+            'cerrados'   => collect($tickets)->filter(fn($t) => in_array($t['estado']['tipo'], ['resuelto', 'cerrado']))->count(),
+        ];
+
+        return view('reportes.por-fecha', compact('tickets', 'resumen', 'fechaInicio', 'fechaFin'));
+    }
 }
