@@ -71,7 +71,7 @@
 <div style="display:flex; align-items:center; gap:16px; border-bottom:3px solid #d97706; padding-bottom:14px; margin-bottom:20px;">
     <img src="{{ asset('images/logo-uptex.png') }}" alt="UPTEX" style="width:60px; height:60px; object-fit:contain;">
     <div>
-        <div style="font-size:14pt; font-weight:700; color:#1e3a5f;">Universidad Politécnica de Tlaxcala — UPTEX</div>
+        <div style="font-size:14pt; font-weight:700; color:#1e3a5f;">Universidad Politécnica de Texcoco</div>
         <div style="font-size:10pt; color:#475569;">Sistema de Gestión de Tickets de Soporte TI</div>
         <div style="font-size:9pt; color:#64748b; margin-top:2px;">Reporte de Rendimiento de Técnicos &nbsp;·&nbsp; Generado el {{ now()->format('d/m/Y H:i') }}</div>
     </div>
@@ -235,7 +235,7 @@
 
 {{-- Pie impresión --}}
 <div id="print-footer" style="display:none; margin-top:20px; text-align:center; font-size:8pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:8px;">
-    Universidad Politécnica de Tlaxcala (UPTEX) &nbsp;·&nbsp; Sistema de Soporte TI &nbsp;·&nbsp; Documento generado automáticamente
+    Universidad Politécnica de Texcoco &nbsp;·&nbsp; Sistema de Soporte TI &nbsp;·&nbsp; Documento generado automáticamente
 </div>
 
 </div>{{-- /print-area --}}
