@@ -43,6 +43,20 @@
                         <i class="bi bi-upload me-1"></i>Subir archivo CSV
                     </h6>
 
+                    {{-- Botones de descarga de plantilla CSV --}}
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <a href="{{ route('usuarios.import.csv', ['tipo' => 'ejemplo']) }}"
+                           class="btn btn-sm btn-outline-success fw-semibold" download>
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i>
+                            Descargar CSV con ejemplo (2 filas llenas)
+                        </a>
+                        <a href="{{ route('usuarios.import.csv', ['tipo' => 'vacio']) }}"
+                           class="btn btn-sm btn-outline-secondary fw-semibold" download>
+                            <i class="bi bi-file-earmark-plus me-1"></i>
+                            Descargar plantilla vacía (solo encabezados)
+                        </a>
+                    </div>
+
                     <form method="POST" action="{{ route('usuarios.import.store') }}" enctype="multipart/form-data">
                         @csrf
 

@@ -72,6 +72,7 @@ Route::middleware('web.auth')->group(function () {
         Route::post('/usuarios/{id}/toggle-activo', [UsuarioWebController::class, 'toggleActivo'])->name('usuarios.toggle-activo');
         Route::get('/usuarios-importar', [UsuarioWebController::class, 'importForm'])->name('usuarios.import.form');
         Route::post('/usuarios-importar', [UsuarioWebController::class, 'importStore'])->name('usuarios.import.store');
+        Route::get('/usuarios-importar/csv', [UsuarioWebController::class, 'downloadCsvEjemplo'])->name('usuarios.import.csv');
 
         Route::get('/reportes', [ReporteWebController::class, 'index'])->name('reportes.index');
         Route::get('/reportes/refresh-stats', [ReporteWebController::class, 'refreshStats'])->name('reportes.refresh-stats');

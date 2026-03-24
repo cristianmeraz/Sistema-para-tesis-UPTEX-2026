@@ -306,6 +306,40 @@ class UsuarioWebController extends Controller
         return view('usuarios.import', compact('areas'));
     }
 
+    /**
+     * Descarga un CSV de plantilla.
+     * tipo=ejemplo → 2 filas de muestra llenas
+     * tipo=vacio   → solo encabezados para llenar
+     */
+    public function downloadCsvEjemplo(Request $request)
+    {
+        $tipo = $request->query('tipo', 'ejemplo');
+
+        // Obtener las 2 primeras áreas reales para el ejemplo
+        $areas = Area::orderBy('id_area')->limit(2)->get(['id_area', 'nombre']);
+        $area1 = $areas->get(0);
+        $area2 = $areas->get(1) ?? $area1;
+
+        $encabezado = "nombre,apellido,correo,password,area_id\n";
+
+        if ($tipo === 'vacio') {
+            $contenido = $encabezado;
+            $nombreArchivo = 'plantilla_usuarios.csv';
+        } else {
+            $id1 = $area1->id_area ?? 1;
+            $id2 = $area2->id_area ?? 2;
+            $contenido  = $encabezado;
+            $contenido .= "Juan,Garcia,jgarcia@uptex.edu.mx,Contrasena1#,{$id1}\n";
+            $contenido .= "Maria,Lopez,mlopez@uptex.edu.mx,Segura2@99,{$id2}\n";
+            $nombreArchivo = 'ejemplo_usuarios.csv';
+        }
+
+        return response($contenido, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$nombreArchivo}\"",
+        ]);
+    }
+
     public function importStore(Request $request)
     {
         $request->validate([
