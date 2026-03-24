@@ -17,6 +17,11 @@ class EncuestaSatisfaccion extends Model
         'satisfecho',
         'comentario',
         'respondida_at',
+        'pregunta_1',
+        'pregunta_2',
+        'pregunta_3',
+        'pregunta_4',
+        'pregunta_5',
     ];
 
     protected $casts = [
