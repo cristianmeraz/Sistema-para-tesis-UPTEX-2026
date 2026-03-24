@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Reportes y Estadísticas')
+@section('title', 'Estadísticas')
 @section('no_header_title', true)
 
 @section('content')
@@ -149,7 +149,7 @@
             <i class="bi bi-graph-up-arrow"></i>
         </div>
         <div>
-            <h1 class="rep-banner-title">Reportes y Estadísticas</h1>
+            <h1 class="rep-banner-title">Estadísticas</h1>
             <p class="rep-banner-sub">Genera, analiza y exporta datos del sistema de soporte</p>
         </div>
     </div>

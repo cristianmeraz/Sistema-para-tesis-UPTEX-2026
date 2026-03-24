@@ -157,8 +157,8 @@
                 </div>
                 <div class="nav-item">
                     <a href="{{ route('reportes.index') }}" class="nav-link {{ request()->routeIs('reportes.*') ? 'active' : '' }}">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Dashboard Global</span>
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span>Estadísticas</span>
                     </a>
                 </div>
                 <div class="nav-item">
