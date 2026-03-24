@@ -26,6 +26,45 @@ class ReporteWebController extends Controller
         $estados = Cache::remember('estados_catalogo', 60, function() { return Estado::all(); });
         $prioridades = Cache::remember('prioridades_catalogo', 60, function() { return Prioridad::all(); });
 
+        // Técnicos activos para el filtro Power BI
+        $tecnicos = Usuario::whereHas('rol', fn($q) => $q->where('nombre', 'Técnico'))
+            ->where('activo', true)
+            ->get(['id_usuario', 'nombre', 'apellido']);
+
+        // Estadísticas dinámicas de tickets (para sección Power BI)
+        $ticketStats = Cache::remember('ticket_stats_index', 5, function() {
+            $q = Ticket::query();
+            return [
+                'total'      => $q->count(),
+                'abiertos'   => (clone $q)->whereHas('estado', fn($q) => $q->whereIn('tipo', ['abierto','pendiente']))->count(),
+                'en_proceso' => (clone $q)->whereHas('estado', fn($q) => $q->where('tipo', 'en_proceso'))->count(),
+                'resueltos'  => (clone $q)->whereHas('estado', fn($q) => $q->whereIn('tipo', ['resuelto','cerrado']))->count(),
+            ];
+        });
+
+        // Distribución por área y prioridad para gráficas iniciales
+        $porAreaChart = DB::table('tickets as t')
+            ->join('areas as a', 'a.id_area', '=', 't.area_id')
+            ->select('a.nombre', DB::raw('count(*) as total'))
+            ->groupBy('a.nombre')->get();
+
+        $porPrioridadChart = DB::table('tickets as t')
+            ->join('prioridades as p', 'p.id_prioridad', '=', 't.prioridad_id')
+            ->select('p.nombre', DB::raw('count(*) as total'))
+            ->groupBy('p.nombre')->get();
+
+        // Promedios por pregunta de encuesta (para preview)
+        $preguntaPromedios = Cache::remember('pregunta_promedios', 10, function() {
+            $result = [];
+            for ($i = 1; $i <= 5; $i++) {
+                $col = "pregunta_$i";
+                $avg = DB::table('encuestas_satisfaccion')
+                    ->whereNotNull('respondida_at')->whereNotNull($col)->avg($col);
+                $result[$i] = $avg ? round($avg, 1) : 0;
+            }
+            return $result;
+        });
+
         // Estadísticas de encuestas (misma caché que el dashboard)
         $satisfaccionStats = Cache::remember('satisfaccion_dashboard_stats', 5, function () {
             $total         = EncuestaSatisfaccion::count();
@@ -73,7 +112,10 @@ class ReporteWebController extends Controller
             ];
         });
 
-        return view('reportes.index', compact('areas', 'estados', 'prioridades', 'satisfaccionStats'));
+        return view('reportes.index', compact(
+            'areas', 'estados', 'prioridades', 'satisfaccionStats',
+            'tecnicos', 'ticketStats', 'porAreaChart', 'porPrioridadChart', 'preguntaPromedios'
+        ));
     }
 
     public function panelAdmin() {
@@ -313,5 +355,190 @@ class ReporteWebController extends Controller
         ];
 
         return view('reportes.por-fecha', compact('tickets', 'resumen', 'fechaInicio', 'fechaFin'));
+    }
+
+    /**
+     * GET /reportes/encuestas
+     * Página de detalle de encuestas estilo Google Forms:
+     * distribución de las 5 preguntas + tabla de respondidas + tabla de pendientes.
+     */
+    public function encuestasDetalle(Request $request)
+    {
+        $preguntasTexto = [
+            1 => '¿Está satisfecho con el trabajo realizado por el servicio de IT?',
+            2 => '¿El personal de IT atiende adecuadamente sus solicitudes técnicas?',
+            3 => '¿El servicio de IT soluciona su problema en un tiempo adecuado?',
+            4 => '¿El personal de IT demuestra los conocimientos suficientes?',
+            5 => '¿Se encuentra satisfecho con la atención recibida por el personal de IT?',
+        ];
+
+        $preguntasStats = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $col  = "pregunta_$i";
+            $dist = DB::table('encuestas_satisfaccion')
+                ->whereNotNull('respondida_at')
+                ->whereNotNull($col)
+                ->selectRaw("$col as valor, count(*) as total")
+                ->groupBy($col)
+                ->pluck('total', 'valor')
+                ->toArray();
+
+            $avg = DB::table('encuestas_satisfaccion')
+                ->whereNotNull('respondida_at')->whereNotNull($col)->avg($col);
+
+            $preguntasStats[$i] = [
+                'texto'    => $preguntasTexto[$i],
+                'dist'     => [1 => $dist[1] ?? 0, 2 => $dist[2] ?? 0, 3 => $dist[3] ?? 0, 4 => $dist[4] ?? 0],
+                'promedio' => $avg ? round($avg, 1) : 0,
+                'total'    => ($dist[1] ?? 0) + ($dist[2] ?? 0) + ($dist[3] ?? 0) + ($dist[4] ?? 0),
+            ];
+        }
+
+        $respondidas = EncuestaSatisfaccion::with(['ticket.area', 'usuario'])
+            ->whereNotNull('respondida_at')
+            ->orderBy('respondida_at', 'desc')
+            ->get()
+            ->map(function ($e) {
+                $vals = array_filter([$e->pregunta_1, $e->pregunta_2, $e->pregunta_3, $e->pregunta_4, $e->pregunta_5]);
+                $prom = count($vals) > 0 ? round(array_sum($vals) / count($vals), 1) : 0;
+                return [
+                    'id'            => $e->id_encuesta,
+                    'ticket_id'     => $e->ticket_id,
+                    'titulo'        => $e->ticket->titulo ?? 'N/A',
+                    'area'          => $e->ticket->area->nombre ?? 'N/A',
+                    'usuario'       => trim(($e->usuario->nombre ?? '') . ' ' . ($e->usuario->apellido ?? '')),
+                    'pregunta_1'    => $e->pregunta_1,
+                    'pregunta_2'    => $e->pregunta_2,
+                    'pregunta_3'    => $e->pregunta_3,
+                    'pregunta_4'    => $e->pregunta_4,
+                    'pregunta_5'    => $e->pregunta_5,
+                    'promedio'      => $prom,
+                    'satisfecho'    => $e->satisfecho,
+                    'respondida_at' => $e->respondida_at,
+                    'comentario'    => $e->comentario,
+                ];
+            });
+
+        $pendientes = EncuestaSatisfaccion::with(['ticket.area', 'usuario'])
+            ->whereNull('respondida_at')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($e) {
+                return [
+                    'id'          => $e->id_encuesta,
+                    'ticket_id'   => $e->ticket_id,
+                    'titulo'      => $e->ticket->titulo ?? 'N/A',
+                    'area'        => $e->ticket->area->nombre ?? 'N/A',
+                    'usuario'     => trim(($e->usuario->nombre ?? '') . ' ' . ($e->usuario->apellido ?? '')),
+                    'creado_at'   => $e->created_at,
+                    'dias_espera' => $e->created_at ? (int) now()->diffInDays($e->created_at) : 0,
+                ];
+            });
+
+        $totales = [
+            'total'       => EncuestaSatisfaccion::count(),
+            'respondidas' => EncuestaSatisfaccion::whereNotNull('respondida_at')->count(),
+            'pendientes'  => EncuestaSatisfaccion::whereNull('respondida_at')->count(),
+            'satisfechos' => EncuestaSatisfaccion::where('satisfecho', true)->count(),
+        ];
+
+        return view('reportes.encuestas', compact('preguntasStats', 'respondidas', 'pendientes', 'totales'));
+    }
+
+    /**
+     * GET /reportes/filter-data  (AJAX – Power BI style)
+     * Devuelve estadísticas de tickets y encuestas filtradas por área y/o técnico.
+     */
+    public function filterData(Request $request)
+    {
+        if (session('usuario_rol') !== 'Administrador') {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $areaId    = $request->input('area_id')    ? (int) $request->input('area_id')    : null;
+        $tecnicoId = $request->input('tecnico_id') ? (int) $request->input('tecnico_id') : null;
+
+        // ── KPIs de tickets ─────────────────────────────────────────────────
+        $q = Ticket::query();
+        if ($areaId)    $q->where('area_id', $areaId);
+        if ($tecnicoId) $q->where('tecnico_asignado_id', $tecnicoId);
+
+        $total      = (clone $q)->count();
+        $abiertos   = (clone $q)->whereHas('estado', fn($q) => $q->whereIn('tipo', ['abierto','pendiente']))->count();
+        $enProceso  = (clone $q)->whereHas('estado', fn($q) => $q->where('tipo', 'en_proceso'))->count();
+        $resueltos  = (clone $q)->whereHas('estado', fn($q) => $q->whereIn('tipo', ['resuelto','cerrado']))->count();
+
+        // ── Por área (siempre todas, para comparar) ──────────────────────────
+        $porArea = DB::table('tickets as t')
+            ->join('areas as a', 'a.id_area', '=', 't.area_id')
+            ->when($tecnicoId, fn($q) => $q->where('t.tecnico_asignado_id', $tecnicoId))
+            ->select('a.nombre', DB::raw('count(*) as total'))
+            ->groupBy('a.nombre')->get();
+
+        // ── Por prioridad ────────────────────────────────────────────────────
+        $porPrioridad = DB::table('tickets as t')
+            ->join('prioridades as p', 'p.id_prioridad', '=', 't.prioridad_id')
+            ->when($areaId,    fn($q) => $q->where('t.area_id', $areaId))
+            ->when($tecnicoId, fn($q) => $q->where('t.tecnico_asignado_id', $tecnicoId))
+            ->select('p.nombre', DB::raw('count(*) as total'))
+            ->groupBy('p.nombre')->get();
+
+        // ── Resolución últimos 14 días ───────────────────────────────────────
+        $rpd = DB::table('tickets as t')
+            ->join('estados as e', 'e.id_estado', '=', 't.estado_id')
+            ->where('e.tipo', 'resuelto')
+            ->whereNotNull('t.fecha_cierre')
+            ->where('t.fecha_cierre', '>=', now()->subDays(14))
+            ->when($areaId,    fn($q) => $q->where('t.area_id', $areaId))
+            ->when($tecnicoId, fn($q) => $q->where('t.tecnico_asignado_id', $tecnicoId))
+            ->select(DB::raw('DATE(t.fecha_cierre) as dia'), DB::raw('COUNT(*) as total'))
+            ->groupBy('dia')->orderBy('dia')->get()->keyBy('dia');
+
+        $diasLabels = []; $diasData = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $fecha = now()->subDays($i)->format('Y-m-d');
+            $diasLabels[] = now()->subDays($i)->format('d/m');
+            $diasData[]   = $rpd->get($fecha)->total ?? 0;
+        }
+
+        // ── Encuesta stats (filtrado por área) ───────────────────────────────
+        $encQ = DB::table('encuestas_satisfaccion as e')
+            ->join('tickets as t', 't.id_ticket', '=', 'e.ticket_id');
+        if ($areaId) $encQ->where('t.area_id', $areaId);
+
+        $encTotal       = (clone $encQ)->count();
+        $encRespondidas = (clone $encQ)->whereNotNull('e.respondida_at')->count();
+        $encSatisfechos    = (clone $encQ)->whereNotNull('e.respondida_at')->where('e.satisfecho', 1)->count();
+        $encNoSatisfechos  = (clone $encQ)->whereNotNull('e.respondida_at')->where('e.satisfecho', 0)->count();
+        $encSinResponder   = $encTotal - $encRespondidas;
+        $encPctSatisfaccion = $encRespondidas > 0 ? round($encSatisfechos / $encRespondidas * 100, 1) : 0;
+        $encTasaPct         = $encTotal > 0 ? round($encRespondidas / $encTotal * 100, 1) : 0;
+
+        $encPorArea = DB::table('encuestas_satisfaccion as e')
+            ->join('tickets as t', 't.id_ticket', '=', 'e.ticket_id')
+            ->join('areas as a',   'a.id_area',   '=', 't.area_id')
+            ->whereNotNull('e.respondida_at')
+            ->when($areaId, fn($q) => $q->where('t.area_id', $areaId))
+            ->select('a.nombre as area',
+                DB::raw('SUM(CASE WHEN e.satisfecho = 1 THEN 1 ELSE 0 END) as satisfechos'),
+                DB::raw('SUM(CASE WHEN e.satisfecho = 0 THEN 1 ELSE 0 END) as no_satisfechos'))
+            ->groupBy('a.nombre')->get();
+
+        return response()->json([
+            'total'                => $total,
+            'abiertos'             => $abiertos,
+            'en_proceso'           => $enProceso,
+            'resueltos'            => $resueltos,
+            'por_area'             => $porArea,
+            'por_prioridad'        => $porPrioridad,
+            'dias_labels'          => $diasLabels,
+            'dias_data'            => $diasData,
+            'enc_satisfechos'      => $encSatisfechos,
+            'enc_no_satisfechos'   => $encNoSatisfechos,
+            'enc_sin_responder'    => $encSinResponder,
+            'enc_satisfaccion_pct' => $encPctSatisfaccion,
+            'enc_tasa_pct'         => $encTasaPct,
+            'enc_por_area'         => $encPorArea,
+        ]);
     }
 }

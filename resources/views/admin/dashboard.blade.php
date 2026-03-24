@@ -801,34 +801,94 @@
 </div>
 
 {{-- ════════════════════════════════════════════════════════════════ --}}
-{{-- ACCESO RÁPIDO: ENCUESTAS (ver detalle en Estadísticas)         --}}
+{{-- ENCUESTAS DE SATISFACCIÓN — Panel compacto con índice        --}}
 {{-- ════════════════════════════════════════════════════════════════ --}}
 @if(isset($satisfaccionStats))
+@php
+    $encPct = $satisfaccionStats['respondidas'] > 0
+        ? round($satisfaccionStats['satisfechos'] / $satisfaccionStats['respondidas'] * 100)
+        : 0;
+    $encTasa = $satisfaccionStats['total'] > 0
+        ? round($satisfaccionStats['respondidas'] / $satisfaccionStats['total'] * 100)
+        : 0;
+    $encColor  = $encPct >= 80 ? '#16a34a' : ($encPct >= 50 ? '#d97706' : '#dc2626');
+    $encBg     = $encPct >= 80 ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : ($encPct >= 50 ? 'linear-gradient(135deg,#fffbeb,#fef3c7)' : 'linear-gradient(135deg,#fff1f2,#fee2e2)');
+    $encBorder = $encPct >= 80 ? '#bbf7d0' : ($encPct >= 50 ? '#fde68a' : '#fecaca');
+    $encIcon   = $encPct >= 80 ? 'bi-emoji-laughing-fill' : ($encPct >= 50 ? 'bi-emoji-neutral-fill' : 'bi-emoji-frown-fill');
+    $encMsg    = $encPct >= 80 ? 'Nivel óptimo ≥ 80%' : ($encPct >= 50 ? 'Por debajo del objetivo' : 'Nivel crítico — requiere atención');
+@endphp
 <div class="px-4 pb-4" style="max-width:1400px; margin:0 auto;">
-    <div class="d-flex align-items-center gap-2 mb-3">
-        <span style="width:4px;height:1.1rem;background:#16a34a;border-radius:2px;display:inline-block;"></span>
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <span style="width:4px;height:1.1rem;background:{{ $encColor }};border-radius:2px;display:inline-block;"></span>
         <span class="fw-bold text-secondary" style="font-size:.82rem; letter-spacing:.04em; text-transform:uppercase;">
-            <i class="bi bi-emoji-smile-fill text-success me-1"></i>Encuestas de Satisfacción
+            <i class="bi bi-emoji-smile-fill me-1" style="color:{{ $encColor }};"></i>Encuestas de Satisfacción
         </span>
-        <span class="badge bg-success" style="font-size:.68rem;">
+        <span class="badge" style="font-size:.68rem; background:{{ $encColor }}; color:#fff;">
             {{ $satisfaccionStats['respondidas'] }}/{{ $satisfaccionStats['total'] }} respondidas
         </span>
     </div>
-    <div class="card border-0 shadow-sm p-3 d-flex flex-row align-items-center gap-3" style="border-radius:12px; background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
-        <div style="width:44px;height:44px;border-radius:12px;background:#16a34a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="bi bi-bar-chart-line-fill text-white" style="font-size:1.2rem;"></i>
-        </div>
-        <div class="flex-grow-1">
-            <div class="fw-semibold text-dark" style="font-size:.92rem;">
-                {{ $satisfaccionStats['satisfechos'] }} satisfechos &nbsp;·&nbsp;
-                {{ $satisfaccionStats['no_satisfechos'] }} no satisfechos &nbsp;·&nbsp;
-                {{ $satisfaccionStats['sin_responder'] }} sin responder
+
+    <div class="card border-0 shadow-sm" style="border-radius:14px; background:{{ $encBg }}; border:1.5px solid {{ $encBorder }} !important;">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+
+                {{-- Índice de satisfacción --}}
+                <div class="d-flex align-items-center gap-2" style="flex-shrink:0;">
+                    <div style="width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.7);
+                                display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:{{ $encColor }};">
+                        <i class="bi {{ $encIcon }}"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:1.9rem; font-weight:900; line-height:1; color:{{ $encColor }};">{{ $encPct }}%</div>
+                        <div style="font-size:.7rem; color:#64748b;">Índice satisfacción</div>
+                    </div>
+                </div>
+
+                <div style="width:1px;height:44px;background:rgba(0,0,0,.1);flex-shrink:0;" class="d-none d-md-block"></div>
+
+                {{-- KPIs compactos --}}
+                <div class="d-flex gap-3 flex-wrap">
+                    <div class="text-center">
+                        <div style="font-size:1.1rem;font-weight:800;color:#16a34a;">{{ $satisfaccionStats['satisfechos'] }}</div>
+                        <div style="font-size:.7rem;color:#64748b;">Satisfechos</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.1rem;font-weight:800;color:#dc2626;">{{ $satisfaccionStats['no_satisfechos'] }}</div>
+                        <div style="font-size:.7rem;color:#64748b;">No Satisfechos</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.1rem;font-weight:800;color:#94a3b8;">{{ $satisfaccionStats['sin_responder'] }}</div>
+                        <div style="font-size:.7rem;color:#64748b;">Sin Responder</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.1rem;font-weight:800;color:#1d4ed8;">{{ $encTasa }}%</div>
+                        <div style="font-size:.7rem;color:#64748b;">Tasa respuesta</div>
+                    </div>
+                </div>
+
+                <div style="width:1px;height:44px;background:rgba(0,0,0,.1);flex-shrink:0;" class="d-none d-lg-block"></div>
+
+                {{-- Mensaje semáforo --}}
+                <div class="d-none d-lg-block flex-grow-1">
+                    <div style="font-size:.82rem;font-weight:600;color:{{ $encColor }};">{{ $encMsg }}</div>
+                    <div style="font-size:.73rem;color:#64748b;margin-top:.1rem;">
+                        Basado en {{ $satisfaccionStats['respondidas'] }} encuestas respondidas con 5 preguntas de satisfacción (escala 1–4).
+                    </div>
+                </div>
+
+                {{-- Botones --}}
+                <div class="d-flex gap-2 ms-auto flex-shrink-0">
+                    <a href="{{ route('reportes.index') }}" class="btn btn-sm"
+                       style="border-radius:9px; font-size:.78rem; background:#1d4ed8; color:#fff; white-space:nowrap;">
+                        <i class="bi bi-graph-up me-1"></i> Estadísticas
+                    </a>
+                    <a href="{{ route('reportes.encuestas') }}" class="btn btn-sm"
+                       style="border-radius:9px; font-size:.78rem; background:{{ $encColor }}; color:#fff; white-space:nowrap;">
+                        <i class="bi bi-table me-1"></i> Ver respuestas
+                    </a>
+                </div>
             </div>
-            <div class="text-muted" style="font-size:.78rem;">Las gráficas detalladas se encuentran en el apartado de Estadísticas.</div>
         </div>
-        <a href="{{ route('reportes.index') }}" class="btn btn-sm btn-success" style="border-radius:8px; white-space:nowrap;">
-            <i class="bi bi-graph-up me-1"></i> Ver Estadísticas
-        </a>
     </div>
 </div>
 @endif

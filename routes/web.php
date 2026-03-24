@@ -80,6 +80,8 @@ Route::middleware('web.auth')->group(function () {
             Route::get('/por-fecha', [ReporteWebController::class, 'porFecha'])->name('por-fecha');
             Route::get('/rendimiento', [ReporteWebController::class, 'rendimiento'])->name('rendimiento');
             Route::get('/exportar', [ReporteWebController::class, 'exportar'])->name('exportar');
+            Route::get('/encuestas', [ReporteWebController::class, 'encuestasDetalle'])->name('encuestas');
+            Route::get('/filter-data', [ReporteWebController::class, 'filterData'])->name('filter-data');
         });
 
         Route::prefix('admin')->name('admin.')->group(function () {

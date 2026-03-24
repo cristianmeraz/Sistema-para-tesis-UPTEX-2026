@@ -271,10 +271,95 @@
         display: flex; align-items: center; gap: .4rem;
     }
 
+    /* ══════ PANEL POWER BI ══════ */
+    .pbi-panel {
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border: 1.5px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1rem 1.4rem;
+        margin-bottom: 1.4rem;
+        display: flex; align-items: center; flex-wrap: wrap; gap: .8rem;
+    }
+    .pbi-panel-label {
+        font-size: .73rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .06em;
+        color: #475569; white-space: nowrap;
+    }
+    .pbi-select {
+        border: 1.5px solid #cbd5e1; border-radius: 9px;
+        padding: .45rem .85rem; font-size: .83rem; color: #334155;
+        background: #fff; min-width: 180px; outline: none;
+        cursor: pointer; transition: border-color .15s;
+    }
+    .pbi-select:focus { border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29,78,216,.1); }
+    .pbi-badge-filter {
+        font-size: .72rem; font-weight: 600;
+        padding: .22rem .75rem; border-radius: 20px;
+        background: #dbeafe; color: #1d4ed8;
+        animation: pbi-pulse .4s ease;
+    }
+    @keyframes pbi-pulse { from { opacity:.4; transform:scale(.95); } to { opacity:1; transform:scale(1); } }
+    .pbi-spinner { display: none; width: 16px; height: 16px; border: 2px solid #cbd5e1;
+        border-top-color: #1d4ed8; border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════ KPI DINÁMICOS ══════ */
+    .dkpi-card {
+        background: #fff; border-radius: 14px;
+        border: 1px solid #e8edf5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.04);
+        padding: 1rem 1.2rem;
+        display: flex; align-items: center; gap: .8rem;
+        height: 100%;
+    }
+    .dkpi-icon {
+        width: 46px; height: 46px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; flex-shrink: 0;
+    }
+    .dkpi-val { font-size: 1.9rem; font-weight: 800; line-height: 1; color: #1e293b;
+        transition: color .3s; }
+    .dkpi-lbl { font-size: .72rem; color: #64748b; margin-top: .1rem; }
+
+    /* ══════ CHART DINÁMICO ══════ */
+    .dyn-chart-card {
+        background: #fff; border-radius: 16px;
+        border: 1px solid #e8edf5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.04);
+        padding: 1.2rem 1.4rem;
+        height: 100%;
+    }
+    .dyn-chart-title {
+        font-size: .75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .05em;
+        color: #64748b; margin-bottom: .8rem;
+        display: flex; align-items: center; gap: .4rem;
+    }
+
+    /* ══════ PROMEDIOS PREGUNTAS ══════ */
+    .q-avg-card {
+        background: #fff; border-radius: 14px;
+        border: 1px solid #e8edf5;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        padding: .85rem 1.1rem;
+        text-align: center; height: 100%;
+    }
+    .q-avg-num { font-size: .7rem; font-weight: 800; color: #1e293b;
+        background: #dcfce7; color: #15803d;
+        width: 24px; height: 24px; border-radius: 7px;
+        display: inline-flex; align-items: center; justify-content: center;
+        margin-bottom: .4rem; }
+    .q-avg-bar { width: 100%; height: 6px; background: #e2e8f0;
+        border-radius: 3px; overflow: hidden; margin: .4rem 0 .2rem; }
+    .q-avg-bar-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+    .q-avg-val { font-size: 1.1rem; font-weight: 800; }
+
     @media (max-width: 768px) {
         .rep-banner { padding: 1.2rem; }
         .rep-banner-title { font-size: 1.2rem; }
         .enc-hero-pct { font-size: 3rem; }
+        .pbi-panel { flex-direction: column; align-items: flex-start; }
+        .pbi-select { min-width: 100%; }
     }
 </style>
 
@@ -288,6 +373,126 @@
         <div>
             <h1 class="rep-banner-title">Estadísticas</h1>
             <p class="rep-banner-sub">Genera, analiza y exporta datos del sistema de soporte — UPTEX</p>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- PANEL DE CONTROL — Power BI Style (filtros dinámicos)    --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    <div class="pbi-panel">
+        <div>
+            <i class="bi bi-sliders2 me-1" style="color:#1d4ed8;"></i>
+            <span class="pbi-panel-label">Panel de Control</span>
+        </div>
+        <select id="filtroArea" class="pbi-select">
+            <option value="">Todas las áreas</option>
+            @foreach($areas as $area)
+            <option value="{{ $area->id_area }}">{{ $area->nombre }}</option>
+            @endforeach
+        </select>
+        <select id="filtroTecnico" class="pbi-select">
+            <option value="">Todos los técnicos</option>
+            @foreach($tecnicos as $tec)
+            <option value="{{ $tec->id_usuario }}">{{ $tec->nombre }} {{ $tec->apellido }}</option>
+            @endforeach
+        </select>
+        <div class="pbi-spinner" id="pbiSpinner"></div>
+        <span class="pbi-badge-filter d-none" id="pbiBadge">Filtro activo</span>
+        <button class="btn btn-sm btn-outline-secondary" id="pbiReset"
+            style="border-radius:9px; font-size:.8rem; margin-left:auto;">
+            <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+        </button>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- KPI DINÁMICOS — actualizan con el filtro                  --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-xl-3">
+            <div class="dkpi-card">
+                <div class="dkpi-icon" style="background:#dbeafe;color:#1d4ed8;">
+                    <i class="bi bi-ticket-detailed-fill"></i>
+                </div>
+                <div>
+                    <div class="dkpi-val" id="dkpiTotal">{{ $ticketStats['total'] }}</div>
+                    <div class="dkpi-lbl">Total de Tickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="dkpi-card">
+                <div class="dkpi-icon" style="background:#fef3c7;color:#d97706;">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+                <div>
+                    <div class="dkpi-val" id="dkpiAbiertos" style="color:#d97706;">{{ $ticketStats['abiertos'] }}</div>
+                    <div class="dkpi-lbl">Abiertos / Pendientes</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="dkpi-card">
+                <div class="dkpi-icon" style="background:#ede9fe;color:#7c3aed;">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <div>
+                    <div class="dkpi-val" id="dkpiEnProceso" style="color:#7c3aed;">{{ $ticketStats['en_proceso'] }}</div>
+                    <div class="dkpi-lbl">En Proceso</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="dkpi-card">
+                <div class="dkpi-icon" style="background:#dcfce7;color:#16a34a;">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <div class="dkpi-val" id="dkpiResueltos" style="color:#16a34a;">{{ $ticketStats['resueltos'] }}</div>
+                    <div class="dkpi-lbl">Resueltos / Cerrados</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    {{-- GRÁFICAS DINÁMICAS — Tickets por Área y por Prioridad     --}}
+    {{-- ══════════════════════════════════════════════════════════ --}}
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-5">
+            <div class="dyn-chart-card">
+                <div class="dyn-chart-title">
+                    <i class="bi bi-bar-chart-fill text-primary"></i>
+                    Tickets por Área
+                    <span style="margin-left:auto;font-size:.68rem;color:#94a3b8;font-weight:400">Eje Y = Nº de tickets</span>
+                </div>
+                <div style="height:220px;position:relative;">
+                    <canvas id="chartPorArea"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="dyn-chart-card">
+                <div class="dyn-chart-title">
+                    <i class="bi bi-pie-chart-fill text-warning"></i>
+                    Por Prioridad
+                    <span style="margin-left:auto;font-size:.68rem;color:#94a3b8;font-weight:400">Distribución</span>
+                </div>
+                <div style="height:220px;position:relative;">
+                    <canvas id="chartPorPrioridad"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="dyn-chart-card">
+                <div class="dyn-chart-title">
+                    <i class="bi bi-graph-up-arrow text-info"></i>
+                    Resolución — Últimos 14 días
+                    <span style="margin-left:auto;font-size:.68rem;color:#94a3b8;font-weight:400">Eje Y = Resueltos/día</span>
+                </div>
+                <div style="height:220px;position:relative;">
+                    <canvas id="chartLinea"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -353,9 +558,13 @@
         <span class="badge bg-success" style="font-size:.7rem; font-weight:600;">
             {{ $respondidas }}/{{ $total }} respondidas
         </span>
-        <span class="ms-auto text-muted" style="font-size:.75rem;">
+        <span class="text-muted d-none d-md-inline" style="font-size:.75rem;">
             <i class="bi bi-clock-history me-1"></i>Indicadores Mantenimiento TI — Periodo {{ date('Y') }}
         </span>
+        <a href="{{ route('reportes.encuestas') }}" class="ms-auto btn btn-sm btn-outline-success"
+           style="border-radius:9px; font-size:.78rem; white-space:nowrap;">
+            <i class="bi bi-table me-1"></i> Ver respuestas detalladas
+        </a>
     </div>
 
     {{-- Fila 1: Hero KPI + KPIs secundarios --}}
@@ -559,9 +768,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var stats = @json($satisfaccionStats);
+        var stats        = @json($satisfaccionStats);
+        var porAreaInit  = @json($porAreaChart);
+        var porPrioInit  = @json($porPrioridadChart);
+        var diasInit     = { labels: @json($satisfaccionStats['dias_labels']), data: @json($satisfaccionStats['dias_data']) };
+        var filterUrl    = '{{ route("reportes.filter-data") }}';
 
-        // Donut global
+        // ─────────────────────────────────────────────────────────────────
+        // GRÁFICAS DE ENCUESTA (sección inferior — satisfacción)
+        // ─────────────────────────────────────────────────────────────────
+
+        // Donut global distribución satisfacción
         var c1 = document.getElementById('encChartGlobal');
         if (c1) {
             new Chart(c1, {
@@ -572,11 +789,12 @@
                         backgroundColor: ['#16a34a','#dc2626','#94a3b8'], borderWidth: 2, borderColor: '#fff' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
-                    plugins: { legend: { display: false } } }
+                    plugins: { legend: { display: false },
+                        tooltip: { callbacks: { label: function(c){ return ' ' + c.label + ': ' + c.raw; } } } } }
             });
         }
 
-        // Barras por área
+        // Barras satisfechos vs no-satisfechos por área (con ejes etiquetados)
         var c2 = document.getElementById('encChartPorArea');
         if (c2 && stats.por_area && stats.por_area.length > 0) {
             new Chart(c2, {
@@ -592,8 +810,14 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 12 } } },
                     scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
-                        x: { ticks: { font: { size: 10 }, maxRotation: 40 }, grid: { display: false } }
+                        y: {
+                            title: { display: true, text: 'Nº de Respuestas', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Área', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            ticks: { font: { size: 10 }, maxRotation: 40 }, grid: { display: false }
+                        }
                     }
                 }
             });
@@ -611,7 +835,7 @@
             });
         }
 
-        // Línea resueltos por día
+        // Línea resueltos por día (con ejes etiquetados)
         var c4 = document.getElementById('encChartResueltos');
         if (c4) {
             new Chart(c4, {
@@ -625,12 +849,195 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { legend: { display: false },
+                        tooltip: { callbacks: { title: function(c){ return 'Fecha: ' + c[0].label; } } } },
                     scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
-                        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+                        y: {
+                            title: { display: true, text: 'Tickets Resueltos', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Fecha (día/mes)', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            ticks: { font: { size: 10 } }, grid: { display: false }
+                        }
                     }
                 }
+            });
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // GRÁFICAS DINÁMICAS (sección Power BI — filtros por área/técnico)
+        // ─────────────────────────────────────────────────────────────────
+
+        // Barras – Tickets por Área
+        var ctxArea = document.getElementById('chartPorArea');
+        var instArea = null;
+        if (ctxArea) {
+            instArea = new Chart(ctxArea, {
+                type: 'bar',
+                data: {
+                    labels: porAreaInit.map(function(r){ return r.nombre; }),
+                    datasets: [{
+                        label: 'Nº de Tickets',
+                        data: porAreaInit.map(function(r){ return r.total; }),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6, borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Área', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            ticks: { font: { size: 10 }, maxRotation: 35 }, grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: 'Nº de Tickets', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Donut – Tickets por Prioridad
+        var ctxPrio = document.getElementById('chartPorPrioridad');
+        var instPrio = null;
+        var prioColors = { 'Alta': '#ef4444', 'Media': '#f59e0b', 'Baja': '#22c55e' };
+        if (ctxPrio) {
+            instPrio = new Chart(ctxPrio, {
+                type: 'doughnut',
+                data: {
+                    labels: porPrioInit.map(function(r){ return r.nombre; }),
+                    datasets: [{
+                        data: porPrioInit.map(function(r){ return r.total; }),
+                        backgroundColor: porPrioInit.map(function(r){ return prioColors[r.nombre] || '#94a3b8'; }),
+                        borderWidth: 2, borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '58%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 10 } },
+                        tooltip: { callbacks: { label: function(c){ return ' ' + c.label + ': ' + c.raw + ' tickets'; } } }
+                    }
+                }
+            });
+        }
+
+        // Línea – Resolución últimos 14 días (dinámica)
+        var ctxLinea = document.getElementById('chartLinea');
+        var instLinea = null;
+        if (ctxLinea) {
+            instLinea = new Chart(ctxLinea, {
+                type: 'line',
+                data: {
+                    labels: diasInit.labels,
+                    datasets: [{
+                        label: 'Resueltos', data: diasInit.data,
+                        borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.08)',
+                        borderWidth: 2.5, fill: true, tension: 0.4,
+                        pointRadius: 3, pointBackgroundColor: '#8b5cf6'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Fecha (día/mes)', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            ticks: { font: { size: 10 } }, grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: 'Tickets Resueltos / día', font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                            beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // LÓGICA DE FILTRADO POWER BI — cambio automático con los selects
+        // ─────────────────────────────────────────────────────────────────
+
+        var spinner = document.getElementById('pbiSpinner');
+        var badge   = document.getElementById('pbiBadge');
+        var filterTimeout = null;
+
+        function updateCharts() {
+            var areaId    = document.getElementById('filtroArea').value;
+            var tecnicoId = document.getElementById('filtroTecnico').value;
+
+            if (spinner) spinner.style.display = 'inline-block';
+            if (badge)   badge.classList.add('d-none');
+
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(function() {
+                var url = filterUrl + '?area_id=' + encodeURIComponent(areaId) +
+                                      '&tecnico_id=' + encodeURIComponent(tecnicoId);
+
+                fetch(url, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('Respuesta no válida del servidor');
+                    return res.json();
+                })
+                .then(function(d) {
+                    // Actualizar KPI cards
+                    document.getElementById('dkpiTotal').textContent     = d.total;
+                    document.getElementById('dkpiAbiertos').textContent  = d.abiertos;
+                    document.getElementById('dkpiEnProceso').textContent = d.en_proceso;
+                    document.getElementById('dkpiResueltos').textContent = d.resueltos;
+
+                    // Actualizar gráfica por área
+                    if (instArea) {
+                        instArea.data.labels   = d.por_area.map(function(r){ return r.nombre; });
+                        instArea.data.datasets[0].data = d.por_area.map(function(r){ return r.total; });
+                        instArea.update();
+                    }
+
+                    // Actualizar donut prioridad
+                    if (instPrio) {
+                        instPrio.data.labels   = d.por_prioridad.map(function(r){ return r.nombre; });
+                        instPrio.data.datasets[0].data = d.por_prioridad.map(function(r){ return r.total; });
+                        instPrio.data.datasets[0].backgroundColor = d.por_prioridad.map(function(r){ return prioColors[r.nombre] || '#94a3b8'; });
+                        instPrio.update();
+                    }
+
+                    // Actualizar línea de resolución
+                    if (instLinea) {
+                        instLinea.data.labels   = d.dias_labels;
+                        instLinea.data.datasets[0].data = d.dias_data;
+                        instLinea.update();
+                    }
+
+                    // Mostrar badge de filtro activo si hay filtro
+                    if (badge && (areaId || tecnicoId)) {
+                        badge.classList.remove('d-none');
+                        badge.textContent = 'Filtro activo';
+                    }
+                })
+                .catch(function(e) { console.warn('Error al filtrar:', e); })
+                .finally(function() { if (spinner) spinner.style.display = 'none'; });
+            }, 350);
+        }
+
+        var selArea    = document.getElementById('filtroArea');
+        var selTecnico = document.getElementById('filtroTecnico');
+        var btnReset   = document.getElementById('pbiReset');
+
+        if (selArea)    selArea.addEventListener('change',    updateCharts);
+        if (selTecnico) selTecnico.addEventListener('change', updateCharts);
+
+        if (btnReset) {
+            btnReset.addEventListener('click', function() {
+                if (selArea)    selArea.value    = '';
+                if (selTecnico) selTecnico.value = '';
+                if (badge)      badge.classList.add('d-none');
+                updateCharts();
             });
         }
     });
