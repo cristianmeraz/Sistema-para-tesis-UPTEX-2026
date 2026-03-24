@@ -318,7 +318,31 @@ class ReporteWebController extends Controller
                 ];
             })->sortByDesc('total_asignados')->values()->toArray();
 
-        return view('reportes.rendimiento', compact('tecnicos'));
+        $ticketsResueltos = Ticket::with(['area', 'tecnicoAsignado'])
+            ->whereHas('estado', fn($q) => $q->whereIn('tipo', ['resuelto', 'cerrado']))
+            ->whereNotNull('fecha_cierre')
+            ->orderBy('fecha_cierre', 'desc')
+            ->get()
+            ->map(function ($t) {
+                $horas = null;
+                if ($t->fecha_creacion && $t->fecha_cierre) {
+                    $diff  = strtotime($t->fecha_cierre) - strtotime($t->fecha_creacion);
+                    $horas = round($diff / 3600, 1);
+                }
+                return [
+                    'id_ticket'      => $t->id_ticket,
+                    'titulo'         => $t->titulo,
+                    'area'           => $t->area->nombre ?? 'N/A',
+                    'tecnico'        => $t->tecnicoAsignado
+                                        ? ($t->tecnicoAsignado->nombre . ' ' . $t->tecnicoAsignado->apellido)
+                                        : 'Sin asignar',
+                    'fecha_apertura' => $t->fecha_creacion,
+                    'fecha_cierre'   => $t->fecha_cierre,
+                    'tiempo_horas'   => $horas,
+                ];
+            })->toArray();
+
+        return view('reportes.rendimiento', compact('tecnicos', 'ticketsResueltos'));
     }
 
     public function porFecha(Request $request)

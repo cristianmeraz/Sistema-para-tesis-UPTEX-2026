@@ -49,12 +49,6 @@
     .eff-bar-fill { height:100%; border-radius:4px; transition:width .6s ease; }
     .eff-chip { font-size:.72rem; font-weight:700; padding:.2rem .55rem; border-radius:20px; white-space:nowrap; }
 
-    /* ══════ GRÁFICA ══════ */
-    .chart-card { background:#fff; border-radius:16px; border:1px solid #e8edf5; box-shadow:0 2px 12px rgba(0,0,0,.04); overflow:hidden; }
-    .chart-card-header { background:linear-gradient(135deg,#1e3a5f,#1d4ed8); padding:.9rem 1.4rem; }
-    .chart-card-header span { color:#fff; font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
-    .chart-card-body { padding:1.4rem; }
-
     /* ══════ PRINT ══════ */
     @media print {
         body * { visibility: hidden; }
@@ -166,8 +160,6 @@
                     <th>Correo</th>
                     <th class="text-center">Total</th>
                     <th class="text-center">Resueltos</th>
-                    <th class="text-center">En Proceso</th>
-                    <th class="text-center">Abiertos</th>
                     <th class="text-center">T. Prom. (h)</th>
                     <th style="min-width:140px;">Efectividad</th>
                 </tr>
@@ -192,8 +184,6 @@
                     <td style="font-size:.8rem; color:#64748b;">{{ $t['correo'] }}</td>
                     <td class="text-center fw-bold">{{ $t['total_asignados'] }}</td>
                     <td class="text-center fw-bold" style="color:#16a34a;">{{ $t['cerrados'] }}</td>
-                    <td class="text-center fw-bold" style="color:#9d174d;">{{ $t['en_proceso'] }}</td>
-                    <td class="text-center fw-bold" style="color:#1d4ed8;">{{ $t['abiertos'] }}</td>
                     <td class="text-center" style="font-size:.82rem;">
                         {{ $t['tiempo_promedio'] !== null ? $t['tiempo_promedio'] . 'h' : '—' }}
                     </td>
@@ -208,7 +198,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center text-muted py-5">
+                    <td colspan="6" class="text-center text-muted py-5">
                         <i class="bi bi-people d-block mb-2" style="font-size:2rem;"></i>
                         No hay técnicos registrados
                     </td>
@@ -219,19 +209,54 @@
     </div>
 </div>
 
-{{-- ══ GRÁFICA (pantalla) ══ --}}
-@if(count($tecnicos) > 0)
-<div class="chart-card no-print">
-    <div class="chart-card-header">
-        <span><i class="bi bi-bar-chart-fill me-2"></i>Comparación de Técnicos</span>
+{{-- ══ TABLA TICKETS RESUELTOS ══ --}}
+<div class="rep-table-wrap">
+    <div class="rep-table-header no-print">
+        <span><i class="bi bi-check2-circle me-2"></i>Tickets Resueltos</span>
+        <span style="color:rgba(255,255,255,.7); font-size:.75rem;">{{ count($ticketsResueltos) }} tickets</span>
     </div>
-    <div class="chart-card-body">
-        <div style="height:260px; position:relative;">
-            <canvas id="chartTecnicos"></canvas>
-        </div>
+    <div class="table-responsive">
+        <table class="table table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    <th>Técnico</th>
+                    <th>Área</th>
+                    <th class="text-center">Fecha Apertura</th>
+                    <th class="text-center">Fecha Cierre</th>
+                    <th class="text-center">Tiempo (h)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($ticketsResueltos as $tr)
+                <tr>
+                    <td class="fw-bold" style="color:#d97706;">#{{ $tr['id_ticket'] }}</td>
+                    <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $tr['titulo'] }}</td>
+                    <td style="font-size:.82rem;">{{ $tr['tecnico'] }}</td>
+                    <td style="font-size:.82rem; color:#64748b;">{{ $tr['area'] }}</td>
+                    <td class="text-center" style="font-size:.82rem; white-space:nowrap;">
+                        {{ \Carbon\Carbon::parse($tr['fecha_apertura'])->format('d/m/Y') }}
+                    </td>
+                    <td class="text-center" style="font-size:.82rem; white-space:nowrap;">
+                        {{ \Carbon\Carbon::parse($tr['fecha_cierre'])->format('d/m/Y') }}
+                    </td>
+                    <td class="text-center" style="font-size:.82rem;">
+                        {{ $tr['tiempo_horas'] !== null ? $tr['tiempo_horas'] . 'h' : '—' }}
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-check2-circle d-block mb-2" style="font-size:2rem;"></i>
+                        No hay tickets resueltos registrados
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
-@endif
 
 {{-- Pie impresión --}}
 <div id="print-footer" style="display:none; margin-top:20px; text-align:center; font-size:8pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:8px;">
@@ -241,7 +266,6 @@
 </div>{{-- /print-area --}}
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 function imprimirReporte() {
     document.querySelector('.print-header').style.display = 'block';
@@ -250,32 +274,6 @@ function imprimirReporte() {
     document.querySelector('.print-header').style.display = 'none';
     document.getElementById('print-footer').style.display = 'none';
 }
-
-@if(count($tecnicos) > 0)
-document.addEventListener('DOMContentLoaded', function () {
-    new Chart(document.getElementById('chartTecnicos'), {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode(array_column($tecnicos, 'tecnico')) !!},
-            datasets: [
-                { label: 'Resueltos/Cerrados', data: {!! json_encode(array_column($tecnicos, 'cerrados')) !!},    backgroundColor: '#16a34a', borderRadius: 6 },
-                { label: 'En Proceso',          data: {!! json_encode(array_column($tecnicos, 'en_proceso')) !!}, backgroundColor: '#d97706', borderRadius: 6 },
-                { label: 'Abiertos',            data: {!! json_encode(array_column($tecnicos, 'abiertos')) !!},   backgroundColor: '#1d4ed8', borderRadius: 6 }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 14 } }
-            },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
-                x: { ticks: { font: { size: 11 } }, grid: { display: false } }
-            }
-        }
-    });
-});
-@endif
 </script>
 <style>
 @media print {
