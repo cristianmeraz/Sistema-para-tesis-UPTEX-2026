@@ -22,11 +22,13 @@ class EncuestaSatisfaccion extends Model
         'pregunta_3',
         'pregunta_4',
         'pregunta_5',
+        'archivado_at',
     ];
 
     protected $casts = [
         'satisfecho'    => 'boolean',
         'respondida_at' => 'datetime',
+        'archivado_at'  => 'datetime',
     ];
 
     // ── Relaciones ──────────────────────────────────────────────────────────

@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Ticket extends Model
 {
     protected $table = 'tickets';
     protected $primaryKey = 'id_ticket';
     public $timestamps = true;
-    
+
     protected $fillable = [
         'titulo',
         'descripcion',
@@ -21,12 +22,26 @@ class Ticket extends Model
         'fecha_creacion',
         'fecha_cierre',
         'solucion',
+        'archivado_at',
     ];
-    
+
     protected $casts = [
         'fecha_creacion' => 'datetime',
-        'fecha_cierre' => 'datetime',
+        'fecha_cierre'   => 'datetime',
+        'archivado_at'   => 'datetime',
     ];
+
+    /**
+     * Global scope: excluye automáticamente los tickets archivados (papelera)
+     * de todas las consultas normales.
+     * Para acceder a archivados usar: Ticket::withoutGlobalScope('no_archivado')
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('no_archivado', function (Builder $builder) {
+            $builder->whereNull('archivado_at');
+        });
+    }
     
     // Relaciones
     public function usuario()

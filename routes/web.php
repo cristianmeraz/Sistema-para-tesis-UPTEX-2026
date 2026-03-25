@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\TicketWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
 use App\Http\Controllers\Web\ReporteWebController;
 use App\Http\Controllers\Web\EncuestaWebController;
+use App\Http\Controllers\Web\PapeleraController;
 
 // --- INICIO ---
 Route::get('/', function () { return redirect()->route('login'); });
@@ -97,5 +98,11 @@ Route::middleware('web.auth')->group(function () {
         Route::get('/tickets-asignados', [TicketWebController::class, 'asignados'])->name('tickets.asignados');
         Route::get('/historial-tickets', [TicketWebController::class, 'misTicketsHistorial'])->name('tickets.historial');
         Route::get('/tecnico/boleta-ticket/{id}', [TicketWebController::class, 'verFichaTecnica'])->name('tecnicos.ver-ticket');
+    });
+
+    // --- PAPELERA (Admin + Técnico) ---
+    Route::middleware('web.tecnico')->group(function () {
+        Route::get('/papelera', [PapeleraController::class, 'index'])->name('papelera.index');
+        Route::post('/papelera/{id}/restaurar', [PapeleraController::class, 'restaurar'])->name('papelera.restaurar');
     });
 });

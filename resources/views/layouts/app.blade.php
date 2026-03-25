@@ -137,16 +137,6 @@
                 </a>
             </div>
             
-            @if(session('usuario_rol') == 'Técnico')
-                <div class="nav-section-title">Trabajo Técnico</div>
-                <div class="nav-item">
-                    <a href="{{ route('tickets.mis-tickets') }}" class="nav-link {{ request()->routeIs('tickets.mis-tickets') ? 'active' : '' }}">
-                        <i class="bi bi-list-task"></i>
-                        <span>Todos los Tickets</span>
-                    </a>
-                </div>
-            @endif
-
             @if(session('usuario_rol') == 'Administrador')
                 <div class="nav-section-title">Gestión</div>
                 <div class="nav-item">
@@ -165,6 +155,28 @@
                     <a href="{{ route('tickets.index') }}" class="nav-link {{ request()->routeIs('tickets.index') ? 'active' : '' }}">
                         <i class="bi bi-ticket"></i>
                         <span>Ver Tickets</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('papelera.index') }}" class="nav-link {{ request()->routeIs('papelera.*') ? 'active' : '' }}">
+                        <i class="bi bi-trash3"></i>
+                        <span>Papelera</span>
+                    </a>
+                </div>
+            @endif
+
+            @if(session('usuario_rol') == 'Técnico')
+                <div class="nav-section-title">Trabajo Técnico</div>
+                <div class="nav-item">
+                    <a href="{{ route('tickets.mis-tickets') }}" class="nav-link {{ request()->routeIs('tickets.mis-tickets') ? 'active' : '' }}">
+                        <i class="bi bi-list-task"></i>
+                        <span>Todos los Tickets</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('papelera.index') }}" class="nav-link {{ request()->routeIs('papelera.*') ? 'active' : '' }}">
+                        <i class="bi bi-trash3"></i>
+                        <span>Papelera</span>
                     </a>
                 </div>
             @endif
