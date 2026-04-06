@@ -229,10 +229,7 @@
                 <li><a class="dropdown-item" href="{{ route('perfil') }}"><i class="bi bi-person me-2"></i> Mi Perfil</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</button>
-                    </form>
+                    <a href="{{ route('logout.get') }}" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a>
                 </li>
             </ul>
         </div>

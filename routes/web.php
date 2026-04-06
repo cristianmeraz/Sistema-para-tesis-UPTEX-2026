@@ -33,6 +33,7 @@ Route::middleware('web.auth')->group(function () {
     
     Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [WebController::class, 'logout'])->name('logout');
+    Route::get('/cerrar-sesion', [WebController::class, 'logout'])->name('logout.get');
     Route::get('/perfil', [WebController::class, 'perfil'])->name('perfil');
     Route::put('/perfil', [WebController::class, 'updatePerfil'])->name('perfil.update');
     

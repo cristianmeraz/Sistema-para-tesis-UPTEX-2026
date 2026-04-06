@@ -51,9 +51,10 @@
 
     /* ══════ PRINT ══════ */
     @media print {
-        body * { visibility: hidden; }
-        #print-area, #print-area * { visibility: visible; }
-        #print-area { position: fixed; left: 0; top: 0; width: 100%; }
+        .sidebar, .sidebarOverlay, .main-header { display: none !important; }
+        .main-content { margin-left: 0 !important; padding: 0 !important; }
+        body { background: #fff; }
+        #print-area { position: static !important; width: 100%; display: block !important; }
         .no-print { display: none !important; }
     }
 </style>

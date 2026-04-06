@@ -22,7 +22,7 @@
         /* ── BADGE TICKET ── */
         .ticket-badge { background-color: #1e3a5f; border-radius: 8px; padding: 1.2rem 1.5rem; margin: 1.5rem 1.8rem 0; display: table; width: calc(100% - 3.6rem); }
         .ticket-badge-num { background: rgba(255,255,255,0.18); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; white-space: nowrap; }
-        .ticket-badge-title { color: #fff; font-weight: 700; font-size: 1rem; margin: 0; }
+        .ticket-badge-title { color: #fff; font-weight: 700; font-size: 1rem; margin: 0; word-break: break-word; overflow-wrap: break-word; }
         .ticket-badge-label { color: rgba(255,255,255,0.72); font-size: 0.8rem; margin-top: 2px; }
 
         /* ── BODY ── */
@@ -171,13 +171,21 @@
         {{-- CTA: lleva directo al ticket. El controlador protege el acceso por rol --}}
         <div class="cta-wrap">
             @if($esTecnico)
-            <a href="{{ route('tickets.asignados') }}" class="cta-btn">
-                📂 Ver mi Panel de Técnico &rarr;
-            </a>
+            <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+              <tr><td align="center" bgcolor="#1d4ed8" style="border-radius:8px;padding:0;">
+                <a href="{{ route('tickets.asignados') }}" style="display:inline-block;color:#ffffff;background-color:#1d4ed8;padding:14px 32px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;border-radius:8px;">
+                  &#128193; Ver mi Panel de T&eacute;cnico
+                </a>
+              </td></tr>
+            </table>
             @else
-            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="cta-btn">
-                🎫 Ver Ticket #{{ $ticketId }} &rarr;
-            </a>
+            <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+              <tr><td align="center" bgcolor="#1d4ed8" style="border-radius:8px;padding:0;">
+                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" style="display:inline-block;color:#ffffff;background-color:#1d4ed8;padding:14px 32px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;border-radius:8px;">
+                  &#127903; Ver Ticket #{{ $ticketId }}
+                </a>
+              </td></tr>
+            </table>
             @endif
         </div>
     </div>

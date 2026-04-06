@@ -84,13 +84,14 @@
 
 /* PRINT */
 @media print {
-    body * { visibility: hidden; }
-    #print-area, #print-area * { visibility: visible; }
-    #print-area { position: static; width: 100%; }
+    .sidebar, .sidebarOverlay, .main-header { display: none !important; }
+    .main-content { margin-left: 0 !important; padding: 0 !important; }
+    body { background: #fff; }
+    #print-area { position: static !important; width: 100%; display: block !important; }
     .no-print { display: none !important; }
     .print-header { display: block !important; }
     #print-footer  { display: block !important; }
-    nav, .sidebar, header, footer, .no-print { display: none !important; }
+    nav, header, footer { display: none !important; }
     body { font-size: 10pt; }
     .rep-table-wrap { box-shadow: none; border: 1px solid #cbd5e1; page-break-inside: auto; }
     .rep-table-wrap tr { page-break-inside: avoid; page-break-after: auto; }
