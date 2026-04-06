@@ -414,7 +414,7 @@
                                 {{ $ticket['estado']['nombre'] ?? 'N/A' }}
                             </span>
                         </td>
-                        <td>
+                        <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
                             @if(isset($ticket['tecnico_asignado']))
                                 <span class="tech-name">{{ $ticket['tecnico_asignado']['nombre_completo'] }}</span>
                             @else
