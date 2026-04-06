@@ -271,6 +271,11 @@
                 <button type="submit" class="btn btn-fp">
                     <i class="bi bi-send me-2"></i> Enviar enlace de recuperación
                 </button>
+
+                <div class="alert alert-warning d-flex align-items-start gap-2 rounded-3 mt-3 mb-0" style="font-size:.85rem;">
+                    <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+                    <span><strong>Importante:</strong> Solo puedes restablecer tu contraseña <strong>3 veces</strong> mediante este formulario. Al superar ese límite tu cuenta será desactivada automáticamente. Contacta al administrador si necesitas ayuda adicional.</span>
+                </div>
             </form>
 
             <a href="{{ route('login') }}" class="back-link">

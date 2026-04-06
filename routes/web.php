@@ -24,7 +24,7 @@ Route::post('/register', [WebController::class, 'register'])->name('register.pos
 
 // --- RECUPERACIÓN DE CONTRASEÑA ---
 Route::get('/forgot-password', [WebController::class, 'forgotPassword'])->name('password.request');
-Route::post('/forgot-password', [WebController::class, 'sendResetLink'])->name('password.email');
+Route::post('/forgot-password', [WebController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:3,60');
 Route::get('/reset-password/{token}', [WebController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [WebController::class, 'resetPassword'])->name('password.update');
 

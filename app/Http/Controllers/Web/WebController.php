@@ -164,20 +164,29 @@ class WebController extends Controller
         $usuario = Usuario::where('correo', $request->correo)->first();
 
         // Siempre mostrar el mismo mensaje para no revelar si el correo existe
-        if ($usuario) {
-            $token    = Str::random(64);
-            $resetUrl = url('/reset-password/' . $token . '?correo=' . urlencode($usuario->correo));
+        if ($usuario && $usuario->activo) {
+            // Si ya agotó los 3 resets permitidos, no enviar — la cuenta debería estar inactiva
+            // pero por si acaso se reactivó sin resetear el contador
+            if ($usuario->password_reset_count >= 3) {
+                // Desactivar cuenta y no enviar enlace
+                $usuario->activo = false;
+                $usuario->save();
+                Cache::put('force_auth_check_' . $usuario->id_usuario, true, 600);
+            } else {
+                $token    = Str::random(64);
+                $resetUrl = url('/reset-password/' . $token . '?correo=' . urlencode($usuario->correo));
 
-            DB::table('password_reset_tokens')->updateOrInsert(
-                ['email' => $usuario->correo],
-                ['token' => hash('sha256', $token), 'created_at' => now()]
-            );
+                DB::table('password_reset_tokens')->updateOrInsert(
+                    ['email' => $usuario->correo],
+                    ['token' => hash('sha256', $token), 'created_at' => now()]
+                );
 
-            try {
-                Mail::to($usuario->correo)
-                    ->send(new \App\Mail\PasswordResetMail($usuario->nombre, $resetUrl));
-            } catch (\Exception $e) {
-                \Log::error('Error enviando email de reset a ' . $usuario->correo . ': ' . $e->getMessage());
+                try {
+                    Mail::to($usuario->correo)
+                        ->send(new \App\Mail\PasswordResetMail($usuario->nombre, $resetUrl));
+                } catch (\Exception $e) {
+                    \Log::error('Error enviando email de reset a ' . $usuario->correo . ': ' . $e->getMessage());
+                }
             }
         }
 
@@ -230,13 +239,29 @@ class WebController extends Controller
         }
 
         $usuario = Usuario::where('correo', $request->correo)->firstOrFail();
+
+        // Anti-repetición: no puede usar la misma contraseña actual
+        if (Hash::check($request->password, $usuario->password)) {
+            return back()->withErrors(['password' => 'La nueva contraseña no puede ser igual a la contraseña actual.']);
+        }
+
         $usuario->password       = Hash::make($request->password);
         $usuario->login_attempts = 0;
         $usuario->locked_at      = null;
+        $usuario->increment('password_reset_count');
         $usuario->save();
 
         // Invalidar token usado
         DB::table('password_reset_tokens')->where('email', $request->correo)->delete();
+
+        // Al completar el 3er reset, desactivar cuenta por seguridad
+        if ($usuario->password_reset_count >= 3) {
+            $usuario->activo = false;
+            $usuario->save();
+            Cache::put('force_auth_check_' . $usuario->id_usuario, true, 600);
+            return redirect()->route('login')
+                ->with('warning', '¡Contraseña restablecida! Por seguridad, tu cuenta ha sido desactivada al agotar los 3 intentos de recuperación permitidos. Contacta al administrador para reactivarla.');
+        }
 
         return redirect()->route('login')
             ->with('success', '¡Contraseña restablecida! Ya puedes iniciar sesión.');
@@ -290,12 +315,25 @@ class WebController extends Controller
     }
     public function perfil() {
         // ✅ FIX: Null-check para evitar fatal error si el usuario fue eliminado
-        $usuario = Usuario::with('rol')->find(session('usuario_id'));
-        if (!$usuario) {
+        $usuarioObj = Usuario::with('rol')->find(session('usuario_id'));
+        if (!$usuarioObj) {
             return redirect()->route('login')->with('error', 'Sesión inválida. Por favor inicia sesión de nuevo.');
         }
-        $usuario = $usuario->toArray();
-        return view('perfil', compact('usuario'));
+
+        // Calcular cambios de contraseña restantes este mes (solo Técnico y Usuario Normal)
+        $changesLeft = null;
+        $rol = $usuarioObj->rol->nombre ?? '';
+        if (in_array($rol, ['Técnico', 'Usuario Normal'])) {
+            $inicioMes    = now()->startOfMonth()->toDateString();
+            $cambiosUsados = 0;
+            if ($usuarioObj->password_month_reset_at && $usuarioObj->password_month_reset_at >= $inicioMes) {
+                $cambiosUsados = $usuarioObj->password_changes_this_month ?? 0;
+            }
+            $changesLeft = max(0, 3 - $cambiosUsados);
+        }
+
+        $usuario = $usuarioObj->toArray();
+        return view('perfil', compact('usuario', 'changesLeft'));
     }
 
     public function updatePerfil(Request $request) {
@@ -337,6 +375,27 @@ class WebController extends Controller
         ]);
 
         if (!empty($validated['password'])) {
+            // Anti-repetición: no puede ser igual a la contraseña actual
+            if (Hash::check($validated['password'], $usuario->password)) {
+                return back()->withErrors(['password' => 'La nueva contraseña no puede ser igual a la contraseña actual.'])->withInput();
+            }
+
+            // Límite mensual de 3 cambios (solo Técnico y Usuario Normal)
+            $rolSesion = session('usuario_rol');
+            if (in_array($rolSesion, ['Técnico', 'Usuario Normal'])) {
+                $inicioMes = now()->startOfMonth()->toDateString();
+                // Resetear contador si estamos en un nuevo mes
+                if (!$usuario->password_month_reset_at || $usuario->password_month_reset_at < $inicioMes) {
+                    $usuario->password_changes_this_month = 0;
+                    $usuario->password_month_reset_at     = $inicioMes;
+                    $usuario->save();
+                }
+                if ($usuario->password_changes_this_month >= 3) {
+                    return back()->withErrors(['password' => 'Has alcanzado el límite de 3 cambios de contraseña por mes. Contacta al administrador si necesitas un cambio adicional.'])->withInput();
+                }
+                $usuario->increment('password_changes_this_month');
+            }
+
             $usuario->update(['password' => Hash::make($validated['password'])]);
         }
 

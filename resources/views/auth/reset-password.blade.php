@@ -71,7 +71,7 @@
                 <input type="email" class="form-control" value="{{ $correo }}" disabled>
             </div>
 
-            <div class="mb-3">
+                <div class="mb-3">
                 <label class="form-label fw-500 text-secondary">Nueva contraseña</label>
                 <div class="pass-toggle">
                     <input type="password" id="password" name="password"
@@ -82,6 +82,10 @@
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
+                <small class="text-muted d-block mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Mín. 8 caracteres &middot; Una mayúscula &middot; Un número &middot; Un símbolo (#, @, !, $, %)
+                </small>
             </div>
 
             <div class="mb-4">

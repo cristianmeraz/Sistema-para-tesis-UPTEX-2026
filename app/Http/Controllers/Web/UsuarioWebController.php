@@ -118,7 +118,13 @@ class UsuarioWebController extends Controller
             'correo'   => 'required|email|max:150|unique:usuarios,correo,' . $u->id_usuario . ',id_usuario',
             'id_rol'   => 'required|integer|exists:roles,id_rol',
             'activo'   => 'sometimes|boolean',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
+        ], [
+            'password.min'              => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.password.mixed'   => 'La contraseña debe tener al menos una letra mayúscula y una minúscula.',
+            'password.password.numbers' => 'La contraseña debe contener al menos un número.',
+            'password.password.symbols' => 'La contraseña debe contener al menos un símbolo (ej: #, @, !, $, %).',
+            'password.confirmed'        => 'Las contraseñas no coinciden.',
         ]);
 
         // Solo actualizar campos permitidos explicitamente (no $request->all())
@@ -129,6 +135,10 @@ class UsuarioWebController extends Controller
         $u->activo   = $request->boolean('activo', $u->activo);
 
         if ($request->filled('password')) {
+            // Anti-repetición: no puede ser igual a la contraseña actual
+            if (Hash::check($request->password, $u->password)) {
+                return back()->withErrors(['password' => 'La nueva contraseña no puede ser igual a la contraseña actual.'])->withInput();
+            }
             $u->password = Hash::make($request->password);
         }
         $u->save();
@@ -142,12 +152,19 @@ class UsuarioWebController extends Controller
     public function toggleActivo($id)
     {
         $u = Usuario::findOrFail($id);
+        $estabaInactivo = !$u->activo;
         $u->activo = !$u->activo;
         $u->save();
 
         // ✅ FIX A-10: Forzar re-verificación de sesión si el usuario fue desactivado
         if (!$u->activo) {
             Cache::put('force_auth_check_' . $u->id_usuario, true, 600);
+        }
+
+        // Al reactivar cuenta, resetear el contador de resets de contraseña
+        if ($u->activo && $estabaInactivo) {
+            $u->password_reset_count = 0;
+            $u->save();
         }
 
         return back()->with('success', 'Estado de usuario actualizado.');

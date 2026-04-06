@@ -319,6 +319,16 @@
                                        class="field-input @error('password') is-invalid @enderror"
                                        id="password" name="password"
                                        autocomplete="off" spellcheck="false">
+                                <small class="text-muted mt-1 d-block">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Mín. 8 caracteres &middot; Una mayúscula &middot; Un número &middot; Un símbolo (#, @, !, $, %)
+                                </small>
+                                @if(isset($changesLeft) && $changesLeft !== null)
+                                <small class="d-block mt-1" style="color:#6366f1">
+                                    <i class="bi bi-calendar-check me-1"></i>
+                                    Cambios disponibles este mes: <strong>{{ $changesLeft }} de 3</strong>
+                                </small>
+                                @endif
                                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
