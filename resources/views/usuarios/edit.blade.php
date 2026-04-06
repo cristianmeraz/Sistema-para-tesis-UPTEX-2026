@@ -70,7 +70,11 @@
                                    id="password" 
                                    name="password"
                                    placeholder="Dejar en blanco para no cambiar">
-                            <small class="text-muted">Solo completa si deseas cambiar la contraseña</small>
+                            <small class="text-muted d-block mt-1">Solo completa si deseas cambiar la contraseña</small>
+                            <small class="text-muted d-block">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Mín. 8 caracteres &middot; Una mayúscula &middot; Un número &middot; Un símbolo (#, @, !, $, %)
+                            </small>
                             @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

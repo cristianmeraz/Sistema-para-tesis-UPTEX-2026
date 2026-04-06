@@ -35,7 +35,11 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-muted text-uppercase">Contraseña:</label>
-                                <input type="password" name="password" class="form-control bg-light border-0 py-2" required placeholder="Mínimo 6 caracteres">
+                                <input type="password" name="password" class="form-control bg-light border-0 py-2" required placeholder="Mínimo 8 caracteres">
+                                <small class="text-muted mt-1 d-block">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Mín. 8 caracteres &middot; Una mayúscula &middot; Un número &middot; Un símbolo (#, @, !, $, %)
+                                </small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-muted text-uppercase">Confirmar Contraseña:</label>
