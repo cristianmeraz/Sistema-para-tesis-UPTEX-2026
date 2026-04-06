@@ -28,6 +28,7 @@
     <div class="tech-updates-section" data-tech-section>
         <div class="tech-updates-header">
             <i class="bi bi-tools me-1"></i> ACTUALIZACIONES TÉCNICAS
+            <span style="font-size:.7rem;font-weight:400;opacity:.8;margin-left:.4rem;">— Notificaciones de estado del ticket</span>
         </div>
         <div class="tech-updates-body" data-tech-container>
             @foreach($techComentarios as $index => $comentario)
@@ -49,7 +50,7 @@
                             <div class="comment-avatar">{{ $initials }}</div>
                             <div>
                                 <div class="comment-username">{{ $nombreCompleto }}</div>
-                                <span class="comment-role-badge">
+                                <span class="comment-role-badge {{ $isAdminTech ? 'role-admin' : 'role-tecnico' }}">
                                     <i class="bi {{ $techBadgeIcon }} me-1"></i>{{ $techBadgeLabel }}
                                 </span>
                             </div>
@@ -75,7 +76,8 @@
     {{-- ══════════ SEPARADOR ══════════ --}}
     <div class="separator-other-comments" data-separator
          @if(count($techComentarios) === 0 || count($otrosComentarios) === 0) style="display:none" @endif>
-        OTROS COMENTARIOS
+        COMENTARIOS GENERALES
+        <small style="font-weight:400;font-size:.72rem;opacity:.7;text-transform:none;letter-spacing:0;margin-left:.4rem;">(Visibles para todos los participantes del ticket)</small>
     </div>
 
     {{-- ══════════ OTROS COMENTARIOS ══════════ --}}
@@ -90,6 +92,7 @@
                     $cssClass = $esAdminComent ? 'admin-comment' : ($esTecnicoComent ? 'tech-comment' : 'user-comment');
                     $rolLabel = $esAdminComent ? 'Administrador' : ($esTecnicoComent ? 'Técnico' : 'Usuario');
                     $rolIcon  = $esAdminComent ? 'bi-shield-lock' : ($esTecnicoComent ? 'bi-tools' : 'bi-person-fill');
+                    $roleBadgeClass = $esAdminComent ? 'role-admin' : ($esTecnicoComent ? 'role-tecnico' : 'role-usuario');
                     $nombreCompleto = trim(($comentario['usuario']['nombre'] ?? 'Anónimo') . ' ' . ($comentario['usuario']['apellido'] ?? ''));
                     $initials = strtoupper(substr(
                         collect(explode(' ', $nombreCompleto))->map(fn($w) => $w[0] ?? '')->join(''),
@@ -103,7 +106,7 @@
                             <div class="comment-avatar">{{ $initials }}</div>
                             <div>
                                 <div class="comment-username">{{ $nombreCompleto }}</div>
-                                <span class="comment-role-badge">
+                                <span class="comment-role-badge {{ $roleBadgeClass }}">
                                     <i class="bi {{ $rolIcon }} me-1"></i>{{ $rolLabel }}
                                 </span>
                             </div>
@@ -156,7 +159,7 @@
             <div class="comment-form-footer">
                 <span class="text-muted small">
                     <i class="bi bi-info-circle me-1"></i>
-                    Los comentarios son vistos por técnicos y administradores en tiempo real
+                    Los comentarios son vistos por todos los participantes del ticket en tiempo real
                 </span>
                 <button type="button" class="btn-submit-comment" data-btn-submit-comment>
                     <i class="bi bi-send me-1"></i>Enviar Comentario

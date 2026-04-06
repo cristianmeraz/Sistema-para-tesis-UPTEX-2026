@@ -360,16 +360,27 @@
 
         {{-- ── TABLA ───────────────────────────── --}}
         <div class="table-wrapper" style="overflow-x:auto;">
-            <table class="table" style="min-width:850px;">
+            <table class="table" style="min-width:960px; table-layout:fixed;">
+                <colgroup>
+                    <col style="width:72px;">
+                    <col style="width:220px;">
+                    <col style="width:130px;">
+                    <col style="width:170px;">
+                    <col style="width:90px;">
+                    <col style="width:110px;">
+                    <col style="width:120px;">
+                    <col style="width:85px;">
+                    <col style="width:90px;">
+                </colgroup>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Titulo</th>
+                        <th>Folio</th>
+                        <th>Título</th>
                         <th>Usuario</th>
                         <th>Departamento</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
-                        <th>Tecnico</th>
+                        <th>Técnico</th>
                         <th>Fecha</th>
                         <th>Acciones</th>
                     </tr>
@@ -383,14 +394,14 @@
                         $esPrioNA = ($prioNombre === 'N/A' || $prioNombre === '' || $ticket['prioridad']['nombre'] === null);
                     @endphp
                     <tr class="row-prioridad-{{ $esPrioNA ? 'media' : $pc }}">
-                        <td><span class="ticket-id">#{{ $ticket['id_ticket'] }}</span></td>
-                        <td>
-                            <a href="{{ route('tickets.show', $ticket['id_ticket']) }}" class="ticket-title">
-                                {{ Str::limit($ticket['titulo'], 45) }}
+                        <td><span class="ticket-id" style="white-space:nowrap;">#{{ $ticket['id_ticket'] }}</span></td>
+                        <td style="overflow:hidden;">
+                            <a href="{{ route('tickets.show', $ticket['id_ticket']) }}" class="ticket-title" style="display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                {{ $ticket['titulo'] }}
                             </a>
                         </td>
-                        <td>{{ $ticket['usuario']['nombre_completo'] ?? 'N/A' }}</td>
-                        <td>{{ $ticket['area']['nombre'] ?? 'N/A' }}</td>
+                        <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $ticket['usuario']['nombre_completo'] ?? 'N/A' }}</td>
+                        <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $ticket['area']['nombre'] ?? 'N/A' }}</td>
                         <td>
                             @if($esPrioNA)
                                 <span style="background:#f1f5f9;color:#9ca3af;border:1px dashed #cbd5e1;font-style:italic;padding:.2rem .6rem;border-radius:20px;font-size:.78rem;font-weight:600;">Sin asignar</span>
