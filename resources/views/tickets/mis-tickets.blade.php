@@ -370,59 +370,53 @@
     </div>
 
     {{-- ══════ CARDS USUARIO ══════ --}}
+    @php
+    $stepFlowU = [
+        ['tipo'=>'abierto',    'label'=>'Abierto'],
+        ['tipo'=>'en_proceso', 'label'=>'En Proceso'],
+        ['tipo'=>'pendiente',  'label'=>'Pendiente'],
+        ['tipo'=>'resuelto',   'label'=>'Resuelto'],
+        ['tipo'=>'cerrado',    'label'=>'Cerrado'],
+    ];
+    @endphp
     @forelse($tickets as $ticket)
     @php
-        $stepFlowU = [
-            ['tipo'=>'abierto',    'label'=>'Abierto'],
-            ['tipo'=>'en_proceso', 'label'=>'En Proceso'],
-            ['tipo'=>'pendiente',  'label'=>'Pendiente'],
-            ['tipo'=>'resuelto',   'label'=>'Resuelto'],
-            ['tipo'=>'cerrado',    'label'=>'Cerrado'],
-        ];
-        $prioNivel    = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
-        $estadoTipo   = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
-        $idxActualU   = collect($stepFlowU)->search(fn($s) => $s['tipo'] === $estadoTipo);
+        $prioNivel  = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
+        $estadoTipo = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
+        $idxActualU = collect($stepFlowU)->search(fn($s) => $s['tipo'] === $estadoTipo);
         if ($idxActualU === false) $idxActualU = 0;
     @endphp
     <div class="ticket-card-u">
-        <div class="row align-items-center g-2">
-            <div class="col-md-8">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span class="tc-folio">#{{ $ticket->id_ticket }}</span>
-                    <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="tc-title">{{ $ticket->titulo }}</a>
-                </div>
-                <p class="tc-desc">{{ Str::limit($ticket->descripcion, 120) }}</p>
-                <div class="d-flex gap-2 flex-wrap mb-2">
-                    <span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado?->nombre ?? 'N/A' }}</span>
-                    <span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad?->nombre ?? 'Sin prioridad' }}</span>
-                    <span class="chip" style="background:#f1f5f9; color:#475569;">
-                        <i class="bi bi-building me-1"></i>{{ $ticket->area?->nombre ?? 'N/A' }}
-                    </span>
-                </div>
-                {{-- MINI STEPPER --}}
-                <div class="mini-flow-u">
-                    @foreach($stepFlowU as $si => $step)
-                        @php $cls = $si < $idxActualU ? 'ms-done' : ($si === $idxActualU ? 'ms-active' : ''); @endphp
-                        <div class="mini-step-u {{ $cls }}">
-                            <div class="mini-dot-u"></div>
-                            <div class="mini-lbl-u">{{ $step['label'] }}</div>
-                        </div>
-                    @endforeach
-                </div>
+        {{-- Fila 1: Folio + Título + Botón --}}
+        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                <span class="tc-folio flex-shrink-0">#{{ $ticket->id_ticket }}</span>
+                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="tc-title text-truncate">{{ $ticket->titulo }}</a>
             </div>
-            <div class="col-md-4 text-md-end">
-                <p class="text-muted small mb-1">
-                    <i class="bi bi-clock me-1"></i>{{ $ticket->fecha_creacion->diffForHumans() }}
-                </p>
-                @if($ticket->tecnicoAsignado)
-                <p class="text-muted small mb-2">
-                    <i class="bi bi-person-badge me-1"></i>{{ $ticket->tecnicoAsignado->nombre_completo }}
-                </p>
-                @endif
-                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-ver-u">
-                    <i class="bi bi-eye"></i> Ver Detalles
-                </a>
-            </div>
+            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-ver-u flex-shrink-0">
+                <i class="bi bi-eye"></i> Ver
+            </a>
+        </div>
+        {{-- Fila 2: Descripción --}}
+        @if($ticket->descripcion)
+        <p class="tc-desc">{{ Str::limit($ticket->descripcion, 100) }}</p>
+        @endif
+        {{-- Fila 3: Chips + Fecha + Técnico --}}
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado?->nombre ?? 'N/A' }}</span>
+            <span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad?->nombre ?? 'Sin prioridad' }}</span>
+            <span class="chip" style="background:#f1f5f9; color:#475569;"><i class="bi bi-building me-1"></i>{{ $ticket->area?->nombre ?? 'N/A' }}</span>
+            <span class="ms-auto text-muted" style="font-size:.78rem;"><i class="bi bi-clock me-1"></i>{{ $ticket->fecha_creacion->diffForHumans() }}</span>
+            @if($ticket->tecnicoAsignado)
+            <span class="text-muted" style="font-size:.78rem;"><i class="bi bi-person-badge me-1"></i>{{ $ticket->tecnicoAsignado->nombre_completo }}</span>
+            @endif
+        </div>
+        {{-- Fila 4: Stepper --}}
+        <div class="mini-flow-u">
+            @foreach($stepFlowU as $si => $step)
+                @php $cls = $si < $idxActualU ? 'ms-done' : ($si === $idxActualU ? 'ms-active' : ''); @endphp
+                <div class="mini-step-u {{ $cls }}"><div class="mini-dot-u"></div><div class="mini-lbl-u">{{ $step['label'] }}</div></div>
+            @endforeach
         </div>
     </div>
     @empty

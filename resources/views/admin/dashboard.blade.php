@@ -277,14 +277,18 @@
         background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
         border: none;
         color: white;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1.1rem;
         border-radius: 6px;
         font-weight: 600;
         font-size: 0.8rem;
         text-decoration: none;
         transition: all 0.3s ease;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
         cursor: pointer;
+        white-space: nowrap;
     }
     
     .btn-action:hover {
@@ -463,7 +467,7 @@
         display: inline-flex;
         align-items: center;
         gap: .4rem;
-        padding: .55rem 1.1rem;
+        padding: .65rem 1.3rem;
         border-radius: 8px;
         font-size: .84rem;
         font-weight: 600;
@@ -471,6 +475,8 @@
         border: 1.5px solid transparent;
         transition: all .2s;
         white-space: nowrap;
+        min-height: 42px;
+        cursor: pointer;
     }
     .quick-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(30,58,95,.2); }
     .quick-btn-primary { background: #1e3a5f; color: #fff; }
@@ -709,13 +715,13 @@
             <table class="table" style="margin: 0;">
                 <thead>
                     <tr style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white;">
-                        <th style="border-top-left-radius: 8px;">ID</th>
-                        <th>Título</th>
-                        <th>Usuario</th>
-                        <th>Técnico Asignado</th>
-                        <th>Estado</th>
-                        <th>Tiempo</th>
-                        <th style="border-top-right-radius: 8px;">Acción</th>
+                        <th style="border-top-left-radius: 8px; width:75px;">Folio</th>
+                        <th style="width:230px;">Título</th>
+                        <th style="width:140px;">Solicitante</th>
+                        <th style="width:160px;">Técnico Asignado</th>
+                        <th style="width:110px;">Estado</th>
+                        <th style="width:90px;">Tiempo</th>
+                        <th style="border-top-right-radius: 8px; width:90px;">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -759,7 +765,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 2rem; color: #0d9488;">
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: #0d9488;">
                             <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
                             <p class="mb-0 mt-2 fw-bold">¡Todos los tickets de alta prioridad tienen técnico asignado!</p>
                             <small class="text-muted">El equipo técnico tiene cobertura total.</small>

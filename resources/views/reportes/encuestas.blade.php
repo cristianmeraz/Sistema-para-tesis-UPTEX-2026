@@ -161,7 +161,7 @@
             <h1>Encuestas de Satisfacción — Detalle</h1>
             <p>Distribución por pregunta · Respondidas · Pendientes &mdash; Universidad Politécnica de Texcoco</p>
         </div>
-        <a href="{{ route('reportes.index') }}" class="btn btn-light btn-sm d-none d-md-inline-flex align-items-center gap-1">
+        <a href="{{ route('reportes.index') }}" class="btn btn-light fw-semibold px-3 py-2 d-none d-md-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:.85rem;">
             <i class="bi bi-arrow-left"></i> Estadísticas
         </a>
     </div>
@@ -264,9 +264,8 @@
                                 <span class="q-num">P{{ $num }}</span>
                                 <div class="flex-grow-1">
                                     <div class="q-texto">{{ $stat['texto'] }}</div>
-                                    <div class="mt-1 d-flex align-items-center gap-2" style="font-size:.72rem; color:#64748b;">
+                                    <div class="mt-1" style="font-size:.72rem; color:#64748b;">
                                         <span>{{ $stat['total'] }} respuestas</span>
-                                        <span class="q-prom-badge">Promedio: {{ $stat['promedio'] }} / 4.0</span>
                                     </div>
                                 </div>
                             </div>
