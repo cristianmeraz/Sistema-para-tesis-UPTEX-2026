@@ -622,7 +622,8 @@
                 </div>
 
                 {{-- BOTÓN PRINCIPAL --}}
-                @if($esTecnico || $esAdmin)
+                @php $estadoTerminal = in_array($ticket['estado']['tipo'] ?? '', ['cerrado', 'cancelado']); @endphp
+                @if(($esTecnico || $esAdmin) && !$estadoTerminal)
                     <button type="button"
                             class="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center gap-2"
                             style="background: {{ $colorActual }}; color:white; border:none; border-radius:12px; font-size:1rem; box-shadow: 0 6px 18px color-mix(in srgb, {{ $colorActual }} 40%, transparent); transition: filter .2s, transform .15s;"
@@ -632,6 +633,10 @@
                         <i class="bi {{ $esTecnico ? 'bi-check-circle-fill' : 'bi-shield-lock-fill' }}" style="font-size:1.1rem;"></i>
                         {{ $esTecnico ? 'Actualizar Estado' : 'Modificar Estado' }}
                     </button>
+                @elseif($estadoTerminal)
+                    <div class="text-center p-3 rounded-3" style="background:#f1f5f9; border:1.5px solid #e2e8f0; font-size:.85rem; color:#64748b;">
+                        <i class="bi bi-lock-fill me-1"></i>Ticket {{ $ticket['estado']['nombre'] }} — sin más cambios
+                    </div>
                 @else
                     <div class="text-center p-3 rounded-3 bg-white shadow-sm" style="border: 1.5px dashed #93c5fd; font-size:.85rem; color:#3b82f6;">
                         <i class="bi bi-pencil-square me-1"></i>Añade comentarios abajo
@@ -789,16 +794,31 @@
                                                transition:border-color .2s,box-shadow .2s; appearance:auto;"
                                         onfocus="this.style.borderColor='{{ $mFocus }}';this.style.boxShadow='0 0 0 3px {{ $mFocusBg }}';"
                                         onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
+                                    @php
+                                    $tipoActualModal = $ticket['estado']['tipo'] ?? 'abierto';
+                                    // Opciones que el técnico puede ver (no puede cerrar directamente)
+                                    $nombresTecnico = match($tipoActualModal) {
+                                        'abierto'    => ['En Proceso', 'Pendiente'],
+                                        'en_proceso' => ['Pendiente', 'Resuelto'],
+                                        'pendiente'  => ['En Proceso', 'Resuelto'],
+                                        default      => [],
+                                    };
+                                    // Opciones que el admin puede ver (basadas en estado actual — nunca retrocede)
+                                    $nombresAdmin = match($tipoActualModal) {
+                                        'cerrado', 'cancelado' => [],
+                                        default                => ['Cerrado'],
+                                    };
+                                    @endphp
                                     @foreach($estados ?? [] as $est)
                                         @if($esTecnico)
-                                            @if(in_array($est['nombre'], ['En Proceso', 'Pendiente', 'Resuelto']))
-                                                <option value="{{ $est['id_estado'] }}" {{ $ticket['estado']['id_estado'] == $est['id_estado'] ? 'selected' : '' }}>
+                                            @if(in_array($est['nombre'], $nombresTecnico))
+                                                <option value="{{ $est['id_estado'] }}">
                                                     {{ $est['nombre'] }}
                                                 </option>
                                             @endif
                                         @else
-                                            @if(in_array($est['nombre'], ['Abierto', 'Cerrado']))
-                                                <option value="{{ $est['id_estado'] }}" {{ $ticket['estado']['id_estado'] == $est['id_estado'] ? 'selected' : '' }}>
+                                            @if(in_array($est['nombre'], $nombresAdmin))
+                                                <option value="{{ $est['id_estado'] }}">
                                                     {{ $est['nombre'] }}
                                                 </option>
                                             @endif

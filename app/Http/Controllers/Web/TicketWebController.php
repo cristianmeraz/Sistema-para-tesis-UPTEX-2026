@@ -479,25 +479,40 @@ class TicketWebController extends Controller
             $ticket = Ticket::with(['usuario', 'area', 'prioridad', 'estado', 'tecnicoAsignado'])
                 ->findOrFail($id);
 
+            // ✅ FIX GLOBAL: Ciclo de vida del ticket — aplica a TODOS los roles sin excepción
+            $estadoActualTipo = $ticket->estado?->tipo ?? 'abierto';
+            $estadoNuevoObj   = Estado::find($request->estado_id);
+            $estadoNuevoTipo  = $estadoNuevoObj?->tipo ?? '';
+            $transicionesGlobales = [
+                'abierto'    => ['en_proceso', 'pendiente', 'cerrado'],
+                'en_proceso' => ['pendiente', 'resuelto', 'cerrado'],
+                'pendiente'  => ['en_proceso', 'resuelto', 'cerrado'],
+                'resuelto'   => ['cerrado'],   // único paso permitido desde resuelto
+                'cerrado'    => [],            // estado terminal
+                'cancelado'  => [],            // estado terminal
+            ];
+            $permitidosGlobales = $transicionesGlobales[$estadoActualTipo] ?? [];
+            if (!in_array($estadoNuevoTipo, $permitidosGlobales)) {
+                return redirect()->route('tickets.show', $id)
+                    ->with('error', "Ciclo de vida: no se permite cambiar de '{$estadoActualTipo}' a '{$estadoNuevoTipo}'. El flujo correcto es: Abierto → En Proceso → Resuelto → Cerrado.");
+            }
+
             // El Técnico solo puede modificar tickets que tiene asignados
             if (str_contains($rol, 'Técnico')) {
                 if ($ticket->tecnico_asignado_id != session('usuario_id')) {
                     return redirect()->route('tickets.show', $id)->with('error', 'No tienes permiso para modificar este ticket');
                 }
 
-                // ✅ FIX T-6: Máquina de estados — Técnicos solo pueden hacer transiciones válidas
-                $estadoActualTipo = $ticket->estado?->tipo ?? 'abierto';
-                $estadoNuevoObj  = Estado::find($request->estado_id);
-                $estadoNuevoTipoReq = $estadoNuevoObj?->tipo ?? '';
-                $transicionesPermitidas = [
+                // Restricciones adicionales para Técnico (no puede cerrar directamente)
+                $transicionesTecnico = [
                     'abierto'    => ['en_proceso', 'pendiente'],
                     'en_proceso' => ['pendiente', 'resuelto'],
                     'pendiente'  => ['en_proceso', 'resuelto'],
                 ];
-                $permitidos = $transicionesPermitidas[$estadoActualTipo] ?? [];
-                if (!in_array($estadoNuevoTipoReq, $permitidos)) {
+                $permitidosTecnico = $transicionesTecnico[$estadoActualTipo] ?? [];
+                if (!in_array($estadoNuevoTipo, $permitidosTecnico)) {
                     return redirect()->route('tickets.show', $id)
-                        ->with('error', "Transición no permitida: no puedes pasar de '{$estadoActualTipo}' a '{$estadoNuevoTipoReq}'.");
+                        ->with('error', "Transición no permitida: no puedes pasar de '{$estadoActualTipo}' a '{$estadoNuevoTipo}'.");
                 }
             }
 

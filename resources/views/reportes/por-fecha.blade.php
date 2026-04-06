@@ -86,13 +86,14 @@
 @media print {
     body * { visibility: hidden; }
     #print-area, #print-area * { visibility: visible; }
-    #print-area { position: fixed; left: 0; top: 0; width: 100%; }
+    #print-area { position: static; width: 100%; }
     .no-print { display: none !important; }
     .print-header { display: block !important; }
     #print-footer  { display: block !important; }
     nav, .sidebar, header, footer, .no-print { display: none !important; }
     body { font-size: 10pt; }
-    .rep-table-wrap { box-shadow: none; border: 1px solid #cbd5e1; }
+    .rep-table-wrap { box-shadow: none; border: 1px solid #cbd5e1; page-break-inside: auto; }
+    .rep-table-wrap tr { page-break-inside: avoid; page-break-after: auto; }
     .rep-table-wrap thead th { background:#1e3a5f !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .rep-table-wrap tbody tr:nth-child(even) td { background:#f8fafc !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .dia-row td { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
