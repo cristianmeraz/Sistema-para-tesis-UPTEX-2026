@@ -135,6 +135,7 @@
     }
     .table { width: 100%; margin: 0; }
     .table thead { background: #1e3a5f !important; }
+    .table thead tr { background: #1e3a5f !important; }
     .table thead th {
         padding: 1rem 1.1rem !important;
         font-weight: 700 !important;
@@ -142,6 +143,7 @@
         border: none !important;
         text-align: left !important;
         color: #ffffff !important;
+        background-color: #1e3a5f !important;
         text-transform: none !important;
         letter-spacing: .02em !important;
         white-space: nowrap;
