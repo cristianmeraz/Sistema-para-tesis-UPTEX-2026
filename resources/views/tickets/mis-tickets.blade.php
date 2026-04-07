@@ -140,16 +140,7 @@
     .mini-step-t.ms-active .mini-lbl-t { color:#15803d; }
     .btn-ver-th { background:linear-gradient(135deg,#15803d,#16a34a); color:#fff; border:none; border-radius:8px; padding:.38rem .8rem; font-size:.8rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:.3rem; transition:filter .18s; white-space:nowrap; }
     .btn-ver-th:hover { filter:brightness(1.08); color:#fff; }
-    .btn-estado-tec { background:#f0fdf4; color:#15803d; border:1.5px solid #bbf7d0; border-radius:8px; padding:.38rem .8rem; font-size:.8rem; font-weight:600; display:inline-flex; align-items:center; gap:.3rem; cursor:pointer; transition:background .18s,border-color .18s; white-space:nowrap; }
-    .btn-estado-tec:hover { background:#dcfce7; border-color:#86efac; }
-    /* modal rápido */
-    .qs-header { background:linear-gradient(135deg,#14532d,#16a34a); color:#fff; border-radius:12px 12px 0 0; padding:1.1rem 1.4rem; }
-    .qs-select { width:100%; padding:.65rem .9rem; font-size:.9rem; font-weight:600; border-radius:10px; border:2px solid #e2e8f0; background:#fff; outline:none; }
-    .qs-select:focus { border-color:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.12); }
-    .qs-textarea { width:100%; padding:.7rem .9rem; font-size:.88rem; border-radius:10px; border:2px solid #e2e8f0; resize:vertical; min-height:100px; outline:none; font-family:inherit; }
-    .qs-textarea:focus { border-color:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.12); }
-    .btn-qs-submit { background:linear-gradient(135deg,#15803d,#16a34a); color:#fff; border:none; border-radius:10px; padding:.65rem 1.4rem; font-weight:700; font-size:.92rem; display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; transition:filter .18s; }
-    .btn-qs-submit:hover { filter:brightness(1.07); }
+
 
     /* ══════ CHIPS ══════ */
     .chip { display:inline-block; padding:.22rem .65rem; border-radius:20px; font-size:.76rem; font-weight:700; }
@@ -285,13 +276,6 @@
         $estadoTipo      = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
         $idxActualT      = collect($stepFlowT)->search(fn($s) => $s['tipo'] === $estadoTipo);
         if ($idxActualT === false) $idxActualT = 0;
-        $estadoTerminalT = in_array($estadoTipo, ['cerrado', 'cancelado']);
-        $siguientesT = match($estadoTipo) {
-            'abierto'    => ['En Proceso', 'Pendiente'],
-            'en_proceso' => ['Pendiente', 'Resuelto'],
-            'pendiente'  => ['En Proceso', 'Resuelto'],
-            default      => [],
-        };
     @endphp
     <div class="tec-card-hist">
         {{-- Fila 1: folio + título + botones --}}
@@ -300,21 +284,9 @@
                 <span class="tec-folio-h">#{{ $ticket->id_ticket }}</span>
                 <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="tec-title-h text-truncate">{{ $ticket->titulo }}</a>
             </div>
-            <div class="d-flex gap-1 flex-shrink-0">
-                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-ver-th">
-                    <i class="bi bi-eye"></i> Ver
-                </a>
-                @if(!$estadoTerminalT && count($siguientesT) > 0)
-                <button type="button" class="btn-estado-tec"
-                        data-ticket-id="{{ $ticket->id_ticket }}"
-                        data-ticket-titulo="{{ Str::limit($ticket->titulo, 50) }}"
-                        data-estado-actual="{{ $ticket->estado->nombre ?? '' }}"
-                        data-siguientes='@json($siguientesT)'
-                        onclick="abrirQS(this)">
-                    <i class="bi bi-arrow-repeat"></i> Estado
-                </button>
-                @endif
-            </div>
+            <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-ver-th flex-shrink-0">
+                <i class="bi bi-eye"></i> Ver
+            </a>
         </div>
         {{-- Fila 2: chips + solicitante + fecha --}}
         <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
@@ -340,43 +312,6 @@
         <p class="text-muted small mb-0">Aún no tienes tickets asignados registrados.</p>
     </div>
     @endif
-    </div>
-
-    {{-- MODAL RÁPIDO: CAMBIAR ESTADO --}}
-    <div class="modal fade" id="quickStateModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
-            <div class="modal-content border-0 shadow-lg" style="border-radius:12px;overflow:hidden;">
-                <div class="qs-header d-flex align-items-center justify-content-between">
-                    <div>
-                        <div style="font-size:.66rem;font-weight:700;opacity:.78;letter-spacing:.06em;text-transform:uppercase;">Actualizar Estado</div>
-                        <div id="qsTitulo" style="font-size:.95rem;font-weight:700;"></div>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="qsForm" method="POST">
-                    @csrf
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:5px;">Estado actual</div>
-                            <div id="qsEstadoActual" style="font-size:.9rem;font-weight:600;color:#374151;"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:5px;display:block;">Cambiar a</label>
-                            <select name="estado_id" id="qsSelect" class="qs-select" required></select>
-                        </div>
-                        <div>
-                            <label style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:5px;display:block;">Comentario <span style="color:#ef4444;">*</span></label>
-                            <textarea name="contenido" id="qsContenido" class="qs-textarea" placeholder="Describe el avance o motivo del cambio..." required minlength="5"></textarea>
-                            <div style="font-size:.71rem;color:#94a3b8;margin-top:3px;"><i class="bi bi-info-circle me-1"></i>Mínimo 5 caracteres. Queda en el historial del ticket.</div>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0 bg-light px-4 py-3 gap-2">
-                        <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn-qs-submit"><i class="bi bi-check-circle me-1"></i>Guardar cambio</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
     @else
@@ -505,32 +440,6 @@
 
 @push('scripts')
 <script>
-// Abrir modal rápido de cambio de estado
-function abrirQS(btn) {
-    const ticketId   = btn.dataset.ticketId;
-    const titulo     = btn.dataset.ticketTitulo;
-    const estadoAct  = btn.dataset.estadoActual;
-    const siguientes = JSON.parse(btn.dataset.siguientes);
-    const estados    = @json($estados ?? []);
-
-    document.getElementById('qsTitulo').textContent      = '#' + ticketId + ' — ' + titulo;
-    document.getElementById('qsEstadoActual').textContent = estadoAct;
-    document.getElementById('qsForm').action = '/tickets/' + ticketId + '/cambiar-estado';
-
-    const sel = document.getElementById('qsSelect');
-    sel.innerHTML = '';
-    estados.forEach(e => {
-        if (siguientes.includes(e.nombre)) {
-            const opt = document.createElement('option');
-            opt.value = e.id_estado;
-            opt.textContent = e.nombre;
-            sel.appendChild(opt);
-        }
-    });
-    document.getElementById('qsContenido').value = '';
-    new bootstrap.Modal(document.getElementById('quickStateModal')).show();
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     @if(str_contains(session('usuario_rol'), 'Técnico'))
 
@@ -544,15 +453,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectPrioridad = document.querySelector('select[name="prioridad_id"]');
     const inputSearch     = document.querySelector('input[name="search"]');
     const formFiltros     = document.querySelector('form');
-
-    function getSiguientesT(estadoTipo) {
-        const map = {
-            'abierto':    ['En Proceso', 'Pendiente'],
-            'en_proceso': ['Pendiente', 'Resuelto'],
-            'pendiente':  ['En Proceso', 'Resuelto'],
-        };
-        return map[estadoTipo] || [];
-    }
 
     function actualizarTickets() {
         const params = new URLSearchParams(currentFilters);
@@ -572,19 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 container.innerHTML = '';
                 data.forEach(ticket => {
-                    const ticketUrl  = `/tickets/${ticket.id_ticket}`;
-                    const siguientes = getSiguientesT(ticket.estado_tipo);
-                    const esTerminal = ['cerrado','cancelado'].includes(ticket.estado_tipo);
-                    const btnEstado  = (!esTerminal && siguientes.length > 0)
-                        ? `<button type="button" class="btn-estado-tec"
-                               data-ticket-id="${ticket.id_ticket}"
-                               data-ticket-titulo="${ticket.titulo.substring(0,50)}"
-                               data-estado-actual="${ticket.estado_nombre}"
-                               data-siguientes='${JSON.stringify(siguientes)}'
-                               onclick="abrirQS(this)">
-                               <i class="bi bi-arrow-repeat"></i> Estado
-                           </button>`
-                        : '';
+                    const ticketUrl = `/tickets/${ticket.id_ticket}`;
                     const card = document.createElement('div');
                     card.className = 'tec-card-hist';
                     card.innerHTML = `
@@ -593,10 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="tec-folio-h">#${ticket.id_ticket}</span>
                                 <a href="${ticketUrl}" class="tec-title-h text-truncate">${ticket.titulo}</a>
                             </div>
-                            <div class="d-flex gap-1 flex-shrink-0">
-                                <a href="${ticketUrl}" class="btn-ver-th"><i class="bi bi-eye"></i> Ver</a>
-                                ${btnEstado}
-                            </div>
+                            <a href="${ticketUrl}" class="btn-ver-th flex-shrink-0"><i class="bi bi-eye"></i> Ver</a>
                         </div>
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <span class="chip chip-${ticket.estado_tipo}">${ticket.estado_nombre}</span>
