@@ -291,7 +291,7 @@
         // Rol badge config
         $rolBadges = [
             'Administrador'  => ['bg' => '#1e3a5f', 'icon' => 'bi-shield-fill', 'gradient' => 'linear-gradient(135deg, #1e3a5f, #1d4ed8)'],
-            'Técnico'        => ['bg' => '#0369a1', 'icon' => 'bi-tools',       'gradient' => 'linear-gradient(135deg, #0369a1, #0ea5e9)'],
+            'Técnico'        => ['bg' => '#15803d', 'icon' => 'bi-tools',       'gradient' => 'linear-gradient(135deg, #15803d, #16a34a)'],
             'Usuario Normal' => ['bg' => '#0891b2', 'icon' => 'bi-person-fill', 'gradient' => 'linear-gradient(135deg, #0891b2, #06b6d4)'],
         ];
         $badge = $rolBadges[$rolUsuario] ?? $rolBadges['Usuario Normal'];
