@@ -126,9 +126,9 @@
         /* HEADER AVATAR */
         .hdr-avatar {
             width: 34px; height: 34px; border-radius: 50%;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white; display: flex; align-items: center; justify-content: center;
             font-weight: 700; font-size: .85rem; flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,.15);
         }
     </style>
     
@@ -290,9 +290,9 @@
 
         // Rol badge config
         $rolBadges = [
-            'Administrador'  => ['bg' => '#1e3a5f', 'icon' => 'bi-shield-fill'],
-            'Técnico'        => ['bg' => '#0369a1', 'icon' => 'bi-tools'],
-            'Usuario Normal' => ['bg' => '#0891b2', 'icon' => 'bi-person-fill'],
+            'Administrador'  => ['bg' => '#1e3a5f', 'icon' => 'bi-shield-fill', 'gradient' => 'linear-gradient(135deg, #1e3a5f, #1d4ed8)'],
+            'Técnico'        => ['bg' => '#0369a1', 'icon' => 'bi-tools',       'gradient' => 'linear-gradient(135deg, #0369a1, #0ea5e9)'],
+            'Usuario Normal' => ['bg' => '#0891b2', 'icon' => 'bi-person-fill', 'gradient' => 'linear-gradient(135deg, #0891b2, #06b6d4)'],
         ];
         $badge = $rolBadges[$rolUsuario] ?? $rolBadges['Usuario Normal'];
     @endphp
@@ -334,12 +334,12 @@
         
         <div class="user-menu dropdown">
             <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor:pointer;">
-                <div class="hdr-avatar">
+                <div class="hdr-avatar" style="background:{{ $badge['gradient'] }};">
                     {{ strtoupper(substr(session('usuario_nombre','U'), 0, 1)) }}
                 </div>
                 <div class="d-none d-sm-block" style="line-height:1.15;">
                     <span style="font-weight:600; font-size:.88rem; color:#1e293b;">{{ session('usuario_nombre') }}</span>
-                    <span class="d-block" style="font-size:.7rem; color:#94a3b8;">{{ $rolUsuario }}</span>
+                    <span class="d-block" style="font-size:.7rem; font-weight:600; color:{{ $badge['bg'] }};">{{ $rolUsuario }}</span>
                 </div>
                 <i class="bi bi-chevron-down" style="font-size:.7rem; color:#94a3b8;"></i>
             </div>
