@@ -120,17 +120,26 @@
     }
     .btn-buscar-usr:hover { filter:brightness(1.07); transform:translateY(-1px); color:#fff; }
 
-    /* ══════ TABLA TÉCNICO ══════ */
-    .tec-hist-wrap { background:#fff; border-radius:16px; border:1px solid #e8edf5; box-shadow:0 4px 16px rgba(0,0,0,.05); overflow:hidden; }
-    .tec-hist-wrap .tec-table-header { padding:1rem 1.5rem; display:flex; align-items:center; gap:.6rem; border-bottom:1px solid #f1f5f9; }
-    .tec-hist-wrap .tec-table-header-title { font-weight:700; color:#1e293b; font-size:1rem; }
-    .tec-hist-wrap .tec-table-count { background:#f0fdf4; color:#16a34a; font-size:.75rem; font-weight:700; padding:.15rem .55rem; border-radius:20px; }
-    .tec-hist-wrap table { margin:0; }
-    .tec-hist-wrap thead th { background:#f8fafc; font-size:.78rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.04em; border-bottom:2px solid #e2e8f0; padding:.75rem 1rem; }
-    .tec-hist-wrap td { padding:.85rem 1rem; border-bottom:1px solid #f1f5f9; vertical-align:middle; font-size:.9rem; }
-    .tec-hist-wrap tr:last-child td { border-bottom:none; }
-    .tec-hist-wrap tr:hover td { background:#fafafa; }
-    .tec-hist-folio { background:#f0fdf4; color:#15803d; font-size:.77rem; font-weight:700; padding:.2rem .6rem; border-radius:6px; white-space:nowrap; }
+    /* ══════ CARDS HISTORIAL TÉCNICO ══════ */
+    .tec-card-hist { background:#fff; border-radius:14px; border:1px solid #e8edf5; border-left:3px solid #16a34a; box-shadow:0 2px 8px rgba(0,0,0,.04); padding:1.2rem 1.4rem; margin-bottom:.75rem; transition:transform .18s, box-shadow .18s; }
+    .tec-card-hist:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.08); }
+    .tec-folio-h { background:#f0fdf4; color:#15803d; font-size:.77rem; font-weight:700; padding:.2rem .6rem; border-radius:6px; white-space:nowrap; flex-shrink:0; }
+    .tec-title-h { font-weight:700; color:#1e293b; font-size:.97rem; text-decoration:none; }
+    .tec-title-h:hover { color:#15803d; }
+    /* mini-stepper verde técnico */
+    .mini-flow-t { display:flex; align-items:flex-start; gap:0; margin-top:.55rem; }
+    .mini-step-t { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; }
+    .mini-step-t:not(:last-child)::after { content:''; position:absolute; top:4px; left:55%; width:90%; height:2px; background:#dde1e7; z-index:0; }
+    .mini-step-t.ms-done:not(:last-child)::after   { background:#15803d; }
+    .mini-step-t.ms-active:not(:last-child)::after { background:linear-gradient(90deg,#15803d,#dde1e7); }
+    .mini-dot-t { width:10px; height:10px; border-radius:50%; border:2px solid #dde1e7; background:#fff; margin:0 auto; position:relative; z-index:1; }
+    .mini-step-t.ms-done   .mini-dot-t { background:#15803d; border-color:#15803d; }
+    .mini-step-t.ms-active .mini-dot-t { background:#15803d; border-color:#15803d; box-shadow:0 0 0 3px rgba(21,128,61,.2); }
+    .mini-lbl-t { font-size:.52rem; font-weight:700; text-align:center; color:#94a3b8; margin-top:3px; text-transform:uppercase; letter-spacing:.02em; line-height:1.1; }
+    .mini-step-t.ms-done   .mini-lbl-t,
+    .mini-step-t.ms-active .mini-lbl-t { color:#15803d; }
+    .btn-ver-th { background:linear-gradient(135deg,#15803d,#16a34a); color:#fff; border:none; border-radius:8px; padding:.38rem .8rem; font-size:.8rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:.3rem; transition:filter .18s; white-space:nowrap; }
+    .btn-ver-th:hover { filter:brightness(1.08); color:#fff; }
     .btn-estado-tec { background:#f0fdf4; color:#15803d; border:1.5px solid #bbf7d0; border-radius:8px; padding:.38rem .8rem; font-size:.8rem; font-weight:600; display:inline-flex; align-items:center; gap:.3rem; cursor:pointer; transition:background .18s,border-color .18s; white-space:nowrap; }
     .btn-estado-tec:hover { background:#dcfce7; border-color:#86efac; }
     /* modal rápido */
@@ -259,83 +268,80 @@
         </form>
     </div>
 
-    {{-- ══════ TABLA HISTORIAL TÉCNICO ══════ --}}
-    <div class="tec-hist-wrap">
-        <div class="tec-table-header">
-            <i class="bi bi-list-task" style="color:#16a34a; font-size:1.1rem;"></i>
-            <span class="tec-table-header-title">Tickets del historial</span>
-            <span class="tec-table-count">{{ count($tickets) }}</span>
+    {{-- ══════ CARDS HISTORIAL TÉCNICO ══════ --}}
+    @php
+    $stepFlowT = [
+        ['tipo'=>'abierto',    'label'=>'Abierto'],
+        ['tipo'=>'en_proceso', 'label'=>'En Proceso'],
+        ['tipo'=>'pendiente',  'label'=>'Pendiente'],
+        ['tipo'=>'resuelto',   'label'=>'Resuelto'],
+        ['tipo'=>'cerrado',    'label'=>'Cerrado'],
+    ];
+    @endphp
+    <div id="tec-cards-container">
+    @if(count($tickets) > 0)
+    @foreach($tickets as $ticket)
+    @php
+        $prioNivel       = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
+        $estadoTipo      = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
+        $idxActualT      = collect($stepFlowT)->search(fn($s) => $s['tipo'] === $estadoTipo);
+        if ($idxActualT === false) $idxActualT = 0;
+        $estadoTerminalT = in_array($estadoTipo, ['cerrado', 'cancelado']);
+        $siguientesT = match($estadoTipo) {
+            'abierto'    => ['En Proceso', 'Pendiente'],
+            'en_proceso' => ['Pendiente', 'Resuelto'],
+            'pendiente'  => ['En Proceso', 'Resuelto'],
+            'resuelto'   => ['Cerrado'],
+            default      => [],
+        };
+    @endphp
+    <div class="tec-card-hist">
+        {{-- Fila 1: folio + título + botones --}}
+        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                <span class="tec-folio-h">#{{ $ticket->id_ticket }}</span>
+                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="tec-title-h text-truncate">{{ $ticket->titulo }}</a>
+            </div>
+            <div class="d-flex gap-1 flex-shrink-0">
+                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-ver-th">
+                    <i class="bi bi-eye"></i> Ver
+                </a>
+                @if(!$estadoTerminalT && count($siguientesT) > 0)
+                <button type="button" class="btn-estado-tec"
+                        data-ticket-id="{{ $ticket->id_ticket }}"
+                        data-ticket-titulo="{{ Str::limit($ticket->titulo, 50) }}"
+                        data-estado-actual="{{ $ticket->estado->nombre ?? '' }}"
+                        data-siguientes='@json($siguientesT)'
+                        onclick="abrirQS(this)">
+                    <i class="bi bi-arrow-repeat"></i> Estado
+                </button>
+                @endif
+            </div>
         </div>
-
-        @if(count($tickets) > 0)
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width:80px;">Folio</th>
-                        <th>Título</th>
-                        <th>Solicitante</th>
-                        <th>Área</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th class="text-center" style="width:160px;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($tickets as $ticket)
-                    @php
-                        $prioNivel       = strtolower(str_replace(['á','é','í','ó','ú','ü','ñ',' '],['a','e','i','o','u','u','n','_'], $ticket->prioridad->nombre ?? 'media'));
-                        $estadoTipo      = str_replace(' ','_', strtolower($ticket->estado->tipo ?? 'abierto'));
-                        $estadoTerminalT = in_array($estadoTipo, ['cerrado', 'cancelado']);
-                        $siguientesT = match($estadoTipo) {
-                            'abierto'    => ['En Proceso', 'Pendiente'],
-                            'en_proceso' => ['Pendiente', 'Resuelto'],
-                            'pendiente'  => ['En Proceso', 'Resuelto'],
-                            default      => [],
-                        };
-                    @endphp
-                    <tr>
-                        <td><span class="tec-hist-folio">#{{ $ticket->id_ticket }}</span></td>
-                        <td style="max-width:260px;">
-                            <div class="fw-600 text-dark" style="font-weight:600; white-space:normal; word-break:break-word;">
-                                {{ $ticket->titulo }}
-                            </div>
-                        </td>
-                        <td><small class="text-muted">{{ $ticket->usuario->nombre ?? 'N/A' }} {{ $ticket->usuario->apellido ?? '' }}</small></td>
-                        <td><small class="text-muted">{{ $ticket->area?->nombre ?? 'N/A' }}</small></td>
-                        <td><span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad->nombre ?? 'N/A' }}</span></td>
-                        <td><span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado->nombre ?? 'N/A' }}</span></td>
-                        <td><small class="text-muted">{{ $ticket->fecha_creacion ? $ticket->fecha_creacion->format('d/m/Y H:i') : 'N/A' }}</small></td>
-                        <td class="text-center">
-                            <div class="d-flex align-items-center justify-content-center gap-1 flex-wrap">
-                                <a href="{{ route('tickets.show', $ticket->id_ticket) }}" class="btn-gestionar">
-                                    <i class="bi bi-eye"></i> Ver
-                                </a>
-                                @if(!$estadoTerminalT && count($siguientesT) > 0)
-                                <button type="button" class="btn-estado-tec"
-                                        data-ticket-id="{{ $ticket->id_ticket }}"
-                                        data-ticket-titulo="{{ Str::limit($ticket->titulo, 50) }}"
-                                        data-estado-actual="{{ $ticket->estado->nombre ?? '' }}"
-                                        data-siguientes='@json($siguientesT)'
-                                        onclick="abrirQS(this)">
-                                    <i class="bi bi-arrow-repeat"></i> Estado
-                                </button>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        {{-- Fila 2: chips + solicitante + fecha --}}
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="chip chip-{{ $estadoTipo }}">{{ $ticket->estado->nombre ?? 'N/A' }}</span>
+            <span class="chip chip-{{ $prioNivel }}">{{ $ticket->prioridad->nombre ?? 'Sin prioridad' }}</span>
+            <span class="chip" style="background:#f1f5f9;color:#475569;"><i class="bi bi-building me-1"></i>{{ $ticket->area?->nombre ?? 'N/A' }}</span>
+            <span class="ms-auto text-muted" style="font-size:.78rem;"><i class="bi bi-clock me-1"></i>{{ $ticket->fecha_creacion?->diffForHumans() }}</span>
+            <span class="text-muted" style="font-size:.78rem;"><i class="bi bi-person me-1"></i>{{ $ticket->usuario->nombre ?? 'N/A' }} {{ $ticket->usuario->apellido ?? '' }}</span>
         </div>
-        @else
-        <div class="empty-state">
-            <div class="empty-state-icon" style="background:#f0fdf4;"><i class="bi bi-inbox" style="color:#16a34a;"></i></div>
-            <h6 style="color:#1e293b; font-weight:700;">Sin tickets en el historial</h6>
-            <p class="text-muted small mb-0">Aún no tienes tickets asignados registrados.</p>
+        {{-- Fila 3: stepper --}}
+        <div class="mini-flow-t">
+            @foreach($stepFlowT as $si => $step)
+                @php $cls = $si < $idxActualT ? 'ms-done' : ($si === $idxActualT ? 'ms-active' : ''); @endphp
+                <div class="mini-step-t {{ $cls }}"><div class="mini-dot-t"></div><div class="mini-lbl-t">{{ $step['label'] }}</div></div>
+            @endforeach
         </div>
-        @endif
+    </div>
+    @endforeach
+    @else
+    <div class="empty-state">
+        <div class="empty-state-icon" style="background:#f0fdf4;"><i class="bi bi-inbox" style="color:#16a34a;"></i></div>
+        <h6 style="color:#1e293b; font-weight:700;">Sin tickets en el historial</h6>
+        <p class="text-muted small mb-0">Aún no tienes tickets asignados registrados.</p>
+    </div>
+    @endif
     </div>
 
     {{-- MODAL RÁPIDO: CAMBIAR ESTADO --}}
@@ -541,40 +547,68 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputSearch     = document.querySelector('input[name="search"]');
     const formFiltros     = document.querySelector('form');
 
+    function getSiguientesT(estadoTipo) {
+        const map = {
+            'abierto':    ['En Proceso', 'Pendiente'],
+            'en_proceso': ['Pendiente', 'Resuelto'],
+            'pendiente':  ['En Proceso', 'Resuelto'],
+            'resuelto':   ['Cerrado'],
+        };
+        return map[estadoTipo] || [];
+    }
+
     function actualizarTickets() {
         const params = new URLSearchParams(currentFilters);
         fetch(`{{ route('api.mis-tickets') }}?${params}`)
             .then(response => response.json())
             .then(data => {
-                const tbody = document.querySelector('table tbody');
-                if (!tbody) return;
-                tbody.innerHTML = '';
-                data.forEach(ticket => {
-                    const row = document.createElement('tr');
-                    const estadoBadgeClass    = `chip chip-${ticket.estado_tipo}`;
-                    const prioridadBadgeClass = `chip chip-${ticket.prioridad_nivel}`;
-                    const ticketUrl = `/tickets/${ticket.id_ticket}`;
-                    row.innerHTML = `
-                        <td><strong class="text-muted">#${ticket.id_ticket}</strong></td>
-                        <td>
-                            <a href="${ticketUrl}" class="text-decoration-none text-dark fw-bold">${ticket.titulo}</a>
-                            <br><small class="text-muted">${ticket.usuario_nombre}</small>
-                        </td>
-                        <td><span class="${prioridadBadgeClass}">${ticket.prioridad_nombre}</span></td>
-                        <td><span class="${estadoBadgeClass}">${ticket.estado_nombre}</span></td>
-                        <td><small class="text-muted">${ticket.fecha_creacion}</small></td>
-                        <td><small class="text-muted">${ticket.fecha_cierre}</small></td>
-                        <td class="text-center">
-                            <a href="${ticketUrl}" class="btn-gestionar">
-                                <i class="bi bi-eye"></i> Ver
-                            </a>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
+                const container = document.getElementById('tec-cards-container');
+                if (!container) return;
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay tickets que coincidan con los filtros</td></tr>';
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon" style="background:#f0fdf4;"><i class="bi bi-inbox" style="color:#16a34a;"></i></div>
+                            <h6 style="color:#1e293b; font-weight:700;">No hay tickets que coincidan</h6>
+                            <p class="text-muted small mb-0">Prueba con otros filtros.</p>
+                        </div>`;
+                    return;
                 }
+                container.innerHTML = '';
+                data.forEach(ticket => {
+                    const ticketUrl  = `/tickets/${ticket.id_ticket}`;
+                    const siguientes = getSiguientesT(ticket.estado_tipo);
+                    const esTerminal = ['cerrado','cancelado'].includes(ticket.estado_tipo);
+                    const btnEstado  = (!esTerminal && siguientes.length > 0)
+                        ? `<button type="button" class="btn-estado-tec"
+                               data-ticket-id="${ticket.id_ticket}"
+                               data-ticket-titulo="${ticket.titulo.substring(0,50)}"
+                               data-estado-actual="${ticket.estado_nombre}"
+                               data-siguientes='${JSON.stringify(siguientes)}'
+                               onclick="abrirQS(this)">
+                               <i class="bi bi-arrow-repeat"></i> Estado
+                           </button>`
+                        : '';
+                    const card = document.createElement('div');
+                    card.className = 'tec-card-hist';
+                    card.innerHTML = `
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                            <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                                <span class="tec-folio-h">#${ticket.id_ticket}</span>
+                                <a href="${ticketUrl}" class="tec-title-h text-truncate">${ticket.titulo}</a>
+                            </div>
+                            <div class="d-flex gap-1 flex-shrink-0">
+                                <a href="${ticketUrl}" class="btn-ver-th"><i class="bi bi-eye"></i> Ver</a>
+                                ${btnEstado}
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="chip chip-${ticket.estado_tipo}">${ticket.estado_nombre}</span>
+                            <span class="chip chip-${ticket.prioridad_nivel}">${ticket.prioridad_nombre}</span>
+                            <span class="ms-auto text-muted" style="font-size:.78rem;"><i class="bi bi-clock me-1"></i>${ticket.fecha_creacion}</span>
+                            <span class="text-muted" style="font-size:.78rem;"><i class="bi bi-person me-1"></i>${ticket.usuario_nombre}</span>
+                        </div>`;
+                    container.appendChild(card);
+                });
             })
             .catch(error => console.error('Error al actualizar tickets:', error));
     }
