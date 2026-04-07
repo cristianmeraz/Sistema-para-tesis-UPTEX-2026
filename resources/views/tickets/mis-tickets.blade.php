@@ -290,7 +290,6 @@
             'abierto'    => ['En Proceso', 'Pendiente'],
             'en_proceso' => ['Pendiente', 'Resuelto'],
             'pendiente'  => ['En Proceso', 'Resuelto'],
-            'resuelto'   => ['Cerrado'],
             default      => [],
         };
     @endphp
@@ -551,7 +550,6 @@ document.addEventListener('DOMContentLoaded', function() {
             'abierto':    ['En Proceso', 'Pendiente'],
             'en_proceso': ['Pendiente', 'Resuelto'],
             'pendiente':  ['En Proceso', 'Resuelto'],
-            'resuelto':   ['Cerrado'],
         };
         return map[estadoTipo] || [];
     }

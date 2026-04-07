@@ -801,7 +801,6 @@
                                         'abierto'    => ['En Proceso', 'Pendiente'],
                                         'en_proceso' => ['Pendiente', 'Resuelto'],
                                         'pendiente'  => ['En Proceso', 'Resuelto'],
-                                        'resuelto'   => ['Cerrado'],
                                         default      => [],
                                     };
                                     // Opciones que el admin puede ver (basadas en estado actual — nunca retrocede)
