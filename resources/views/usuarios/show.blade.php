@@ -10,7 +10,7 @@
     .page-header {
         background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
         border-radius: 16px;
-        padding: 1.75rem 2rem;
+        padding: 1.5rem 2rem;
         margin-bottom: 1.5rem;
         color: white;
         display: flex;
@@ -20,12 +20,12 @@
         gap: 1rem;
         box-shadow: 0 8px 24px rgba(30,58,95,.25);
     }
-    .page-header-title { font-size: 1.65rem; font-weight: 800; margin: 0; }
-    .page-header-sub   { font-size: .9rem; opacity: .8; margin: .25rem 0 0; }
+    .page-header-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
+    .page-header-sub   { font-size: .85rem; opacity: .8; margin: .2rem 0 0; }
 
     .btn-hdr {
-        padding: .6rem 1.3rem; border-radius: 8px; font-weight: 700;
-        font-size: .88rem; display: inline-flex; align-items: center;
+        padding: .55rem 1.2rem; border-radius: 8px; font-weight: 700;
+        font-size: .85rem; display: inline-flex; align-items: center;
         gap: .4rem; text-decoration: none; transition: all .2s ease;
         border: none; cursor: pointer; white-space: nowrap;
     }
@@ -34,38 +34,37 @@
     .btn-hdr-amber  { background: #f59e0b; color: #1e3a5f; }
     .btn-hdr-amber:hover  { background: #d97706; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245,158,11,.4); }
 
-    /* === PROFILE BANNER === */
-    .profile-banner {
+    /* === PROFILE CARD (compacto, sin banner) === */
+    .profile-card {
         background: white; border: 1px solid #dbeafe; border-radius: 14px;
-        overflow: hidden; margin-bottom: 1.5rem;
-    }
-    .profile-banner-top {
-        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-        padding: 2rem 2rem 3.5rem; position: relative;
-    }
-    .profile-banner-body {
-        padding: 0 2rem 1.5rem; margin-top: -2.5rem;
-        display: flex; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap;
+        padding: 1.5rem 2rem;
+        display: flex; align-items: center; gap: 1.25rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(30,58,95,.06);
     }
 
     /* === AVATAR === */
-    .avatar-xl {
-        width: 80px; height: 80px; border-radius: 50%;
+    .avatar-lg {
+        width: 64px; height: 64px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-weight: 800; color: white; font-size: 2rem;
-        border: 4px solid white; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        font-weight: 800; color: white; font-size: 1.6rem;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,.12);
     }
     .av-admin   { background: linear-gradient(135deg, #1e3a5f, #1d4ed8); }
     .av-tecnico { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
     .av-normal  { background: linear-gradient(135deg, #0891b2, #06b6d4); }
     .av-otro    { background: linear-gradient(135deg, #475569, #64748b); }
 
-    .profile-info { flex: 1; min-width: 0; padding-bottom: .25rem; }
-    .profile-name { font-size: 1.35rem; font-weight: 800; color: #1e293b; margin: 0; }
-    .profile-email { font-size: .9rem; color: #64748b; margin: .15rem 0 0; }
+    .profile-info { flex: 1; min-width: 160px; }
+    .profile-name { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin: 0; line-height: 1.3; }
+    .profile-email { font-size: .85rem; color: #64748b; margin: .15rem 0 0; display: flex; align-items: center; gap: .3rem; }
 
-    .profile-badges { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; padding-bottom: .5rem; }
+    .profile-tags {
+        display: flex; gap: .5rem; flex-wrap: wrap; align-items: center;
+        margin-left: auto;
+    }
 
     /* === ROLE BADGE === */
     .role-badge {
@@ -81,80 +80,84 @@
     /* === STATUS BADGE === */
     .status-badge {
         display: inline-flex; align-items: center; gap: .3rem;
-        padding: .3rem .8rem; border-radius: 8px; font-size: .8rem; font-weight: 700;
+        padding: .3rem .75rem; border-radius: 8px; font-size: .78rem; font-weight: 700;
     }
     .sb-active   { background: #d1fae5; color: #065f46; }
     .sb-inactive { background: #fee2e2; color: #991b1b; }
 
     /* === INFO CARDS === */
-    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem; margin-bottom: 1.5rem;
+    }
 
     .info-card {
         background: white; border: 1px solid #dbeafe; border-radius: 14px;
-        padding: 1.3rem 1.4rem; position: relative; overflow: hidden;
+        padding: 1.2rem 1.3rem; position: relative; overflow: hidden;
     }
     .info-card::before {
         content: ''; position: absolute; top: 0; left: 0; right: 0;
-        height: 3px; background: var(--info-color, #2563eb);
+        height: 3px; background: var(--card-color, #2563eb);
     }
     .info-icon {
-        width: 38px; height: 38px; border-radius: 10px;
+        width: 36px; height: 36px; border-radius: 10px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; margin-bottom: .6rem;
-        background: color-mix(in srgb, var(--info-color, #2563eb) 12%, white);
-        color: var(--info-color, #2563eb);
+        font-size: .95rem; margin-bottom: .5rem;
+        background: color-mix(in srgb, var(--card-color, #2563eb) 12%, white);
+        color: var(--card-color, #2563eb);
     }
-    .info-value { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: .1rem; }
-    .info-label { font-size: .72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
+    .info-label { font-size: .7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .15rem; }
+    .info-value { font-size: .95rem; font-weight: 700; color: #1e293b; }
 
     /* === KPI CARD === */
     .kpi-card {
         background: white; border: 1px solid #dbeafe; border-radius: 14px;
-        padding: 1.3rem 1.4rem; transition: all .3s cubic-bezier(.4,0,.2,1);
-        position: relative; overflow: hidden; height: 100%;
+        padding: 1.2rem 1.3rem; position: relative; overflow: hidden;
+        transition: all .3s cubic-bezier(.4,0,.2,1);
     }
     .kpi-card::before {
         content: ''; position: absolute; top: 0; left: 0; right: 0;
-        height: 3px; background: var(--kpi-color, #2563eb);
+        height: 3px; background: var(--card-color, #2563eb);
     }
-    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(30,58,95,.13); border-color: var(--kpi-color, #2563eb); }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,95,.1); }
     .kpi-icon {
-        width: 38px; height: 38px; border-radius: 10px;
+        width: 36px; height: 36px; border-radius: 10px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1rem;
-        background: color-mix(in srgb, var(--kpi-color, #2563eb) 12%, white);
-        color: var(--kpi-color, #2563eb); margin-bottom: .6rem;
+        font-size: .95rem; margin-bottom: .5rem;
+        background: color-mix(in srgb, var(--card-color, #2563eb) 12%, white);
+        color: var(--card-color, #2563eb);
     }
-    .kpi-value { font-size: 2.1rem; font-weight: 800; color: var(--kpi-color, #2563eb); line-height: 1; margin-bottom: .2rem; }
-    .kpi-label { font-size: .72rem; font-weight: 700; color: #94a3b8; letter-spacing: .05em; }
+    .kpi-value { font-size: 2rem; font-weight: 800; color: var(--card-color, #2563eb); line-height: 1; margin-bottom: .15rem; }
+    .kpi-label { font-size: .7rem; font-weight: 700; color: #94a3b8; letter-spacing: .04em; text-transform: uppercase; }
 
     /* === TABLE === */
     .table-card { background: white; border: 1px solid #dbeafe; border-radius: 14px; overflow: hidden; }
     .table-card-header {
         background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
-        color: white; padding: 1rem 1.5rem;
+        color: white; padding: .9rem 1.5rem;
         display: flex; align-items: center; gap: .6rem;
-        font-weight: 700; font-size: .95rem;
+        font-weight: 700; font-size: .9rem;
     }
     .tbl { width: 100%; margin: 0; border-collapse: collapse; }
     .tbl thead th {
-        background: #f8fafc; padding: .85rem 1rem;
-        font-size: .72rem; font-weight: 700; color: #64748b;
+        background: #f8fafc; padding: .75rem 1rem;
+        font-size: .7rem; font-weight: 700; color: #64748b;
         text-transform: uppercase; letter-spacing: .05em;
         border-bottom: 2px solid #dbeafe; white-space: nowrap;
     }
     .tbl tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .15s; }
     .tbl tbody tr:hover { background: #f8fafc; }
-    .tbl tbody td { padding: .8rem 1rem; font-size: .9rem; vertical-align: middle; }
+    .tbl tbody td { padding: .7rem 1rem; font-size: .88rem; vertical-align: middle; }
     .tbl tbody tr:last-child { border-bottom: none; }
 
-    .ticket-id { font-weight: 800; color: #1d4ed8; }
+    .ticket-id { font-weight: 800; color: #1d4ed8; font-size: .85rem; }
 
     /* === ESTADO CHIPS === */
     .chip-estado {
-        display: inline-flex; align-items: center; gap: .3rem;
-        padding: .3rem .75rem; border-radius: 20px;
-        font-size: .75rem; font-weight: 700;
+        display: inline-flex; align-items: center; gap: .25rem;
+        padding: .25rem .7rem; border-radius: 20px;
+        font-size: .73rem; font-weight: 700;
     }
     .chip-abierto    { background: #dbeafe; color: #1e40af; }
     .chip-en_proceso { background: #fef3c7; color: #92400e; }
@@ -164,23 +167,43 @@
     .chip-cancelado  { background: #fee2e2; color: #991b1b; }
 
     /* === EMPTY STATE === */
-    .empty-state { text-align: center; padding: 3rem 2rem; }
-    .empty-state i { font-size: 3rem; color: #cbd5e1; display: block; margin-bottom: .5rem; }
-    .empty-state p { color: #94a3b8; font-weight: 600; font-size: .9rem; margin: 0; }
+    .empty-state { text-align: center; padding: 2.5rem 1.5rem; }
+    .empty-state i { font-size: 2.5rem; color: #cbd5e1; display: block; margin-bottom: .4rem; }
+    .empty-state p { color: #94a3b8; font-weight: 600; font-size: .88rem; margin: 0; }
 
-    /* === SECTION HEADER === */
-    .section-header {
-        display: flex; align-items: center; gap: .6rem;
-        font-size: .95rem; font-weight: 700; color: #1e3a5f;
-        padding-bottom: .6rem; border-bottom: 2px solid #dbeafe;
-        margin-bottom: 1rem;
+    /* === MOBILE TABLE CARDS === */
+    .mobile-tickets { display: none; }
+    .mob-ticket {
+        background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+        padding: .9rem 1rem; margin-bottom: .6rem;
     }
+    .mob-ticket-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
+    .mob-ticket-title { font-size: .88rem; font-weight: 600; color: #1e293b; margin-bottom: .3rem; line-height: 1.3; }
+    .mob-ticket-date  { font-size: .78rem; color: #94a3b8; }
 
+    /* === RESPONSIVE === */
+    @media(max-width:991px){
+        .info-grid { grid-template-columns: 1fr 1fr; }
+    }
     @media(max-width:768px){
-        .page-header { flex-direction: column; align-items: flex-start; }
-        .profile-banner-body { flex-direction: column; align-items: center; text-align: center; }
-        .profile-badges { justify-content: center; }
+        .page-header { flex-direction: column; align-items: flex-start; padding: 1.25rem 1.5rem; }
+        .page-header-title { font-size: 1.25rem; }
+        .profile-card { flex-direction: column; text-align: center; padding: 1.25rem; gap: 1rem; }
+        .profile-info { min-width: 0; }
+        .profile-email { justify-content: center; }
+        .profile-tags { margin-left: 0; justify-content: center; }
         .info-grid { grid-template-columns: 1fr; }
+        .table-card .table-responsive,
+        .table-card .tbl-wrap { display: none; }
+        .mobile-tickets { display: block; padding: 1rem; }
+    }
+    @media(max-width:480px){
+        .page-header { padding: 1rem 1.2rem; }
+        .page-header-title { font-size: 1.1rem; }
+        .btn-hdr { padding: .5rem 1rem; font-size: .8rem; }
+        .profile-card { padding: 1rem; }
+        .avatar-lg { width: 56px; height: 56px; font-size: 1.4rem; }
+        .profile-name { font-size: 1.05rem; }
     }
 </style>
 
@@ -220,39 +243,36 @@
     </div>
 </div>
 
-{{-- ===== PROFILE BANNER ===== --}}
-<div class="profile-banner">
-    <div class="profile-banner-top"></div>
-    <div class="profile-banner-body">
-        <div class="avatar-xl {{ $avClass }}">{{ $inicial }}</div>
-        <div class="profile-info">
-            <h2 class="profile-name">{{ $usuario['nombre'] }} {{ $usuario['apellido'] }}</h2>
-            <p class="profile-email"><i class="bi bi-envelope me-1"></i>{{ $usuario['correo'] }}</p>
-        </div>
-        <div class="profile-badges">
-            <span class="role-badge {{ $rbClass }}"><i class="bi bi-shield-check"></i> {{ $rolNombre }}</span>
-            @if($usuario['activo'])
-                <span class="status-badge sb-active"><i class="bi bi-check-circle-fill"></i> Activo</span>
-            @else
-                <span class="status-badge sb-inactive"><i class="bi bi-x-circle-fill"></i> Inactivo</span>
-            @endif
-        </div>
+{{-- ===== PROFILE CARD (compacto) ===== --}}
+<div class="profile-card">
+    <div class="avatar-lg {{ $avClass }}">{{ $inicial }}</div>
+    <div class="profile-info">
+        <h2 class="profile-name">{{ $usuario['nombre'] }} {{ $usuario['apellido'] }}</h2>
+        <p class="profile-email"><i class="bi bi-envelope"></i> {{ $usuario['correo'] }}</p>
+    </div>
+    <div class="profile-tags">
+        <span class="role-badge {{ $rbClass }}"><i class="bi bi-shield-check"></i> {{ $rolNombre }}</span>
+        @if($usuario['activo'])
+            <span class="status-badge sb-active"><i class="bi bi-check-circle-fill"></i> Activo</span>
+        @else
+            <span class="status-badge sb-inactive"><i class="bi bi-x-circle-fill"></i> Inactivo</span>
+        @endif
     </div>
 </div>
 
 {{-- ===== INFO + KPI CARDS ===== --}}
 <div class="info-grid">
-    <div class="info-card" style="--info-color:#2563eb;">
+    <div class="info-card" style="--card-color:#2563eb;">
         <div class="info-icon"><i class="bi bi-calendar-event"></i></div>
         <div class="info-label">Fecha de registro</div>
         <div class="info-value">{{ \Carbon\Carbon::parse($usuario['created_at'])->format('d/m/Y H:i') }}</div>
     </div>
-    <div class="info-card" style="--info-color:#8b5cf6;">
+    <div class="info-card" style="--card-color:#8b5cf6;">
         <div class="info-icon"><i class="bi bi-clock-history"></i></div>
         <div class="info-label">Última actualización</div>
         <div class="info-value">{{ \Carbon\Carbon::parse($usuario['updated_at'])->format('d/m/Y H:i') }}</div>
     </div>
-    <div class="kpi-card" style="--kpi-color:{{ $esTecnico ? '#f59e0b' : '#2563eb' }};">
+    <div class="kpi-card" style="--card-color:{{ $esTecnico ? '#f59e0b' : '#2563eb' }};">
         <div class="kpi-icon"><i class="bi bi-{{ $esTecnico ? 'clipboard-check' : 'ticket-perforated' }}"></i></div>
         <div class="kpi-value">{{ $totalTk }}</div>
         <div class="kpi-label">{{ $esTecnico ? 'Tickets Asignados' : 'Tickets Creados' }}</div>
@@ -290,6 +310,20 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    {{-- Mobile: ticket cards (visible < 768px) --}}
+    <div class="mobile-tickets">
+        @foreach(collect($tickets)->take(10) as $ticket)
+        <div class="mob-ticket">
+            <div class="mob-ticket-top">
+                <span class="ticket-id">#{{ $ticket['id_ticket'] ?? 'N/A' }}</span>
+                @php $tipo = $ticket['estado']['tipo'] ?? 'abierto'; @endphp
+                <span class="chip-estado chip-{{ $tipo }}">{{ $ticket['estado']['nombre'] ?? 'N/A' }}</span>
+            </div>
+            <div class="mob-ticket-title">{{ Str::limit($ticket['titulo'] ?? 'N/A', 50) }}</div>
+            <div class="mob-ticket-date"><i class="bi bi-calendar3 me-1"></i>{{ \Carbon\Carbon::parse($ticket['fecha_creacion'] ?? now())->format('d/m/Y') }}</div>
+        </div>
+        @endforeach
     </div>
     @else
     <div class="empty-state">
