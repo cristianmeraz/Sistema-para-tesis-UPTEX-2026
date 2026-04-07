@@ -172,13 +172,23 @@
         gap: .5rem;
     }
     .btn-save:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+    /* ── Password toggle ───────────────── */
+    .pass-wrap { position: relative; }
+    .pass-wrap .field-input { padding-right: 2.8rem; }
+    .pass-toggle-btn {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; color: #94a3b8; cursor: pointer;
+        padding: .25rem; font-size: 1.1rem; line-height: 1;
+    }
+    .pass-toggle-btn:hover { color: #1d4ed8; }
 </style>
 
 {{-- ── CABECERA ──────────────────────────────── --}}
 <div class="page-header">
     <div>
         <h1><i class="bi bi-person-circle" style="margin-right:.5rem;"></i>Mi Perfil</h1>
-        <p>Administra tu informacion personal y contrasena</p>
+        <p>Administra tu información personal y contraseña</p>
     </div>
 </div>
 
@@ -306,19 +316,22 @@
 
                         <hr class="divider">
 
-                        {{-- Cambiar contrasena --}}
+                        {{-- Cambiar contraseña --}}
                         <div class="form-section-title">
-                            <i class="bi bi-lock"></i> Cambiar Contrasena
+                            <i class="bi bi-lock"></i> Cambiar Contraseña
                             <span style="font-size:.78rem; font-weight:400; color:#9ca3af;">(dejar en blanco para no cambiar)</span>
                         </div>
 
                         <div class="row g-3 mb-1">
                             <div class="col-md-6">
-                                <label class="field-label" for="password">Nueva Contrasena</label>
-                                <input type="text"
-                                       class="field-input @error('password') is-invalid @enderror"
-                                       id="password" name="password"
-                                       autocomplete="off" spellcheck="false">
+                                <label class="field-label" for="password">Nueva Contraseña</label>
+                                <div class="pass-wrap">
+                                    <input type="password"
+                                           class="field-input @error('password') is-invalid @enderror"
+                                           id="password" name="password"
+                                           autocomplete="new-password" placeholder="Dejar en blanco para no cambiar">
+                                    <button type="button" class="pass-toggle-btn" onclick="togglePass('password',this)"><i class="bi bi-eye"></i></button>
+                                </div>
                                 <small class="text-muted mt-1 d-block">
                                     <i class="bi bi-info-circle me-1"></i>
                                     Mín. 8 caracteres &middot; Una mayúscula &middot; Un número &middot; Un símbolo (#, @, !, $, %)
@@ -332,11 +345,14 @@
                                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="field-label" for="password_confirmation">Confirmar Contrasena</label>
-                                <input type="text"
-                                       class="field-input"
-                                       id="password_confirmation" name="password_confirmation"
-                                       autocomplete="off" spellcheck="false">
+                                <label class="field-label" for="password_confirmation">Confirmar Contraseña</label>
+                                <div class="pass-wrap">
+                                    <input type="password"
+                                           class="field-input"
+                                           id="password_confirmation" name="password_confirmation"
+                                           autocomplete="new-password" placeholder="Repite la contraseña">
+                                    <button type="button" class="pass-toggle-btn" onclick="togglePass('password_confirmation',this)"><i class="bi bi-eye"></i></button>
+                                </div>
                             </div>
                         </div>
 
@@ -354,16 +370,17 @@
 </div>{{-- /container-fluid --}}
 
 <script>
-    // Convertir campos de texto a password al interactuar
-    const passwordField = document.getElementById('password');
-    const confirmField  = document.getElementById('password_confirmation');
-    [passwordField, confirmField].forEach(field => {
-        ['focus','keydown'].forEach(evt => {
-            field.addEventListener(evt, function() {
-                if (this.type === 'text') this.type = 'password';
-            });
-        });
-    });
+function togglePass(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
 </script>
 
 @endsection
