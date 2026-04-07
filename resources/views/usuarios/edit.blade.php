@@ -131,9 +131,9 @@
     /* === SWITCH === */
     .switch-row {
         display: flex; align-items: center; gap: .6rem;
-        padding: .8rem 1rem; border-radius: 10px;
+        padding: .6rem 1rem; border-radius: 8px;
         background: #f8fafc; border: 1.5px solid #dbeafe;
-        height: 100%;
+        height: 42px; box-sizing: border-box;
     }
     .switch-row .form-check-input { width: 2.5rem; height: 1.25rem; cursor: pointer; }
     .switch-row .form-check-input:checked { background-color: #1d4ed8; border-color: #1d4ed8; }
