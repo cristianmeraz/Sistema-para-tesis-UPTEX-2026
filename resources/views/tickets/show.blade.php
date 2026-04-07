@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Detalle del Ticket #' . $ticket['id_ticket'])
-@section('no_header_title', true)
+
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/comments-v2.css') }}">

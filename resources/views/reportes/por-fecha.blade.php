@@ -1,7 +1,7 @@
 ﻿@extends('layouts.app')
 
 @section('title', 'Reporte por Rango de Fechas')
-@section('no_header_title', true)
+
 
 @section('content')
 <style>

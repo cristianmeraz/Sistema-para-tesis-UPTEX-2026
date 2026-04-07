@@ -106,6 +106,30 @@
             .main-header, .main-content { margin-left: 0; left: 0; }
             .sidebar-overlay.show { display: block !important; }
         }
+
+        /* BREADCRUMBS */
+        .header-breadcrumbs {
+            display: flex; align-items: center; gap: .35rem; flex-wrap: wrap;
+        }
+        .bc-link {
+            font-size: .84rem; color: #64748b; text-decoration: none;
+            display: inline-flex; align-items: center; gap: .3rem;
+            transition: color .15s;
+        }
+        .bc-link:hover { color: #4f46e5; }
+        .bc-sep { font-size: .6rem; color: #cbd5e1; }
+        .bc-current {
+            font-size: .84rem; font-weight: 700; color: #1e293b;
+            display: inline-flex; align-items: center; gap: .3rem;
+        }
+
+        /* HEADER AVATAR */
+        .hdr-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: .85rem; flex-shrink: 0;
+        }
     </style>
     
     @stack('styles')
@@ -207,29 +231,134 @@
         </nav>
     </div>
     
+    @php
+        // ── Auto-breadcrumbs ──────────────────────────────────────────
+        $routeName   = Route::currentRouteName() ?? '';
+        $rolUsuario  = session('usuario_rol', '');
+        $crumbs      = []; // cada item: ['label'=>..., 'url'=>..., 'icon'=>...]
+
+        // Inicio siempre
+        $crumbs[] = ['label' => 'Inicio', 'url' => route('dashboard'), 'icon' => 'bi-house-door'];
+
+        // Mapa de rutas → breadcrumbs
+        if (str_starts_with($routeName, 'usuarios.') || str_starts_with($routeName, 'admin.usuarios.')) {
+            $crumbs[] = ['label' => 'Usuarios', 'url' => route('usuarios.index'), 'icon' => 'bi-people'];
+            if (in_array($routeName, ['admin.usuarios.create','admin.usuarios.store']))
+                $crumbs[] = ['label' => 'Nuevo Usuario', 'url' => null, 'icon' => null];
+            elseif ($routeName === 'usuarios.edit' || $routeName === 'usuarios.update')
+                $crumbs[] = ['label' => 'Editar', 'url' => null, 'icon' => null];
+            elseif ($routeName === 'usuarios.show')
+                $crumbs[] = ['label' => 'Detalle', 'url' => null, 'icon' => null];
+            elseif (str_contains($routeName, 'import'))
+                $crumbs[] = ['label' => 'Importar CSV', 'url' => null, 'icon' => null];
+        } elseif (str_starts_with($routeName, 'admin.tecnicos.')) {
+            $crumbs[] = ['label' => 'Usuarios', 'url' => route('usuarios.index'), 'icon' => 'bi-people'];
+            $crumbs[] = ['label' => 'Nuevo Técnico', 'url' => null, 'icon' => null];
+        } elseif ($routeName === 'tickets.index') {
+            $crumbs[] = ['label' => 'Gestión de Tickets', 'url' => null, 'icon' => 'bi-ticket'];
+        } elseif ($routeName === 'tickets.create') {
+            $crumbs[] = ['label' => 'Crear Ticket', 'url' => null, 'icon' => 'bi-plus-circle'];
+        } elseif ($routeName === 'tickets.show') {
+            $crumbs[] = ['label' => 'Tickets', 'url' => $rolUsuario === 'Administrador' ? route('tickets.index') : route('tickets.mis-tickets'), 'icon' => 'bi-ticket'];
+            $crumbs[] = ['label' => 'Detalle', 'url' => null, 'icon' => null];
+        } elseif ($routeName === 'tickets.edit') {
+            $crumbs[] = ['label' => 'Tickets', 'url' => $rolUsuario === 'Administrador' ? route('tickets.index') : route('tickets.mis-tickets'), 'icon' => 'bi-ticket'];
+            $crumbs[] = ['label' => 'Editar', 'url' => null, 'icon' => null];
+        } elseif ($routeName === 'tickets.mis-tickets') {
+            $crumbs[] = ['label' => 'Mis Tickets', 'url' => null, 'icon' => 'bi-ticket-detailed'];
+        } elseif ($routeName === 'tickets.asignados') {
+            $crumbs[] = ['label' => 'Tickets Asignados', 'url' => null, 'icon' => 'bi-list-task'];
+        } elseif ($routeName === 'tickets.historial') {
+            $crumbs[] = ['label' => 'Historial', 'url' => null, 'icon' => 'bi-clock-history'];
+        } elseif ($routeName === 'tecnicos.ver-ticket') {
+            $crumbs[] = ['label' => 'Historial', 'url' => route('tickets.historial'), 'icon' => 'bi-clock-history'];
+            $crumbs[] = ['label' => 'Ficha Técnica', 'url' => null, 'icon' => null];
+        } elseif ($routeName === 'perfil') {
+            $crumbs[] = ['label' => 'Mi Perfil', 'url' => null, 'icon' => 'bi-person-circle'];
+        } elseif (str_starts_with($routeName, 'reportes.')) {
+            $crumbs[] = ['label' => 'Estadísticas', 'url' => route('reportes.index'), 'icon' => 'bi-bar-chart-line'];
+            if ($routeName === 'reportes.por-fecha')
+                $crumbs[] = ['label' => 'Por Fecha', 'url' => null, 'icon' => null];
+            elseif ($routeName === 'reportes.rendimiento')
+                $crumbs[] = ['label' => 'Rendimiento', 'url' => null, 'icon' => null];
+            elseif ($routeName === 'reportes.encuestas')
+                $crumbs[] = ['label' => 'Encuestas', 'url' => null, 'icon' => null];
+        } elseif ($routeName === 'papelera.index') {
+            $crumbs[] = ['label' => 'Papelera', 'url' => null, 'icon' => 'bi-trash3'];
+        }
+        // dashboard queda solo con "Inicio"
+
+        // Rol badge config
+        $rolBadges = [
+            'Administrador'  => ['bg' => '#1e3a5f', 'icon' => 'bi-shield-fill'],
+            'Técnico'        => ['bg' => '#0369a1', 'icon' => 'bi-tools'],
+            'Usuario Normal' => ['bg' => '#0891b2', 'icon' => 'bi-person-fill'],
+        ];
+        $badge = $rolBadges[$rolUsuario] ?? $rolBadges['Usuario Normal'];
+    @endphp
+
     <header class="main-header">
         <div class="d-flex align-items-center">
             <button class="btn btn-link d-lg-none text-dark p-0 me-3" id="btnToggleSidebar" type="button">
                 <i class="bi bi-list" style="font-size: 2rem;"></i>
             </button>
-            @unless(View::hasSection('no_header_title'))
-            <h5 class="mb-0 d-none d-md-block">@yield('title')</h5>
-            @endunless
+
+            {{-- Breadcrumbs --}}
+            <nav class="header-breadcrumbs d-none d-md-flex">
+                @foreach($crumbs as $i => $crumb)
+                    @if($i > 0)
+                        <span class="bc-sep"><i class="bi bi-chevron-right"></i></span>
+                    @endif
+                    @if($crumb['url'] && $i < count($crumbs) - 1)
+                        <a href="{{ $crumb['url'] }}" class="bc-link">
+                            @if($crumb['icon'])<i class="{{ $crumb['icon'] }}"></i>@endif
+                            {{ $crumb['label'] }}
+                        </a>
+                    @else
+                        <span class="bc-current">
+                            @if($crumb['icon'])<i class="{{ $crumb['icon'] }}"></i>@endif
+                            {{ $crumb['label'] }}
+                        </span>
+                    @endif
+                @endforeach
+            </nav>
+
+            {{-- Mobile: solo último crumb --}}
+            <span class="d-md-none fw-bold text-dark" style="font-size:.9rem;">
+                @if(!empty($crumbs))
+                    @php $last = end($crumbs); @endphp
+                    @if($last['icon'])<i class="{{ $last['icon'] }} me-1"></i>@endif{{ $last['label'] }}
+                @endif
+            </span>
         </div>
         
         <div class="user-menu dropdown">
-            <div class="d-flex align-items-center" data-bs-toggle="dropdown" style="cursor: pointer;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px;">
-                    {{ strtoupper(substr(session('usuario_nombre'), 0, 1)) }}
+            <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor:pointer;">
+                <div class="hdr-avatar">
+                    {{ strtoupper(substr(session('usuario_nombre','U'), 0, 1)) }}
                 </div>
-                <span class="d-none d-sm-inline">{{ session('usuario_nombre') }}</span>
-                <i class="bi bi-chevron-down ms-1"></i>
+                <div class="d-none d-sm-block" style="line-height:1.15;">
+                    <span style="font-weight:600; font-size:.88rem; color:#1e293b;">{{ session('usuario_nombre') }}</span>
+                    <span class="d-block" style="font-size:.7rem; color:#94a3b8;">{{ $rolUsuario }}</span>
+                </div>
+                <i class="bi bi-chevron-down" style="font-size:.7rem; color:#94a3b8;"></i>
             </div>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                <li><a class="dropdown-item" href="{{ route('perfil') }}"><i class="bi bi-person me-2"></i> Mi Perfil</a></li>
-                <li><hr class="dropdown-divider"></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width:220px; border-radius:12px; padding:.5rem;">
+                <li style="padding:.6rem .9rem .5rem; border-bottom:1px solid #f1f5f9;">
+                    <div style="font-weight:700; font-size:.9rem; color:#1e293b;">{{ session('usuario_nombre') }} {{ session('usuario_apellido','') }}</div>
+                    <span class="d-inline-flex align-items-center gap-1 mt-1" style="font-size:.72rem; font-weight:600; color:{{ $badge['bg'] }}; background:{{ $badge['bg'] }}18; padding:.2rem .6rem; border-radius:20px;">
+                        <i class="{{ $badge['icon'] }}"></i> {{ $rolUsuario }}
+                    </span>
+                </li>
+                <li class="mt-1">
+                    <a class="dropdown-item rounded-2 d-flex align-items-center gap-2" href="{{ route('perfil') }}" style="padding:.55rem .9rem; font-size:.88rem;">
+                        <i class="bi bi-person-circle" style="font-size:1.05rem; color:#4f46e5;"></i> Mi Perfil
+                    </a>
+                </li>
                 <li>
-                    <a href="{{ route('logout.get') }}" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a>
+                    <a class="dropdown-item rounded-2 d-flex align-items-center gap-2 text-danger" href="{{ route('logout.get') }}" style="padding:.55rem .9rem; font-size:.88rem;">
+                        <i class="bi bi-box-arrow-right" style="font-size:1.05rem;"></i> Cerrar Sesión
+                    </a>
                 </li>
             </ul>
         </div>

@@ -1,7 +1,6 @@
 ﻿@extends('layouts.app')
 
 @section('title', 'Rendimiento de Técnicos')
-@section('no_header_title', true)
 
 @section('content')
 <style>

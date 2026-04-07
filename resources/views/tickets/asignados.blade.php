@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Panel del Técnico')
-@section('no_header_title', true)
+
 
 @section('content')
 <style>

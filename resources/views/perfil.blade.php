@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Mi Perfil')
-@section('no_header_title', true)
 
 @section('content')
 

@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Mi Dashboard')
-@section('no_header_title', true)
 
 @section('content')
 @php
