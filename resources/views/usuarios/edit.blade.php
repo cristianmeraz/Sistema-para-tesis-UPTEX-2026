@@ -118,11 +118,22 @@
     }
     .field-select:focus { border-color: #1d4ed8; outline: none; box-shadow: 0 0 0 3px rgba(29,78,216,.1); background: white; }
 
+    /* === PASSWORD TOGGLE === */
+    .pass-wrap { position: relative; }
+    .pass-wrap .field-input { padding-right: 2.8rem; }
+    .pass-toggle-btn {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; color: #94a3b8; cursor: pointer;
+        padding: .25rem; font-size: 1.1rem; line-height: 1;
+    }
+    .pass-toggle-btn:hover { color: #1d4ed8; }
+
     /* === SWITCH === */
     .switch-row {
         display: flex; align-items: center; gap: .6rem;
         padding: .8rem 1rem; border-radius: 10px;
         background: #f8fafc; border: 1.5px solid #dbeafe;
+        height: 100%;
     }
     .switch-row .form-check-input { width: 2.5rem; height: 1.25rem; cursor: pointer; }
     .switch-row .form-check-input:checked { background-color: #1d4ed8; border-color: #1d4ed8; }
@@ -268,9 +279,12 @@
             <div class="field-row">
                 <div class="field">
                     <label for="password" class="field-label">Nueva Contraseña</label>
-                    <input type="password" class="field-input @error('password') is-invalid @enderror"
-                           id="password" name="password"
-                           placeholder="Dejar en blanco para no cambiar">
+                    <div class="pass-wrap">
+                        <input type="password" class="field-input @error('password') is-invalid @enderror"
+                               id="password" name="password"
+                               placeholder="Dejar en blanco para no cambiar">
+                        <button type="button" class="pass-toggle-btn" onclick="togglePass('password', this)"><i class="bi bi-eye"></i></button>
+                    </div>
                     <div class="field-hint">
                         <i class="bi bi-info-circle"></i>
                         Mín. 8 caracteres · Mayúscula · Número · Símbolo (#, @, !, $, %)
@@ -279,9 +293,12 @@
                 </div>
                 <div class="field">
                     <label for="password_confirmation" class="field-label">Confirmar Contraseña</label>
-                    <input type="password" class="field-input"
-                           id="password_confirmation" name="password_confirmation"
-                           placeholder="Repite la nueva contraseña">
+                    <div class="pass-wrap">
+                        <input type="password" class="field-input"
+                               id="password_confirmation" name="password_confirmation"
+                               placeholder="Repite la nueva contraseña">
+                        <button type="button" class="pass-toggle-btn" onclick="togglePass('password_confirmation', this)"><i class="bi bi-eye"></i></button>
+                    </div>
                     <div class="field-hint">Solo si cambias la contraseña</div>
                 </div>
             </div>
@@ -303,8 +320,9 @@
                     </select>
                     @error('id_rol')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="field" style="display:flex; align-items:flex-end;">
-                    <div class="switch-row" style="width:100%;">
+                <div class="field">
+                    <label class="field-label">&nbsp;</label>
+                    <div class="switch-row">
                         <input class="form-check-input" type="checkbox"
                                id="activo" name="activo" value="1"
                                {{ old('activo', $usuario['activo']) ? 'checked' : '' }}>
@@ -341,4 +359,18 @@
         </form>
     </div>
 </div>
+
+<script>
+function togglePass(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 @endsection

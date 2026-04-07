@@ -273,14 +273,16 @@
                         <label for="correo">Correo Electrónico</label>
                     </div>
                     
-                    <div class="form-floating">
+                    <div class="form-floating" style="position:relative;">
                         <input type="password" 
                                class="form-control @error('password') is-invalid @enderror" 
                                id="password" 
                                name="password" 
                                placeholder="Contraseña"
+                               style="padding-right:2.8rem;"
                                required>
                         <label for="password">Contraseña</label>
+                        <button type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94A3B8;cursor:pointer;z-index:5;font-size:1.1rem;" onclick="togglePass('password',this)"><i class="bi bi-eye"></i></button>
                     </div>
                     
                     <div class="form-check mb-3">
@@ -306,5 +308,18 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function togglePass(id, btn) {
+        const input = document.getElementById(id);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+    </script>
 </body>
 </html>

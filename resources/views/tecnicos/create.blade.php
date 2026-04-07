@@ -53,7 +53,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-muted text-uppercase">Contraseña:</label>
-                                <input type="password" name="password" class="form-control bg-light border-0 py-2 @error('password') is-invalid @enderror" required placeholder="Mínimo 8 caracteres">
+                                <div style="position:relative;">
+                                    <input type="password" name="password" id="password" class="form-control bg-light border-0 py-2 @error('password') is-invalid @enderror" required placeholder="Mínimo 8 caracteres" style="padding-right:2.8rem;">
+                                    <button type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94A3B8;cursor:pointer;font-size:1.1rem;" onclick="togglePass('password',this)"><i class="bi bi-eye"></i></button>
+                                </div>
                                 <small class="text-muted mt-1 d-block">
                                     <i class="bi bi-info-circle me-1"></i>
                                     Mín. 8 caracteres &middot; Una mayúscula &middot; Un número &middot; Un símbolo (#, @, !, $, %)
@@ -62,7 +65,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-muted text-uppercase">Confirmar Contraseña:</label>
-                                <input type="password" name="password_confirmation" class="form-control bg-light border-0 py-2" required placeholder="Repite la contraseña">
+                                <div style="position:relative;">
+                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control bg-light border-0 py-2" required placeholder="Repite la contraseña" style="padding-right:2.8rem;">
+                                    <button type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94A3B8;cursor:pointer;font-size:1.1rem;" onclick="togglePass('password_confirmation',this)"><i class="bi bi-eye"></i></button>
+                                </div>
                             </div>
                         </div>
 
@@ -77,4 +83,18 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePass(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 @endsection
