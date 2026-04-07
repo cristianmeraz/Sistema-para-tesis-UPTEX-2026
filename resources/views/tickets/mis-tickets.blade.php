@@ -160,8 +160,7 @@
     .chip-cerrado    { background:#f1f5f9; color:#475569; }
     .chip-baja       { background:#dcfce7; color:#15803d; }
     .chip-media      { background:#fef9c3; color:#854d0e; }
-    .chip-alta       { background:#ffedd5; color:#9a3412; }
-    .chip-alta    { background:#fee2e2; color:#dc2626; }
+    .chip-alta       { background:#fee2e2; color:#dc2626; }
 
     /* ══════ BOTONES ACCIÓN ══════ */
     .btn-gestionar { background:linear-gradient(135deg,#15803d,#16a34a); color:#fff; border:none; border-radius:8px; padding:.38rem .85rem; font-size:.82rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:.35rem; transition:filter .18s, transform .18s; box-shadow:0 3px 10px rgba(22,163,74,.28); }
