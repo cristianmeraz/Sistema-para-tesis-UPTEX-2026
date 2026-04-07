@@ -622,8 +622,11 @@
                 </div>
 
                 {{-- BOTÓN PRINCIPAL --}}
-                @php $estadoTerminal = in_array($ticket['estado']['tipo'] ?? '', ['cerrado', 'cancelado']); @endphp
-                @if(($esTecnico || $esAdmin) && !$estadoTerminal)
+                @php
+                    $estadoTerminal = in_array($ticket['estado']['tipo'] ?? '', ['cerrado', 'cancelado']);
+                    $tecnicoSinOpciones = $esTecnico && in_array($ticket['estado']['tipo'] ?? '', ['resuelto', 'cerrado', 'cancelado']);
+                @endphp
+                @if(($esTecnico || $esAdmin) && !$estadoTerminal && !$tecnicoSinOpciones)
                     <button type="button"
                             class="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center gap-2"
                             style="background: {{ $colorActual }}; color:white; border:none; border-radius:12px; font-size:1rem; box-shadow: 0 6px 18px color-mix(in srgb, {{ $colorActual }} 40%, transparent); transition: filter .2s, transform .15s;"
@@ -633,6 +636,10 @@
                         <i class="bi {{ $esTecnico ? 'bi-check-circle-fill' : 'bi-shield-lock-fill' }}" style="font-size:1.1rem;"></i>
                         {{ $esTecnico ? 'Actualizar Estado' : 'Modificar Estado' }}
                     </button>
+                @elseif($tecnicoSinOpciones)
+                    <div class="text-center p-3 rounded-3" style="background:#f0fdf4; border:1.5px solid #bbf7d0; font-size:.85rem; color:#15803d;">
+                        <i class="bi bi-check-circle-fill me-1"></i>Ticket resuelto — en espera de cierre por administrador
+                    </div>
                 @elseif($estadoTerminal)
                     <div class="text-center p-3 rounded-3" style="background:#f1f5f9; border:1.5px solid #e2e8f0; font-size:.85rem; color:#64748b;">
                         <i class="bi bi-lock-fill me-1"></i>Ticket {{ $ticket['estado']['nombre'] }} — sin más cambios
