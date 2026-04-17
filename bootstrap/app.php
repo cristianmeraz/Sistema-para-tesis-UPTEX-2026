@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'web.auth'    => \App\Http\Middleware\WebAuth::class,
             'web.admin'   => \App\Http\Middleware\WebAdmin::class,
             'web.tecnico' => \App\Http\Middleware\WebTecnico::class,
+            'role'        => \App\Http\Middleware\CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

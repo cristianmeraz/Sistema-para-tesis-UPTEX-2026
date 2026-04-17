@@ -91,15 +91,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/exportar-csv', [ReporteController::class, 'exportarCSV']);
         });
     });
-
-    // Test
-    Route::get('/test-auth', function (Request $request) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Autenticación exitosa',
-            'user' => $request->user()->nombre_completo,
-        ]);
-    });
 });
 
 // Health check

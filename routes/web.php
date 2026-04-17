@@ -33,13 +33,12 @@ Route::middleware('web.auth')->group(function () {
     
     Route::get('/dashboard', [WebController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [WebController::class, 'logout'])->name('logout');
-    Route::get('/cerrar-sesion', [WebController::class, 'logout'])->name('logout.get');
     Route::get('/perfil', [WebController::class, 'perfil'])->name('perfil');
     Route::put('/perfil', [WebController::class, 'updatePerfil'])->name('perfil.update');
     
     // ===== ENDPOINTS WEB-API PARA COMENTARIOS (CRUD) =====
     // IMPORTANTE: Prefijo /w/ en vez de /api/ para evitar conflicto con rutas Sanctum de api.php
-    // ✅ FIX A-13: Rate limiting (60 req/min) en endpoints /w/
+    //  FIX A-13: Rate limiting (60 req/min) en endpoints /w/
     Route::middleware('throttle:60,1')->group(function () {
         Route::get('/w/contadores', [TicketWebController::class, 'apiContadores'])->name('api.contadores');
         Route::get('/w/mis-tickets', [TicketWebController::class, 'apiMisTickets'])->name('api.mis-tickets');
@@ -53,7 +52,7 @@ Route::middleware('web.auth')->group(function () {
     // GESTIÓN DE TICKETS
     // Se excluye 'index': el Admin usa /admin/ver-tickets (protegido por web.admin)
     // Los técnicos usan /tickets-asignados; usuarios normales usan /mis-tickets
-    // ✅ FIX U-6: Rate limiting en store() — máx 10 tickets por minuto por IP
+    // FIX U-6: Rate limiting en store() — máx 10 tickets por minuto por IP
     Route::middleware('throttle:10,1')->group(function () {
         Route::post('/tickets', [TicketWebController::class, 'store'])->name('tickets.store');
     });

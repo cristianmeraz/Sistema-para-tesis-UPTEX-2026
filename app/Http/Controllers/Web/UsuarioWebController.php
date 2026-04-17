@@ -128,6 +128,7 @@ class UsuarioWebController extends Controller
         ]);
 
         // Solo actualizar campos permitidos explicitamente (no $request->all())
+        $rolAnterior = $u->id_rol;
         $u->nombre   = $request->nombre;
         $u->apellido = $request->apellido;
         $u->correo   = $request->correo;
@@ -142,6 +143,11 @@ class UsuarioWebController extends Controller
             $u->password = Hash::make($request->password);
         }
         $u->save();
+
+        // Si el rol cambió, forzar re-verificación de sesión en el próximo request del usuario
+        if ((int)$request->id_rol !== (int)$rolAnterior) {
+            Cache::put('force_auth_check_' . $u->id_usuario, true, 600);
+        }
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado correctamente.');
     }

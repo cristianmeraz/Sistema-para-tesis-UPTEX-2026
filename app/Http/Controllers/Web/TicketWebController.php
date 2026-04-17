@@ -508,20 +508,11 @@ class TicketWebController extends Controller
                     'abierto'    => ['en_proceso', 'pendiente'],
                     'en_proceso' => ['pendiente', 'resuelto'],
                     'pendiente'  => ['en_proceso', 'resuelto'],
-                    'resuelto'   => ['cerrado'],
                 ];
                 $permitidosTecnico = $transicionesTecnico[$estadoActualTipo] ?? [];
                 if (!in_array($estadoNuevoTipo, $permitidosTecnico)) {
                     return redirect()->route('tickets.show', $id)
                         ->with('error', "Transición no permitida: no puedes pasar de '{$estadoActualTipo}' a '{$estadoNuevoTipo}'.");
-                }
-            }
-
-            // Restricción Admin: solo puede cambiar a Cerrado
-            if (str_contains($rol, 'Administrador')) {
-                if ($estadoNuevoTipo !== 'cerrado') {
-                    return redirect()->route('tickets.show', $id)
-                        ->with('error', 'Los administradores solo pueden cambiar el estado a Cerrado.');
                 }
             }
 

@@ -356,9 +356,12 @@
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item rounded-2 d-flex align-items-center gap-2 text-danger" href="{{ route('logout.get') }}" style="padding:.55rem .9rem; font-size:.88rem;">
-                        <i class="bi bi-box-arrow-right" style="font-size:1.05rem;"></i> Cerrar Sesión
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+                        @csrf
+                        <button type="submit" class="dropdown-item rounded-2 d-flex align-items-center gap-2 text-danger" style="padding:.55rem .9rem; font-size:.88rem; background:none; border:none; width:100%; cursor:pointer;">
+                            <i class="bi bi-box-arrow-right" style="font-size:1.05rem;"></i> Cerrar Sesión
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>
