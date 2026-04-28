@@ -158,6 +158,12 @@ class UsuarioWebController extends Controller
     public function toggleActivo($id)
     {
         $u = Usuario::findOrFail($id);
+
+        // No permitir que el administrador se desactive a sí mismo
+        if ($u->id_usuario == session('usuario_id')) {
+            return back()->with('error', 'No puedes desactivar tu propia cuenta.');
+        }
+
         $estabaInactivo = !$u->activo;
         $u->activo = !$u->activo;
         $u->save();
