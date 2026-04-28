@@ -112,6 +112,12 @@ class UsuarioWebController extends Controller
     {
         $u = Usuario::findOrFail($id);
 
+        // Protección: el administrador no puede cambiar su propio rol
+        if ((int)$u->id_usuario === (int)session('usuario_id') &&
+            (int)$request->id_rol !== (int)$u->id_rol) {
+            return back()->with('error', 'No puedes cambiar tu propio rol.')->withInput();
+        }
+
         $request->validate([
             'nombre'   => 'required|string|max:100',
             'apellido' => 'nullable|string|max:100',
@@ -168,7 +174,7 @@ class UsuarioWebController extends Controller
         $u->activo = !$u->activo;
         $u->save();
 
-        // ✅ FIX A-10: Forzar re-verificación de sesión si el usuario fue desactivado
+        // Forzar re-verificación de sesión si el usuario fue desactivado
         if (!$u->activo) {
             Cache::put('force_auth_check_' . $u->id_usuario, true, 600);
         }
@@ -223,7 +229,7 @@ class UsuarioWebController extends Controller
         }
     }
 
-    // --- LAS SIGUIENTES 4 FUNCIONES SON LAS QUE ARREGLAN LOS BOTONES DE CREACIÓN ---
+    // LAS SIGUIENTES 4 FUNCIONES SON LAS QUE ARREGLAN LOS BOTONES DE CREACIÓN
 
     /**
      * Vista para crear Usuario Normal
@@ -268,7 +274,7 @@ class UsuarioWebController extends Controller
             'apellido' => trim($request->apellido),
             'correo'   => strtolower(trim($request->correo)),
             'password' => Hash::make($request->password),
-            'id_rol'   => Rol::where('nombre', 'like', 'Usuario%')->value('id_rol') ?? 3, // ✅ FIX A-11
+            'id_rol'   => Rol::where('nombre', 'like', 'Usuario%')->value('id_rol') ?? 3, //  FIX A-11
             'area_id'  => $request->area_id ?: null,
             'activo'   => true,
         ]);
@@ -317,17 +323,17 @@ class UsuarioWebController extends Controller
             'apellido' => trim($request->apellido),
             'correo'   => strtolower(trim($request->correo)),
             'password' => Hash::make($request->password),
-            'id_rol'   => Rol::where('nombre', 'Técnico')->value('id_rol') ?? 2, // ✅ FIX A-11
+            'id_rol'   => Rol::where('nombre', 'Técnico')->value('id_rol') ?? 2, //  FIX A-11
             'activo'   => true,
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Técnico creado correctamente.');
     }
 
-    // ════════════════════════════════════════════════════════════════════
+    // 
     // IMPORTADOR CSV DE USUARIOS
     // Columnas esperadas: nombre,apellido,correo,password,area_id
-    // ════════════════════════════════════════════════════════════════════
+    // 
 
     public function importForm()
     {

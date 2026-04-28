@@ -307,10 +307,12 @@
             <div class="form-section"><i class="bi bi-gear"></i> Rol y Estado</div>
 
             <div class="field-row">
+@php $esMiPerfil = (int)session('usuario_id') === (int)$usuario['id_usuario']; @endphp
                 <div class="field">
                     <label for="id_rol" class="field-label">Rol <span class="req">*</span></label>
                     <select class="field-select @error('id_rol') is-invalid @enderror"
-                            id="id_rol" name="id_rol" required>
+                            id="id_rol" name="id_rol" required
+                            {{ $esMiPerfil ? 'disabled' : '' }}>
                         @foreach($roles ?? [] as $rol)
                         <option value="{{ $rol['id_rol'] }}"
                                 {{ (old('id_rol', $usuario['rol']['id_rol']) == $rol['id_rol']) ? 'selected' : '' }}>
@@ -318,6 +320,10 @@
                         </option>
                         @endforeach
                     </select>
+                    @if($esMiPerfil)
+                        <input type="hidden" name="id_rol" value="{{ $usuario['rol']['id_rol'] }}">
+                        <small style="color:#6b7280;font-size:0.78rem;"><i class="bi bi-lock-fill"></i> No puedes cambiar tu propio rol.</small>
+                    @endif
                     @error('id_rol')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
@@ -325,9 +331,13 @@
                     <div class="switch-row">
                         <input class="form-check-input" type="checkbox"
                                id="activo" name="activo" value="1"
-                               {{ old('activo', $usuario['activo']) ? 'checked' : '' }}>
+                               {{ old('activo', $usuario['activo']) ? 'checked' : '' }}
+                               {{ $esMiPerfil ? 'disabled' : '' }}>
                         <label class="switch-label" for="activo">Usuario activo</label>
                     </div>
+                    @if($esMiPerfil)
+                        <small style="color:#6b7280;font-size:0.78rem;"><i class="bi bi-lock-fill"></i> No puedes desactivarte a ti mismo.</small>
+                    @endif
                 </div>
             </div>
 
